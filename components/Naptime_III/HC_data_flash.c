@@ -1,0 +1,275 @@
+#include "HC_data_flash.h"
+#include "SEGGER_RTT_Conf.h"
+#include "SEGGER_RTT.h"
+#include "app_error.h"
+#include "ble_com.h"
+#include "protocol_analysis.h"
+
+//全局变量
+uint8_t User_ID[4]={0}; 
+uint8_t device_id_receive[16] = {0};
+uint8_t device_sn_receive[16] = {0};
+uint8_t device_id_sn[32] = {0};
+
+pstorage_handle_t block_flash;
+static uint8_t pstorage_wait_flag = 0;
+
+extern bool Is_white_adv;
+extern bool Is_device_bond;
+extern void power_manage(void);
+
+extern ble_com_t               m_com;                                     /**< Structure to identify the Nordic UART Service. */
+
+void flash_callback(pstorage_handle_t * handle,uint8_t op_code,uint32_t result,uint8_t * p_data, uint32_t data_len)
+{
+	switch(op_code)
+	{
+		case PSTORAGE_STORE_OP_CODE:
+		if (result == NRF_SUCCESS)
+		{
+			  pstorage_wait_flag = 0;
+		}
+		else
+		{
+			// Update operation failed.
+		}
+		break;
+		
+		case PSTORAGE_LOAD_OP_CODE:
+		if (result == NRF_SUCCESS)
+		{
+			  pstorage_wait_flag = 0;
+		}
+		else
+		{
+			// Update operation failed.
+		}
+		break;
+
+		case PSTORAGE_CLEAR_OP_CODE:
+		if (result == NRF_SUCCESS)
+		{
+			  pstorage_wait_flag = 0;
+		}
+		else
+		{
+			// Update operation failed.
+		}
+		break;
+
+		case PSTORAGE_UPDATE_OP_CODE:
+		if (result == NRF_SUCCESS)
+		{
+			  pstorage_wait_flag = 0;
+		}
+		else
+		{
+			// Update operation failed.
+		}
+		break;
+	}
+}
+
+void flash_init(void)
+{
+	 uint32_t err_code;
+	
+	 pstorage_module_param_t module_param;
+	
+	 err_code = pstorage_init();    //初始化flash
+   APP_ERROR_CHECK(err_code);
+	
+   module_param.block_count = 3;
+   module_param.block_size = 16; 
+   //0---User_id
+	 //1---Device_id+SN
+	 //2---SN
+	 
+	 module_param.cb = flash_callback;// //操作回调
+	
+   err_code =pstorage_register(&module_param, &block_flash);//注册申请
+	 APP_ERROR_CHECK(err_code);
+}
+
+void Read_User_ID(void)
+{
+		 pstorage_handle_t Flash_User_ID;
+     uint8_t User[4] = {0};                 
+		 SEGGER_RTT_printf(0,">>[FLASH]: Read_User_ID \r\n");
+
+     pstorage_block_identifier_get(&block_flash, 0, &Flash_User_ID);
+		  
+		 pstorage_wait_flag = 1;                            //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_load(User, &Flash_User_ID, 4, 0);         //读取块内数据
+		 while(pstorage_wait_flag) { power_manage(); }      //Sleep until load operation is finished.
+		 
+		 SEGGER_RTT_printf(0,"User_ID:%x",User[0]);
+		 SEGGER_RTT_printf(0,"%x",User[1]);
+		 SEGGER_RTT_printf(0,"%x",User[2]);
+		 SEGGER_RTT_printf(0,"%x\r\n",User[3]);	
+     memcpy(User_ID,User, 4);
+		 
+		 if(User_ID[0] == 0xff && User_ID[1] == 0xff && User_ID[2] == 0xff && User_ID[3] == 0xff)
+		 {
+		  	Is_device_bond = false;
+			  Is_white_adv = false;
+			  SEGGER_RTT_printf(0,"device_Is_no_bond\r\n");
+		 }
+	 	 else
+		 {
+			  Is_device_bond = true;
+			  Is_white_adv = true;
+			 	SEGGER_RTT_printf(0,"device_Is_bond\r\n");
+		 }
+		 SEGGER_RTT_printf(0,"<<[FLASH]: Read_User_ID \r\n\n");
+}
+
+void Story_User_ID(void)
+{
+		 SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_User_ID \r\n");
+
+     uint8_t ID_buff[4] = {0};
+	   pstorage_handle_t Flash_User_ID;
+     memcpy(ID_buff,User_ID, 4);
+
+     pstorage_block_identifier_get(&block_flash, 0, &Flash_User_ID);
+		 
+		 pstorage_wait_flag = 1;                                    //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_clear(&Flash_User_ID, 16);
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until clear operation is finished.
+
+		 pstorage_wait_flag = 1;                                    //Set the wait flag. Cleared in the example_cb_handler
+		 pstorage_update(&Flash_User_ID, ID_buff, 4, 0);
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until update operation is finished.
+
+     memset(ID_buff, 0, sizeof(ID_buff));	 
+		 
+		 pstorage_wait_flag = 1;                     //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_load(ID_buff, &Flash_User_ID, 4, 0);       //读取块内数据	 
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until load operation is finished.
+
+		 SEGGER_RTT_printf(0,"New_User_ID:%x",ID_buff[0]);
+		 SEGGER_RTT_printf(0,"%x",ID_buff[1]);
+		 SEGGER_RTT_printf(0,"%x",ID_buff[2]);
+		 SEGGER_RTT_printf(0,"%x\r\n",ID_buff[3]);		
+		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_User_ID \r\n\n");
+}
+
+void Story_Device_ID(void)
+{
+	   uint32_t err_code;
+	   SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_Device_ID \r\n");
+
+	   uint8_t device_id[16] = {0};
+	   uint8_t senddata[17] = {0};
+	   pstorage_handle_t device_ID;
+     memcpy(device_id,device_id_receive, 16);
+
+     pstorage_block_identifier_get(&block_flash, 1, &device_ID);
+		 
+		 pstorage_wait_flag = 1;                                    //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_clear(&device_ID, 16);
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until clear operation is finished.
+
+		 pstorage_wait_flag = 1;                                    //Set the wait flag. Cleared in the example_cb_handler
+		 pstorage_update(&device_ID, device_id, 16, 0);
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until update operation is finished.
+		 
+     memset(device_id, 0, sizeof(device_id));	 
+		 
+		 pstorage_wait_flag = 1;                            //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_load(device_id, &device_ID, 16, 0);       //读取块内数据	 
+		 while(pstorage_wait_flag) { power_manage(); }      //Sleep until load operation is finished.
+		 
+	   senddata[0] = Nap_App_send_deviceid;
+	   memcpy(senddata+1,device_id, 16);
+	   err_code = ble_com_string_send(&m_com, senddata , 17);
+		 APP_ERROR_CHECK(err_code);
+		 
+		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_Device_ID \r\n\n");
+}
+
+void Story_SN(void)
+{
+	   uint32_t err_code;
+	   SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_SN \r\n");
+	
+	   uint8_t senddata[17] = {0};
+	   uint8_t SN_buff[16] = {0};
+	   pstorage_handle_t Flash_SN;
+     memcpy(SN_buff,device_sn_receive, 16);
+
+     pstorage_block_identifier_get(&block_flash, 2, &Flash_SN);
+		 
+		 pstorage_wait_flag = 1;                                    //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_clear(&Flash_SN, 16);
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until clear operation is finished.
+
+		 pstorage_wait_flag = 1;                                    //Set the wait flag. Cleared in the example_cb_handler
+		 pstorage_update(&Flash_SN, SN_buff, 16, 0);
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until update operation is finished.
+		 
+     memset(SN_buff, 0, sizeof(SN_buff));	 
+		 
+		 pstorage_wait_flag = 1;                           //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_load(SN_buff, &Flash_SN, 16, 0);       //读取块内数据	 
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until load operation is finished.
+		 
+	   senddata[0] = Nap_App_send_SN;
+	   memcpy(senddata+1,SN_buff, 16);
+	   err_code = ble_com_string_send(&m_com, senddata , 17);
+		 APP_ERROR_CHECK(err_code);
+		 
+		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_SN \r\n\n");
+}
+
+void Read_device_id_sn(void)
+{
+		 SEGGER_RTT_printf(0,">>[FLASH]: Read_device_id_sn \r\n");
+		 pstorage_handle_t device_ID;
+		 pstorage_handle_t SN;
+     uint8_t device_id_info[16] = {0};             
+     uint8_t device_sn_info[16] = {0};            
+
+     pstorage_block_identifier_get(&block_flash, 1, &device_ID);
+     pstorage_block_identifier_get(&block_flash, 2, &SN);
+		 
+		 pstorage_wait_flag = 1;                           //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_load(device_id_info, &device_ID, 16, 0);       //读取块内数据	 
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until load operation is finished.
+		 
+		 pstorage_wait_flag = 1;                           //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_load(device_sn_info, &SN, 16, 0);            //读取块内数据	 
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until load operation is finished.
+		 
+     memcpy(device_id_sn,device_id_info, 16);
+		 memcpy(device_id_sn+16,device_sn_info, 16);
+		 SEGGER_RTT_printf(0,"<<[FLASH]: Read_device_id_sn \r\n\n");
+}
+
+void delete_User_id(void)
+{
+	   uint32_t err_code;
+	   SEGGER_RTT_printf(0,"\n>>[FLASH]: delete_User_id \r\n");
+
+	   uint8_t senddata[5] = {0};
+	   uint8_t userid_buff[4] = {0};
+	   pstorage_handle_t Flash_User_ID;
+	
+     pstorage_block_identifier_get(&block_flash, 0, &Flash_User_ID);
+		 
+		 pstorage_wait_flag = 1;                                    //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_clear(&Flash_User_ID, 16);
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until clear operation is finished.
+
+		 pstorage_wait_flag = 1;                           //Set the wait flag. Cleared in the example_cb_handler
+     pstorage_load(userid_buff, &Flash_User_ID, 4, 0);       //读取块内数据	 
+		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until load operation is finished.
+		 
+	   senddata[0] = Nap_App_send_userid;
+	   memcpy(senddata+1,userid_buff, 4);
+	   err_code = ble_com_string_send(&m_com, senddata , 5);
+		 APP_ERROR_CHECK(err_code);
+		 
+		 SEGGER_RTT_printf(0,"<<[FLASH]: delete_User_id \r\n\n"); 
+}
