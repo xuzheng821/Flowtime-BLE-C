@@ -90,15 +90,7 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 			 case App_Nap_Poweroff: 
 						sleep_mode_enter();              
 						break;
-
-			 default:
-						break;
-		}  
-	}
-  else if(Global_connected_state)
-	{
-		switch(*pdata)
-		{
+			 
 			 case 0x01: if(ads1291_is_ok == 0) 
 									{
 											ads1291_init();
@@ -109,8 +101,17 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 											ADS1291_disable();
 									}							 
 									break;	
+
 			 default:
 						break;
-		}
-  }
+		}  
+	}
+//  else if(Global_connected_state)
+//	{
+//		switch(*pdata)
+//		{
+//			 default:
+//						break;
+//		}
+//  }
 }
