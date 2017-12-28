@@ -17,7 +17,7 @@ uint8_t led_red_timerout = 0;        //红灯亮灯时间超时标志
 uint32_t bsp_led_indication(led_indication_t indicate)
 {
     uint32_t err_code = NRF_SUCCESS;
-		if(Is_pwm_init == false)         //如果没有初始化PWM，初始化PWM
+		if(Is_pwm_init == false && !Into_factory_test_mode)         //如果没有初始化PWM，初始化PWM
 		{
 				led_pwm_init();
 		}

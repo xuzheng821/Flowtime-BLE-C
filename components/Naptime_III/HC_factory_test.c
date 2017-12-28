@@ -46,9 +46,9 @@ void led_test(void)
       nrf_gpio_cfg_output(LED_GPIO_RED);
 	    nrf_gpio_cfg_output(LED_GPIO_GREEN);
 	  
-	    NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
-	    NRF_GPIO->OUTSET = 1<<LED_GPIO_RED;
-	    NRF_GPIO->OUTSET = 1<<LED_GPIO_GREEN;
+	    NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
+	    NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
+	    NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
       
 	 		err_code = bsp_led_indication(BSP_INDICATE_factory_led_test);   //LED状态设置
       APP_ERROR_CHECK(err_code);
@@ -85,8 +85,6 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						break;
 		}
   }
-	
-	
 	if(Into_factory_test_mode)        //进入工厂测试模式
 	{
 		switch(*pdata)
