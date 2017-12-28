@@ -28,6 +28,8 @@
 
 #define COM_BASE_UUID                  {{0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xCD, 0xAB, 0x12, 0x12, 0x00, 0x00, 0x00, 0x00}} /**< Used vendor specific UUID. */
 
+extern uint8_t Global_connected_state;
+
 //extern uint16_t                          m_conn_handle;                              /**< Handle of the current connection. */
 
 /**@brief Function for handling the @ref BLE_GAP_EVT_CONNECTED event from the S110 SoftDevice.
@@ -65,7 +67,7 @@ static void on_write(ble_com_t * p_com, ble_evt_t * p_ble_evt)
 	  if (
         (p_evt_write->handle == p_com->Down_handles.cccd_handle)
         &&
-        (p_evt_write->len == 2)
+        (p_evt_write->len == 2 )
        )
     {
         if (ble_srv_is_notification_enabled(p_evt_write->data))

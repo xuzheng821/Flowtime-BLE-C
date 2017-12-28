@@ -65,6 +65,28 @@ void button_test(void)
 
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
+  if(Global_connected_state)
+	{
+		switch(*pdata)
+		{
+			 case App_Nap_Start1291: if(ads1291_is_ok == 0) 
+																{
+																		ads1291_init();
+																}							 
+																break;
+									
+			 case App_Nap_Stop1291: if(ads1291_is_ok == 1) 
+																{
+																		ADS1291_disable();
+																}							 
+																break;	
+
+			 default:
+						break;
+		}
+  }
+	
+	
 	if(Goto_factory_test_mode)
 	{
 		switch(*pdata)
@@ -91,27 +113,20 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						sleep_mode_enter();              
 						break;
 			 
-			 case 0x01: if(ads1291_is_ok == 0) 
-									{
-											ads1291_init();
-									}							 
-									break;
-			 case 0x02: if(ads1291_is_ok == 1) 
-									{
-											ADS1291_disable();
-									}							 
-									break;	
+			 case App_Nap_Start1291: if(ads1291_is_ok == 0) 
+																{
+																		ads1291_init();
+																}							 
+																break;
+									
+			 case App_Nap_Stop1291: if(ads1291_is_ok == 1) 
+																{
+																		ADS1291_disable();
+																}							 
+																break;	
 
 			 default:
 						break;
 		}  
 	}
-//  else if(Global_connected_state)
-//	{
-//		switch(*pdata)
-//		{
-//			 default:
-//						break;
-//		}
-//  }
 }

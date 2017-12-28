@@ -295,14 +295,14 @@ uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t *p_EEG, uint8_t state, uint16_t length
 {
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
-	  p_EEG->last_state = 0x24;
+	  static uint8_t EEG_last_state = 0x24;
 	
     if (p_EEG == NULL)
     {
         return NRF_ERROR_NULL;
     }
     
-    if (state != p_EEG->last_state)
+    if (state != EEG_last_state)
     {
         // Initialize value struct.
         memset(&gatts_value, 0, sizeof(gatts_value));
@@ -318,7 +318,7 @@ uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t *p_EEG, uint8_t state, uint16_t length
         if (err_code == NRF_SUCCESS)
         {
             // Save new battery value.
-            p_EEG->last_state = state;
+            EEG_last_state = state;
         }
         else
         {

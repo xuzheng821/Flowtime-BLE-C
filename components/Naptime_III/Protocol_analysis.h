@@ -21,6 +21,8 @@
 #define App_Nap_useriddelete          0x43
 #define App_Nap_Gotoledtest           0x44
 #define App_Nap_Poweroff              0x45
+#define App_Nap_Start1291             0x01
+#define App_Nap_Stop1291              0x02
 
 #define Tool_App_Toolconnectnap       0x50
 #define Tool_App_signedout            0x51

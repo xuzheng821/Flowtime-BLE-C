@@ -21,6 +21,8 @@
 #include "ble_srv_common.h"
 #include "app_util.h"
 
+extern uint8_t Global_connected_state;
+
 /**@brief Function for handling the Connect event.
  *
  * @param[in]   p_bas       Battery Service structure.
@@ -55,7 +57,7 @@ static void on_write(ble_bas_t * p_bas, ble_evt_t * p_ble_evt)
     if (
         (p_evt_write->handle == p_bas->battery_level_handles.cccd_handle)
         &&
-        (p_evt_write->len == 2)
+        (p_evt_write->len == 2 && Global_connected_state)
        )
 			 {
 					if (ble_srv_is_notification_enabled(p_evt_write->data))

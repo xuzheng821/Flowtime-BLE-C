@@ -73,8 +73,7 @@ static void on_write(ble_conn_t * p_conn, ble_evt_t * p_ble_evt)
 				ble_Com_ID_Analysis(p_evt_write->data, p_evt_write->len);
 		}
 		
-		if (p_evt_write->handle == p_conn->Shakehands_handles
-			.value_handle)  
+		if (p_evt_write->handle == p_conn->Shakehands_handles.value_handle)  
     {
 			if( *p_evt_write->data == 0x00 )
 			{
