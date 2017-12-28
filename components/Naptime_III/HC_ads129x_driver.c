@@ -178,7 +178,7 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 			 {
 					 LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
 //		       SEGGER_RTT_printf(0,"%x \n",LOFF_State);
-					 ble_state_send(LOFF_State);
+//					 ble_state_send(LOFF_State);
 			 }
 //		   SEGGER_RTT_printf(0,"%x \n",ADCData);
 

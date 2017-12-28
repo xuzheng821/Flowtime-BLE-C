@@ -83,7 +83,7 @@
 #define APP_TIMER_PRESCALER              0                                          /**< Value of the RTC1 PRESCALER register. */
 //连接参数
 #define MIN_CONN_INTERVAL                MSEC_TO_UNITS(30, UNIT_1_25_MS)           /**< Minimum acceptable connection interval (0.4 seconds). */
-#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(50, UNIT_1_25_MS)           /**< Maximum acceptable connection interval (0.65 second). */
+#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(60, UNIT_1_25_MS)           /**< Maximum acceptable connection interval (0.65 second). */
 #define SLAVE_LATENCY                    0                                          /**< Slave latency. */
 #define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS(5000, UNIT_10_MS)            /**< Connection supervisory timeout (4 seconds). */
 //连接间隔更新参数
@@ -141,7 +141,7 @@ extern bool saadc_is_init;
 //按键状态
 extern uint8_t key_tigger_num;
 //工厂测试
-extern bool Goto_factory_test_mode;
+extern bool Into_factory_test_mode;
 extern bool deleteUserid;
 extern bool StoryDeviceID;
 extern bool StorySN;
@@ -485,7 +485,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 							  err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);     //LED状态设置
                 APP_ERROR_CHECK(err_code);	
 						}
-						if(Goto_factory_test_mode)
+						if(Into_factory_test_mode)
 						{
 						    app_uart_put(Nap_Tool_appconnectnap);
 							  factory_buttons_configure();
@@ -763,7 +763,7 @@ static void advertising_init(void)
     memset(&advdata, 0, sizeof(advdata));
     uint8_t data[2] = {0};	
 	
-    if(Goto_factory_test_mode)
+    if(Into_factory_test_mode)
 		{
 				nrf_delay_ms(200);
 				data[0] = get_random_number();
@@ -860,7 +860,7 @@ int main(void)
 		
 		while(1)
     {
-		  if(nrf_gpio_pin_read(BQ_PG) == 0 && !Goto_factory_test_mode)     //input vol is above battery vol
+		  if(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)     //input vol is above battery vol
 		  {
 				   nrf_delay_ms(20);
 				   if(nrf_gpio_pin_read(BQ_PG) == 0)

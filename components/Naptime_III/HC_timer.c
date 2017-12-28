@@ -20,16 +20,16 @@ APP_TIMER_DEF(m_connects_timer_id);
 
 bool Is_led_timer_start = false;
 
-extern uint8_t key_tigger_num;
+extern uint8_t key_tigger_num;      //按键按下超时计数
 extern uint8_t led_red_timerout;
 extern uint8_t led_blue_timerout;
-
-extern void button_event_handler(button_event_t event);
 
 extern uint16_t                    m_conn_handle;  
 extern led_indication_t            m_stable_state;
 extern nrf_drv_wdt_channel_id      m_channel_id;
 extern bsp_button_event_cfg_t      m_buttin_events;
+
+extern void button_event_handler(button_event_t event);
 
 /**@brief Function for the Timer initialization.
  *
@@ -52,8 +52,8 @@ void timers_init(void)
 void leds_timer_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);
-	  Is_led_timer_start = false;
-	  leds_state_update();
+	  Is_led_timer_start = false;              //单次触发，所以需要将标志位置0
+	  leds_state_update();                     //更新LED状态和相关标志位状态
 }
 void led_timer_init(void)
 {
@@ -109,7 +109,7 @@ void led_test_timer_stop(void)
 void wdts_timer_handler(void * p_context)
 {
 	  UNUSED_PARAMETER(p_context);
-    nrf_drv_wdt_channel_feed(m_channel_id);
+    nrf_drv_wdt_channel_feed(m_channel_id);  //喂狗，WDT设置时间为5s，喂狗时间为4s
 }
 void wdt_timer_init(void)
 {

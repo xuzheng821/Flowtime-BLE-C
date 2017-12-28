@@ -1,5 +1,5 @@
-#ifndef HC_KEY_H
-#define HC_KEY_H
+#ifndef HC_KEY_H_
+#define HC_KEY_H_
 
 #include "app_error.h"
 #include "Naptime_III.h"
@@ -46,12 +46,12 @@ void button_gpiote_init(void);
 void buttons_state_update(void);
 void bsp_event_to_button_action_assign(bsp_button_action_t action, button_event_t event);
 
-void buttons_configure_init(void);           
-void advertising_buttons_configure(void);            //白名单广播
-void pairing_buttons_configure(void);                //快速广播
-void connection_buttons_configure(void);             //已连接
-void factory_buttons_configure(void);                //工厂测试
+void buttons_configure_init(void);          //按键初始化后按键功能     
+void advertising_buttons_configure(void);   //白名单广播下按键功能
+void pairing_buttons_configure(void);       //快速广播下按键功能
+void connection_buttons_configure(void);    //已连接状态按键功能
+void factory_buttons_configure(void);       //工厂测试模式按键功能    
 
-uint32_t bsp_wakeup_buttons_set(void);
+uint32_t bsp_wakeup_buttons_set(void);      //休眠唤醒按键配置
 
 #endif

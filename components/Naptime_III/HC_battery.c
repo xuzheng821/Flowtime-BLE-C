@@ -5,11 +5,10 @@ ble_bas_t                    m_bas;                     /**< Structure used to i
 
 //全局变量
 double bat_vol;                         //实测电量
-double saft_vol = 3.1;                  //安全电压
-double min_work_vol = 3.2;              //低电量
+double saft_vol = 3.2;                  //安全电压
+double min_work_vol = 3.3;              //低电量
 
-bool saadc_is_init = false;
-extern bool Goto_factory_test_mode;
+extern bool Into_factory_test_mode;
 
 extern void sleep_mode_enter(void);
 
@@ -58,20 +57,11 @@ void saadc_init(void)
 
     err_code = nrf_drv_saadc_channel_init(0, &channel_config);
     APP_ERROR_CHECK(err_code);
-	  saadc_is_init = true;
 	
 	  nrf_gpio_cfg_output(TPS_CTRL);
 	  NRF_GPIO->OUTSET = 1<<TPS_CTRL;	
 	  battery_timer_start();
 }
-
-void saadc_unit(void)
-{
-    nrf_drv_saadc_uninit();
-	  saadc_is_init = false;
-	  NRF_GPIO->OUTCLR = 1<<TPS_CTRL;	
-}
-
 
 void battery_level_update(void)
 {
@@ -108,12 +98,12 @@ void Power_Check(void)
 uint8_t connected_power_check(void)
 {
 		float bat_vol;
-		nrf_saadc_value_t  ADC_value = 0;	         //电量检测,先初始化ADC
+		nrf_saadc_value_t  ADC_value = 0;	              //电量检测,先初始化ADC
 
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
 	  bat_vol = ADC_value * 3.6 / 1024 * 6;           //电池电压
 	
-	  if(bat_vol < min_work_vol)            //低于使用电压
+	  if(bat_vol < min_work_vol)                      //低于使用电压
 	  {
 			 SEGGER_RTT_printf(0,"\r Voltage is lower than 3.2V \r\n");
 			 return true;
@@ -128,7 +118,7 @@ uint8_t connected_power_check(void)
 void charging_check(void)
 {
 		uint32_t err_code;	   
-		while(nrf_gpio_pin_read(BQ_PG) == 0 && !Goto_factory_test_mode)     //input vol is above battery vol
+		while(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)     //input vol is above battery vol
 		{
 			 nrf_delay_ms(500);
 			 if(nrf_gpio_pin_read(BQ_CHG) == 0)   //charging

@@ -3,17 +3,17 @@
 bsp_button_event_cfg_t m_buttin_events;
 
 uint8_t button_state = 0xff;
-uint8_t key_tigger_num = 0;
+uint8_t key_tigger_num = 0;   //按键按下超时计数
 
-extern bool APP_restart;
-extern bool Goto_factory_test_mode;
+extern bool APP_restart;      //软复位判断
+extern bool Into_factory_test_mode;
 
 extern void sleep_mode_enter(void);
 extern void button_event_handler(button_event_t event);
 
 void button_power_on(void)
 {
-		if(!Goto_factory_test_mode && !APP_restart)  
+		if(!Into_factory_test_mode && !APP_restart)  //工厂测试模式或者软复位直接开机，否则需要按键开机
 	  {
 	     buttons_configure_init();
 			 key_tigger_num = 0;
@@ -110,7 +110,7 @@ void bsp_event_to_button_action_assign(bsp_button_action_t action, button_event_
     }
 }
 
-void buttons_configure_init(void)            
+void buttons_configure_init(void)      //按键初始化后按键功能       
 {
 		SEGGER_RTT_printf(0,"\rbuttons_configure_init \r\n");
 	  button_state = init_buttons;
@@ -124,7 +124,7 @@ void buttons_configure_init(void)
                                       BUTTON_EVENT_WHITELIST_OFF);
 }
 
-void pairing_buttons_configure(void)               //快速广播
+void pairing_buttons_configure(void)     //快速广播下按键功能
 {
 		SEGGER_RTT_printf(0,"\rpairing_buttons_configure \r\n");
 	  button_state = pairing_buttons;
@@ -138,7 +138,7 @@ void pairing_buttons_configure(void)               //快速广播
                                       BUTTON_EVENT_POWER_OFF);
 }
 
-void advertising_buttons_configure(void)            //白名单广播
+void advertising_buttons_configure(void)  //白名单广播下按键功能
 {
 		SEGGER_RTT_printf(0,"\radvertising_buttons_configure \r\n");
 	  button_state = advertising_buttons;
@@ -152,7 +152,7 @@ void advertising_buttons_configure(void)            //白名单广播
                                       BUTTON_EVENT_WHITELIST_OFF);
 }
 
-void connection_buttons_configure(void)             //已连接
+void connection_buttons_configure(void)   //已连接状态按键功能
 {
 		SEGGER_RTT_printf(0,"\rconnection_buttons_configure \r\n");
 	  button_state = connection_buttons;
@@ -166,7 +166,7 @@ void connection_buttons_configure(void)             //已连接
                                       BUTTON_EVENT_IDLE);
 }
 
-void factory_buttons_configure(void)           
+void factory_buttons_configure(void)       //工厂测试模式按键功能    
 {
 		SEGGER_RTT_printf(0,"\rfactory_buttons_configure \r\n");
 	  button_state = factory_buttons;
@@ -181,11 +181,11 @@ void factory_buttons_configure(void)
 }
 
 
-uint32_t bsp_wakeup_buttons_set(void)
+uint32_t bsp_wakeup_buttons_set(void)        //休眠唤醒按键配置
 {
     uint32_t new_sense = GPIO_PIN_CNF_SENSE_Low;
 	
-    uint32_t new_cnf_button = NRF_GPIO->PIN_CNF[BUTTON];
+    uint32_t new_cnf_button = NRF_GPIO->PIN_CNF[BUTTON];   
     new_cnf_button &= ~GPIO_PIN_CNF_SENSE_Msk;
     new_cnf_button |= (new_sense << GPIO_PIN_CNF_SENSE_Pos);
     NRF_GPIO->PIN_CNF[BUTTON] = new_cnf_button;

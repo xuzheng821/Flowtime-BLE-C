@@ -36,7 +36,4 @@ void connects_timer_init(void);
 void connects_timer_start(void);
 void connects_timer_stop(void);
 
-
-
 #endif
-

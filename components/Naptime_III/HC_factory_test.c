@@ -5,7 +5,7 @@ ble_com_t                                m_com;                                 
 bool deleteUserid =false;
 bool StoryDeviceID =false;
 bool StorySN =false;
-bool Goto_factory_test_mode = false;
+bool Into_factory_test_mode = false;
 bool APP_restart = false;
 
 extern uint8_t ads1291_is_ok;
@@ -26,14 +26,14 @@ void bootup_check(void)
 		
     if(nrf_gpio_pin_read(FACTORY_TEST) == 0)
 		{
-			  SEGGER_RTT_printf(0,"\r Goto_factory_test_mode \r\n");
-			  Goto_factory_test_mode = true;
+			  SEGGER_RTT_printf(0,"\r Into_factory_test_mode \r\n");
+			  Into_factory_test_mode = true;
         Uart_init();
         app_uart_put(Nap_Tool_Gotofactorytest);	     //Nap通知Tool--串口接收到单板成功进入工厂测试
 		}
 		else
 		{
-			  Goto_factory_test_mode = false;
+			  Into_factory_test_mode = false;
 		}
 }
 
@@ -87,7 +87,7 @@ void App_Nap_data_Analysis(uint8_t *pdata)
   }
 	
 	
-	if(Goto_factory_test_mode)
+	if(Into_factory_test_mode)
 	{
 		switch(*pdata)
 		{

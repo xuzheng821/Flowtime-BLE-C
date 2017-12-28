@@ -20,7 +20,6 @@
 
 void saadc_callback(nrf_drv_saadc_evt_t const * p_event);																	 
 void saadc_init(void);
-void saadc_unit(void);
 void battery_level_update(void);
 void battery_level_meas_timeout_handler(void * p_context);
 void battery_vol_send_timer_init(void);

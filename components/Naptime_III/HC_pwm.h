@@ -4,9 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "nrf.h"
-#include "app_error.h"
-#include "app_pwm.h"
+#include "nrf_gpio.h"
 #include "nrf_delay.h"
+#include "app_pwm.h"
+#include "app_error.h"
 #include "Naptime_III.h"
 
 void led_pwm_init(void);
