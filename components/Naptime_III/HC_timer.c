@@ -58,7 +58,7 @@ void leds_timer_handler(void * p_context)
 void led_timer_init(void)
 {
     uint32_t err_code;
-	  err_code = app_timer_create(&m_leds_timer_id, APP_TIMER_MODE_SINGLE_SHOT, leds_timer_handler);
+	  err_code = app_timer_create(&m_leds_timer_id, APP_TIMER_MODE_SINGLE_SHOT, leds_timer_handler);  //单次触发
 	  APP_ERROR_CHECK(err_code);
 }
 
@@ -88,7 +88,7 @@ void leds_test_timer_handler(void * p_context)
 void led_test_timer_init(void)
 {
     uint32_t err_code;
-	  err_code = app_timer_create(&m_leds_test_timer_id, APP_TIMER_MODE_SINGLE_SHOT, leds_test_timer_handler);
+	  err_code = app_timer_create(&m_leds_test_timer_id, APP_TIMER_MODE_SINGLE_SHOT, leds_test_timer_handler);   //单次触发
 	  APP_ERROR_CHECK(err_code);
 }
 void led_test_timer_start(void)

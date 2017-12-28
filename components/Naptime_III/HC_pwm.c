@@ -22,15 +22,15 @@ void led_pwm_init(void)
   	/* 初始化和使能PWM. */
     err_code = app_pwm_init(&PWM1,&pwm1_cfg,NULL);
     APP_ERROR_CHECK(err_code);
-    app_pwm_enable(&PWM1);//使能PWM
+    app_pwm_enable(&PWM1);//使能PWM1
 	
     err_code = app_pwm_init(&PWM2,&pwm2_cfg,NULL);
     APP_ERROR_CHECK(err_code);
-    app_pwm_enable(&PWM2);//使能PWM	
+    app_pwm_enable(&PWM2);//使能PWM2
 
     err_code = app_pwm_init(&PWM3,&pwm3_cfg,NULL);
     APP_ERROR_CHECK(err_code);
-    app_pwm_enable(&PWM3);//使能PWM	
+    app_pwm_enable(&PWM3);//使能PWM3	
 		
     Is_pwm_init = true;                             //PWM初始化标志
   	LED_OFF();	                                    //灯不打开

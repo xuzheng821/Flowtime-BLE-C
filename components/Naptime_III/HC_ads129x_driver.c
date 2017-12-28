@@ -1,24 +1,24 @@
 #include "HC_ads129x_driver.h"
 
-#define ADS_Delay_Num              30
-extern ble_EEG_t                   m_EEG;                                      /**< Structure used to identify the heart rate service. */
-
 uint8_t ADCData1[750];
 uint8_t ADCData2[750];
+uint8_t Data_Num;             //采集数据到250个触发发送函数
+bool ads1291_is_init = false; //1291是否初始化完成标志位
 
-uint8_t Data_Num ;
-uint8_t ads1291_is_ok = 0;
-extern uint8_t Send_Flag;
 ADS_ConfigDef ADS_Config1;
 
-#define SPI_INSTANCE  1 /**< SPI instance index. */
+extern uint8_t Send_Flag;
+
+extern ble_EEG_t                   m_EEG;                                      /**< Structure used to identify the heart rate service. */
+
+#define SPI_INSTANCE  1   /**< SPI instance index. */
 nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */
 
 void ADS1291_disable(void)
 {
-	  ads1291_is_ok = 0;
+	  ads1291_is_init = false;
 		Send_Flag = 0;
-		nrf_gpio_cfg_output(AEF_PM_EN);
+		nrf_gpio_cfg_output(AEF_PM_EN);  //关闭1291供电
 		NRF_GPIO->OUTCLR = 1<<AEF_PM_EN;
 	  nrf_drv_spi_uninit(&spi);
 	  nrf_drv_gpiote_in_uninit(AEF_RDRDY);
@@ -28,6 +28,8 @@ void ads1291_init(void)
 {
 	  nrf_gpio_cfg_output(AEF_PM_EN);
 	  NRF_GPIO->OUTSET = 1<<AEF_PM_EN;
+	  nrf_delay_ms(50);
+	
     nrf_gpio_cfg_output(AEF_START);
     nrf_gpio_cfg_output(AEF_RESET);
     nrf_gpio_cfg_output(AEF_MAIN_CLKSEL);
@@ -46,21 +48,14 @@ void ads1291_init(void)
 	  ADS_PIN_Reset_H();
 	  ADS_PIN_Start_L();
     nrf_delay_ms(10);
-			
   	ADS_Command(ADS_SDATAC);
   	ADS_init();
-			 	
-	  nrf_delay_ms(100);
-	  ADS_PIN_Start_H();	
-
-    nrf_delay_ms(10);
+		ADS_PIN_Start_H();	
 	  ADS_Command(ADS_RDATAC);	
-    nrf_delay_ms(20);
 		
 		gpiote_init();
-		
 		Data_Num = 0;
-		ads1291_is_ok = 1;
+		ads1291_is_init = true;
 }
 
 void ADS_init(void)
@@ -122,65 +117,61 @@ void ADS_Config(ADS_ConfigDef *Config)
 
 void ADS_Setting(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size )
 {
-	  ADS_SPI_Delay(ADS_Delay_Num);
+	  ADS_SPI_Delay(2);
 	  uint8_t SendData[3];
 	  REG |=ADS_WREG;
 	  SendData[0] = REG;
 	  SendData[1] = Num;
 	  SendData[2] = *pData;
     ADS_SPI_Write(SendData,3);
-    ADS_SPI_Delay(ADS_Delay_Num);
+    ADS_SPI_Delay(2);
 }
 
 void ADS_Command(uint8_t CMD)
 {
-    ADS_SPI_Delay(ADS_Delay_Num);
+    ADS_SPI_Delay(2);
     ADS_SPI_Write(&CMD,1);
-    ADS_SPI_Delay(ADS_Delay_Num);
+    ADS_SPI_Delay(2);
 }
 
 void ADS_ReadData(uint8_t *pRxData,uint8_t Size)
 {
+    ADS_SPI_Delay(2);
     ADS_SPI_Read(pRxData,Size);
+    ADS_SPI_Delay(2);
 }
 
 void ADS_ReadStatue(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size)
 {
     REG |= ADS_RREG;
-    ADS_SPI_Delay(ADS_Delay_Num);
+    ADS_SPI_Delay(2);
     ADS_SPI_Write(&REG,1);
     ADS_SPI_Write(&Num,1);
     ADS_SPI_Read(pData,Size);
-    ADS_SPI_Delay(ADS_Delay_Num);
+    ADS_SPI_Delay(2);
 }
 
 void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
-//	  static uint8_t num = 0;
-    if(m_EEG.is_notification_enabled && ads1291_is_ok)
+    if(m_EEG.is_notification_enabled && ads1291_is_init)
     {
 	     uint8_t Rx[6] = {0};
   	   uint32_t ADCData;
 	     uint8_t Data[3];
-		   char LOFF_State = 0;
+		   uint8_t LOFF_State = 0;
 
        ADS_ReadData(Rx,6);
 	     ADCData = ((Rx[3]*0xFFFFFF)+(Rx[4]*0xFFFF)+Rx[5]*0xFF+0x80000000)>>8;
        Data[0] = ADCData >> 16;
 		   Data[1] = ADCData >> 8 % 0xFF;
 		   Data[2] = ADCData ;
-//       Data[0] = num;
-//		   Data[1] = num;
-//		   Data[2] = num;
-//			 num++;
+			 
 		   memcpy((ADCData1 + Data_Num * 3),Data,3);
 			 if(Data_Num % 125 == 0)
 			 {
 					 LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
-//		       SEGGER_RTT_printf(0,"%x \n",LOFF_State);
-//					 ble_state_send(LOFF_State);
+					 ble_state_send(LOFF_State);
 			 }
-//		   SEGGER_RTT_printf(0,"%x \n",ADCData);
 
 		   Data_Num ++;
        if(Data_Num == 250)  
@@ -188,13 +179,13 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 			    Data_Num = 0;
 			    memcpy(ADCData2,ADCData1,750);			
 				  memset(ADCData1,0,sizeof(ADCData1));
-			    ble_send_data(ADCData2,15);
+			    ble_send_data(ADCData2);
 		   }
 	 }
-		else
-		{
-				  Data_Num = 0;
-		}
+	 else
+	 {
+		  Data_Num = 0;
+	 }
 }
 
 void gpiote_init(void)
@@ -202,7 +193,6 @@ void gpiote_init(void)
 	ret_code_t err_code;
  
   nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
-
   in_config.pull = NRF_GPIO_PIN_PULLUP;
 
   err_code = nrf_drv_gpiote_in_init(AEF_RDRDY, &in_config, pin_event_handler);

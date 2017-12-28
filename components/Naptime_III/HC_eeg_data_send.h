@@ -8,9 +8,11 @@
 #include "app_error.h"
 #include "app_timer.h"
 #include "softdevice_handler.h"
+#include "HC_ads129x_driver.h"
+#include "sdk_errors.h"
 
-uint32_t ble_send_data(uint8_t *pdata, uint8_t Send_Len);
-void ble_send_more_data(uint8_t *pdata, uint8_t Send_Len);
+uint32_t ble_send_data(uint8_t *pdata);
+void ble_send_more_data(uint8_t *pdata);
 void ble_state_send(uint8_t pdata);
 
 #endif

@@ -1,12 +1,7 @@
 #include "HC_device_info.h"
-#include "pstorage.h"
-#include "app_error.h"
-#include "ble_dis.h"
-#include <stdint.h>
-#include <string.h>
-#include "HC_data_flash.h"
 
 ble_gap_addr_t address;
+
 extern uint8_t device_id_sn[32];
 
 /*******************************************************************************
@@ -22,10 +17,10 @@ void ble_devinfo_serv_init(void)
     // Initialize Device Information Service
     memset(&dis_init, 0, sizeof(dis_init));
 
-    ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, MANUFACTURER_NAME);
-    ble_srv_ascii_to_utf8(&dis_init.fw_rev_str, FW_REV_STR);
-    ble_srv_ascii_to_utf8(&dis_init.hw_rev_str,HW_REV_STR);
-    ble_srv_ascii_to_utf8(&dis_init.model_num_str,address.addr);
+    ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, MANUFACTURER_NAME);  //设备名称
+    ble_srv_ascii_to_utf8(&dis_init.fw_rev_str, FW_REV_STR);                //软件版本
+    ble_srv_ascii_to_utf8(&dis_init.hw_rev_str,HW_REV_STR);                 //硬件版本
+    ble_srv_ascii_to_utf8(&dis_init.model_num_str,(char *)address.addr);    //MAC地址
 
 	  Read_device_id_sn();
     ble_srv_ascii_to_utf8(&dis_init.serial_num_str,(char *)device_id_sn);

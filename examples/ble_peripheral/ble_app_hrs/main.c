@@ -122,7 +122,7 @@ extern ble_com_t                         m_com;                                 
 //EEG数据传输变量与标志位
 extern uint8_t ADCData2[750];
 extern uint8_t Send_Flag;
-extern uint8_t ads1291_is_ok;
+extern bool ads1291_is_init;
 //连接状态标志位
 extern bool Is_white_adv;
 extern bool ID_is_change;
@@ -502,7 +502,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
 					  err_code = bsp_led_indication(BSP_INDICATE_IDLE);
             APP_ERROR_CHECK(err_code);
-            if(ads1291_is_ok == 1)
+            if(ads1291_is_init == 1)
 						{			
 					   	 ADS1291_disable();
 						}
@@ -520,7 +520,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 				case BLE_EVT_TX_COMPLETE:				//启动后发送20字节，当20字节发送完成后收到BLE_EVT_TX_comPLETE，然后发送剩余数据
 				     if (Send_Flag == 1)
 	           { 
-	    	         ble_send_more_data(ADCData2,17); 
+	    	         ble_send_more_data(ADCData2); 
 	           }
 				     break;
 
@@ -728,10 +728,6 @@ static void device_manager_init(bool erase_bonds)
     uint32_t               err_code;
     dm_init_param_t        init_param = {.clear_persistent_data = erase_bonds};
     dm_application_param_t register_param;
-
-    // Initialize persistent storage module.
-//    err_code = pstorage_init();
-//    APP_ERROR_CHECK(err_code);
 
     err_code = dm_init(&init_param);
     APP_ERROR_CHECK(err_code);

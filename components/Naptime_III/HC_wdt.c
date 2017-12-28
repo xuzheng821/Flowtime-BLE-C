@@ -1,7 +1,7 @@
 #include "HC_wdt.h"
+//看门狗无法进入中断函数，需要进一步确认
 
 nrf_drv_wdt_channel_id m_channel_id;
-
 /**
  * @brief WDT events handler.
  */

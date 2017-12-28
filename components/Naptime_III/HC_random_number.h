@@ -11,6 +11,5 @@
 
 uint8_t random_vector_generate(uint8_t * p_buff, uint8_t size);
 uint8_t get_random_number(void);
-uint8_t get_random_str(void);
 
 #endif

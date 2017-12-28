@@ -1,12 +1,4 @@
 #include "HC_command_analysis.h"
-#include "ble_conn.h"
-#include "HC_data_flash.h"
-#include "HC_random_number.h"
-#include "HC_battery.h"
-#include "HC_led.h"
-#include "HC_timer.h"
-#include "SEGGER_RTT_Conf.h"
-#include "SEGGER_RTT.h"
 
 ble_conn_t                         m_conn;
 uint16_t                           m_conn_handle = BLE_CONN_HANDLE_INVALID;   /**< Handle of the current connection. */

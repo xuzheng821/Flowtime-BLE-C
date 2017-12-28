@@ -2,13 +2,13 @@
 
 ble_com_t                                m_com;                                      /**< Structure to identify the Nordic UART Service. */
 
-bool deleteUserid =false;
+bool APP_restart = false;
+bool Into_factory_test_mode = false;
 bool StoryDeviceID =false;
 bool StorySN =false;
-bool Into_factory_test_mode = false;
-bool APP_restart = false;
+bool deleteUserid =false;
 
-extern uint8_t ads1291_is_ok;
+extern bool ads1291_is_init;
 extern uint8_t Global_connected_state;
 extern uint8_t device_id_receive[16];
 extern uint8_t device_sn_receive[16];
@@ -18,18 +18,18 @@ extern void sleep_mode_enter(void);
 void bootup_check(void)
 {	  
 	  SEGGER_RTT_printf(0," NRF_POWER->GPREGRET:%x\r\n\n",NRF_POWER->GPREGRET);
-		APP_restart = (NRF_POWER->GPREGRET == 0x55);
-		if(APP_restart)                                           //软复位
+		APP_restart = (NRF_POWER->GPREGRET == 0x55);    //如果软件复位，复位前会将寄存器NRF_POWER->GPREGRET设置为0x55
+		if(APP_restart)                                
 		{
 			 NRF_POWER->GPREGRET = 0;
 		}
 		
-    if(nrf_gpio_pin_read(FACTORY_TEST) == 0)
+    if(nrf_gpio_pin_read(FACTORY_TEST) == 0)        //判断是否进入工厂测试模式
 		{
 			  SEGGER_RTT_printf(0,"\r Into_factory_test_mode \r\n");
 			  Into_factory_test_mode = true;
         Uart_init();
-        app_uart_put(Nap_Tool_Gotofactorytest);	     //Nap通知Tool--串口接收到单板成功进入工厂测试
+        app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--串口接收到单板成功进入工厂测试
 		}
 		else
 		{
@@ -40,7 +40,7 @@ void bootup_check(void)
 void led_test(void)
 {
 	    uint32_t err_code;
-	    PWM_uint();
+	    PWM_uint();                          //进入led_test之前，单板蓝牙连接手机，所以PWM已经初始化
 	
 	    nrf_gpio_cfg_output(LED_GPIO_BLUE);
       nrf_gpio_cfg_output(LED_GPIO_RED);
@@ -65,17 +65,17 @@ void button_test(void)
 
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
-  if(Global_connected_state)
+  if(Global_connected_state)         //只有进入工作模式且握手成功该标志位才会置1
 	{
 		switch(*pdata)
 		{
-			 case App_Nap_Start1291: if(ads1291_is_ok == 0) 
+			 case App_Nap_Start1291: if(ads1291_is_init == 0) 
 																{
 																		ads1291_init();
 																}							 
 																break;
 									
-			 case App_Nap_Stop1291: if(ads1291_is_ok == 1) 
+			 case App_Nap_Stop1291: if(ads1291_is_init == 1) 
 																{
 																		ADS1291_disable();
 																}							 
@@ -87,7 +87,7 @@ void App_Nap_data_Analysis(uint8_t *pdata)
   }
 	
 	
-	if(Into_factory_test_mode)
+	if(Into_factory_test_mode)        //进入工厂测试模式
 	{
 		switch(*pdata)
 		{
@@ -113,13 +113,13 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						sleep_mode_enter();              
 						break;
 			 
-			 case App_Nap_Start1291: if(ads1291_is_ok == 0) 
+			 case App_Nap_Start1291: if(ads1291_is_init == 0) 
 																{
 																		ads1291_init();
 																}							 
 																break;
 									
-			 case App_Nap_Stop1291: if(ads1291_is_ok == 1) 
+			 case App_Nap_Stop1291: if(ads1291_is_init == 1) 
 																{
 																		ADS1291_disable();
 																}							 
