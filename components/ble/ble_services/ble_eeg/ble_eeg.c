@@ -83,11 +83,26 @@ static void on_write(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
     {
         if (ble_srv_is_notification_enabled(p_evt_write->data))
         {
-            p_EEG->is_notification_enabled = true;
+            p_EEG->is_eeg_notification_enabled = true;
         }
         else
         {
-            p_EEG->is_notification_enabled = false;
+            p_EEG->is_eeg_notification_enabled = false;
+        }
+    }
+    if (
+        (p_evt_write->handle == p_EEG->ele_state_handles.cccd_handle)
+        &&
+        (p_evt_write->len == 2)
+       )
+    {
+        if (ble_srv_is_notification_enabled(p_evt_write->data))
+        {
+            p_EEG->is_state_notification_enabled = true;
+        }
+        else
+        {
+            p_EEG->is_state_notification_enabled = false;
         }
     }
 }
@@ -237,8 +252,10 @@ uint32_t ble_EEG_init(ble_EEG_t * p_EEG, const ble_EEG_init_t * p_EEG_init)
     // Initialize service structure
     p_EEG->evt_handler                 = p_EEG_init->evt_handler;
     p_EEG->conn_handle                 = BLE_CONN_HANDLE_INVALID;
-	  p_EEG->is_notification_enabled = false;
-
+	  p_EEG->is_eeg_notification_enabled = false;
+	  p_EEG->is_state_notification_enabled = false;
+    p_EEG->last_state = 0x24;
+	
     err_code = sd_ble_uuid_vs_add(&EEG_base_uuid, &p_EEG->uuid_type);
     VERIFY_SUCCESS(err_code);
 		
@@ -278,7 +295,7 @@ uint32_t ble_EEG_DATA_send(ble_EEG_t * p_EEG, uint8_t * p_string, uint16_t lengt
 //    ble_gatts_value_t gatts_value;
 
     // Send value if connected and notifying.
-    if ((p_EEG->conn_handle != BLE_CONN_HANDLE_INVALID) && p_EEG->is_notification_enabled)
+    if ((p_EEG->conn_handle != BLE_CONN_HANDLE_INVALID) && p_EEG->is_eeg_notification_enabled)
     {
        ble_gatts_hvx_params_t hvx_params;
        memset(&hvx_params, 0, sizeof(hvx_params));
@@ -295,14 +312,13 @@ uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t *p_EEG, uint8_t state, uint16_t length
 {
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
-	  static uint8_t EEG_last_state = 0x24;
 	
     if (p_EEG == NULL)
     {
         return NRF_ERROR_NULL;
     }
     
-    if (state != EEG_last_state)
+    if (state != p_EEG->last_state)
     {
         // Initialize value struct.
         memset(&gatts_value, 0, sizeof(gatts_value));
@@ -318,7 +334,7 @@ uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t *p_EEG, uint8_t state, uint16_t length
         if (err_code == NRF_SUCCESS)
         {
             // Save new battery value.
-            EEG_last_state = state;
+            p_EEG->last_state = state;
         }
         else
         {
@@ -326,7 +342,7 @@ uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t *p_EEG, uint8_t state, uint16_t length
         }
 
         // Send value if connected and notifying.
-        if ((p_EEG->conn_handle != BLE_CONN_HANDLE_INVALID) && p_EEG->is_notification_enabled)
+        if ((p_EEG->conn_handle != BLE_CONN_HANDLE_INVALID) && p_EEG->is_state_notification_enabled)
         {
             ble_gatts_hvx_params_t hvx_params;
 

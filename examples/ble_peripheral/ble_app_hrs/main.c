@@ -76,8 +76,8 @@
 #define PERIPHERAL_LINK_COUNT            1                                          /**< Number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
 //广播参数
 #define APP_ADV_FAST_INTERVAL            0x00a0       //200ms                       /**< Fast advertising interval (in units of 0.625 ms. This value corresponds to 25 ms.). */
-#define APP_ADV_SLOW_INTERVAL            0x0640       //2000ms                       /**< Slow advertising interval (in units of 0.625 ms. This value corrsponds to 2 seconds). */
-#define APP_ADV_FAST_TIMEOUT             20                                        /**< The duration of the fast advertising period (in seconds). */
+#define APP_ADV_SLOW_INTERVAL            0x0320       //1000ms                       /**< Slow advertising interval (in units of 0.625 ms. This value corrsponds to 2 seconds). */
+#define APP_ADV_FAST_TIMEOUT             120                                        /**< The duration of the fast advertising period (in seconds). */
 #define APP_ADV_SLOW_TIMEOUT             0                                          /**< The duration of the slow advertising period (in seconds). */
 //定时器参数
 #define APP_TIMER_PRESCALER              0                                          /**< Value of the RTC1 PRESCALER register. */
@@ -386,7 +386,7 @@ static void conn_params_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
-void gpio_reset(void)
+static void gpio_reset(void)
 {
 	  nrf_gpio_cfg_output(LED_GPIO_BLUE);
     nrf_gpio_cfg_output(LED_GPIO_RED);
@@ -546,19 +546,19 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
  */
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
-    dm_ble_evt_handler(p_ble_evt);
     ble_bas_on_ble_evt(&m_bas, p_ble_evt);
+	  ble_com_on_ble_evt(&m_com, p_ble_evt);
+	  ble_conn_on_ble_evt(&m_conn, p_ble_evt);
+    ble_eeg_on_ble_evt(&m_EEG, p_ble_evt);
+    on_ble_evt(p_ble_evt);
+    dm_ble_evt_handler(p_ble_evt);
+    ble_conn_params_on_ble_evt(p_ble_evt);
+    ble_advertising_on_ble_evt(p_ble_evt);
 #ifdef BLE_DFU_APP_SUPPORT
     /** @snippet [Propagating BLE Stack events to DFU Service] */
     ble_dfu_on_ble_evt(&m_dfus, p_ble_evt);
     /** @snippet [Propagating BLE Stack events to DFU Service] */
 #endif // BLE_DFU_APP_SUPPORT
-	  ble_com_on_ble_evt(&m_com, p_ble_evt);
-	  ble_conn_on_ble_evt(&m_conn, p_ble_evt);
-    ble_eeg_on_ble_evt(&m_EEG, p_ble_evt);
-    ble_conn_params_on_ble_evt(p_ble_evt);
-    on_ble_evt(p_ble_evt);
-    ble_advertising_on_ble_evt(p_ble_evt);
 }
 
 /**@brief Function for dispatching a system event to interested modules.

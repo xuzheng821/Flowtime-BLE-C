@@ -99,7 +99,8 @@ struct ble_EEG_s
   	ble_gatts_char_handles_t     hrm_handles;                                          /**< Handles related to the Heart Rate Measurement characteristic. */
     uint16_t                     conn_handle;                                          /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection). */
     uint8_t                      last_state;
-  	bool                         is_notification_enabled;                              /**< Variable to indicate if the peer has enabled notification of the RX characteristic.*/
+  	bool                         is_eeg_notification_enabled;                              /**< Variable to indicate if the peer has enabled notification of the RX characteristic.*/
+  	bool                         is_state_notification_enabled;                              /**< Variable to indicate if the peer has enabled notification of the RX characteristic.*/
 };
 
 /**@brief Function for initializing the Heart Rate Service.
