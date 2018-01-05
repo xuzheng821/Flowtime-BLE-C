@@ -10,7 +10,7 @@ nrf_drv_wdt_channel_id m_channel_id;
 void wdt_events_handler(void)
 {
 		uint32_t err_code;
-    SEGGER_RTT_printf(0," wdt_events_handler \n");
+		SEGGER_RTT_printf(0," wdt_events_handler \n");
 		err_code = sd_power_gpregret_set(0x55);
 		APP_ERROR_CHECK(err_code);
 	  //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs

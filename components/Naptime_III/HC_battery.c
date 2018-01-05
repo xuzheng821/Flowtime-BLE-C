@@ -73,6 +73,15 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
 	
 		err_code = ble_bas_battery_level_update(&m_bas, Electricity_percentage);
 		APP_ERROR_CHECK(err_code);
+	
+		if(bat_vol < saft_vol + 0.1)                    //低于3.3V,关机
+		{
+			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
+			  sleep_mode_enter();
+		}
+		else
+			  SEGGER_RTT_printf(0,"\r Voltage is higher than 3.1V \r\n");
+	
 }
 
 void Power_Check(void)
@@ -81,7 +90,7 @@ void Power_Check(void)
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
 	  bat_vol = ADC_value * 3.6 / 1024.0 * 6;         //电池电压实际电压
 	
-		if(bat_vol < saft_vol)                          //低于安全电压,关机
+		if(bat_vol < saft_vol)                          //低于3.2V无法开机
 		{
 			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  sleep_mode_enter();

@@ -147,8 +147,6 @@ extern bool StoryDeviceID;
 extern bool StorySN;
 //广播状态
 bool ble_is_adv = false;
-//状态打印
-#define SEGGER_RTT  1
 //广播UUID
 #define BLE_UUID_Naptime_Profile 0xFF00
 static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_Naptime_Profile, BLE_UUID_TYPE_VENDOR_BEGIN}}; /**< Universally unique service identifiers. */
@@ -407,6 +405,8 @@ static void gpio_reset(void)
 void sleep_mode_enter(void)
 {
     uint32_t err_code;
+	
+    while(nrf_gpio_pin_read(BUTTON) == 0);  //按键松开才进入休眠
    		  
     // Prepare wakeup buttons.
     err_code = bsp_wakeup_buttons_set();
@@ -414,7 +414,6 @@ void sleep_mode_enter(void)
 	
     gpio_reset();
 	
-    while(nrf_gpio_pin_read(BUTTON) == 0);
     // Go to system-off mode (this function will not return; wakeup will cause a reset).
     err_code = sd_power_system_off();
     APP_ERROR_CHECK(err_code);
