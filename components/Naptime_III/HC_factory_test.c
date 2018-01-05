@@ -82,28 +82,17 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						break;	
 																
 			 case App_Nap_write_deviceid : 
-            if(Into_factory_test_mode)        //进入工厂测试模式
-	          {						 
-								memcpy(device_id_receive,pdata+1, 16);
-								StoryDeviceID = true;            
-					  }						 
+						memcpy(device_id_receive,pdata+1, 16);
+						StoryDeviceID = true;            
 						break;
 			 
-			 case App_Nap_write_SN: 
-            if(Into_factory_test_mode)        //进入工厂测试模式
-	          {						 
-								memcpy(device_sn_receive,pdata+1, 16);
-						    StorySN = true;            
-					  }						 
-						            
+			 case App_Nap_write_SN: 			 
+						memcpy(device_sn_receive,pdata+1, 16);
+						StorySN = true;            
 						break;
 			 
 			 case App_Nap_useriddelete: 
-            if(Into_factory_test_mode)        //进入工厂测试模式
-	          {						 
-								deleteUserid = true;            
-					  }						 
-						             
+					  deleteUserid = true;                        
 						break;
 			 
 			 case App_Nap_Gotoledtest:
