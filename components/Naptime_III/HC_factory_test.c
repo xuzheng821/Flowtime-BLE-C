@@ -64,6 +64,7 @@ void button_test(void)
 
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
+    uint32_t err_code;
 		switch(*pdata)
 		{
 			 case App_Nap_Start1291: 
@@ -112,8 +113,10 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 					 }						 
 					 break;
 					 
-					 case App_Nap_Poweroff:
-					 sleep_mode_enter();
+				case App_Nap_Poweroff:
+             err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
+             APP_ERROR_CHECK(err_code);
+					   sleep_mode_enter();
 					 break;
 
 			 default:

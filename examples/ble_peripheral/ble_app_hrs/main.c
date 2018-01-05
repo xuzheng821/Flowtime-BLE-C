@@ -408,11 +408,11 @@ void sleep_mode_enter(void)
 	
     while(nrf_gpio_pin_read(BUTTON) == 0);  //按键松开才进入休眠
    		  
+    gpio_reset();
     // Prepare wakeup buttons.
     err_code = bsp_wakeup_buttons_set();
     APP_ERROR_CHECK(err_code);
 	
-    gpio_reset();
 	
     // Go to system-off mode (this function will not return; wakeup will cause a reset).
     err_code = sd_power_system_off();
