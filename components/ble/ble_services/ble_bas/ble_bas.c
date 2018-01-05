@@ -57,7 +57,7 @@ static void on_write(ble_bas_t * p_bas, ble_evt_t * p_ble_evt)
     if (
         (p_evt_write->handle == p_bas->battery_level_handles.cccd_handle)
         &&
-        (p_evt_write->len == 2 && Global_connected_state)
+        (p_evt_write->len == 2 && Global_connected_state)  //连接成功才能notify电量
        )
 			 {
 					if (ble_srv_is_notification_enabled(p_evt_write->data))

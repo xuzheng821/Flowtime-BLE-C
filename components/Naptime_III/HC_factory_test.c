@@ -9,7 +9,6 @@ bool StorySN =false;
 bool deleteUserid =false;
 
 extern bool ads1291_is_init;
-extern uint8_t Global_connected_state;
 extern uint8_t device_id_receive[16];
 extern uint8_t device_sn_receive[16];
 
@@ -65,8 +64,6 @@ void button_test(void)
 
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
-  if(Global_connected_state)         //只有进入工作模式且握手成功该标志位才会置1
-	{
 		switch(*pdata)
 		{
 			 case App_Nap_Start1291: if(ads1291_is_init == 0) 
@@ -80,15 +77,7 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 																		ADS1291_disable();
 																}							 
 																break;	
-
-			 default:
-						break;
-		}
-  }
-	if(Into_factory_test_mode)        //进入工厂测试模式
-	{
-		switch(*pdata)
-		{
+																
 			 case App_Nap_write_deviceid : 
 						memcpy(device_id_receive,pdata+1, 16);
 						StoryDeviceID = true;            
@@ -103,28 +92,22 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						deleteUserid = true;             
 						break;
 			 
-			 case App_Nap_Gotoledtest: 
-						led_test();                      
-						break;
-			 
-			 case App_Nap_Poweroff: 
-						sleep_mode_enter();              
-						break;
-			 
-			 case App_Nap_Start1291: if(ads1291_is_init == 0) 
-																{
-																		ads1291_init();
-																}							 
-																break;
-									
-			 case App_Nap_Stop1291: if(ads1291_is_init == 1) 
-																{
-																		ADS1291_disable();
-																}							 
-																break;	
+			 case App_Nap_Gotoledtest:
+           if(Into_factory_test_mode)        //进入工厂测试模式
+	         {						 
+							led_test(); 
+					 }						 
+					 break;
+					 
+					 case App_Nap_Poweroff:
+           if(Into_factory_test_mode)        //进入工厂测试模式
+	         {						 
+							sleep_mode_enter();
+					 }						 
+					 break;
 
 			 default:
 						break;
-		}  
-	}
+		}
 }
+

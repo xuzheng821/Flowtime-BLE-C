@@ -24,24 +24,12 @@
 #include "sdk_common.h"
 #include "HC_ads129x_driver.h"
 
-#define OPCODE_LENGTH 1                                                    /**< Length of opcode inside Heart Rate Measurement packet. */
-#define HANDLE_LENGTH 2                                                    /**< Length of handle inside Heart Rate Measurement packet. */
-#define MAX_HRM_LEN   20                                                   /**< Maximum size of a transmitted Heart Rate Measurement. */
+extern uint8_t Global_connected_state;
  
 #define BLE_UUID_EEG_TX_CHARACTERISTIC         0xFF31                      /**< The UUID of the RX Characteristic. */
 #define BLE_UUID_EEG_ELE_STATE_CHARACTERISTIC  0xFF32
 
 #define EEG_BASE_UUID  {{0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xCD, 0xAB, 0x12, 0x12, 0x00, 0x00, 0x00, 0x00}} /**< Used vendor specific UUID. */
-
-#define INITIAL_VALUE_HRM                       0                          /**< Initial Heart Rate Measurement value. */
-
-// Heart Rate Measurement flag bits
-#define HRM_FLAG_MASK_HR_VALUE_16BIT           (0x01 << 0)                 /**< Heart Rate Value Format bit. */
-#define HRM_FLAG_MASK_SENSOR_CONTACT_DETECTED  (0x01 << 1)                 /**< Sensor Contact Detected bit. */
-#define HRM_FLAG_MASK_SENSOR_CONTACT_SUPPORTED (0x01 << 2)                 /**< Sensor Contact Supported bit. */
-#define HRM_FLAG_MASK_EXPENDED_ENERGY_INCLUDED (0x01 << 3)                 /**< Energy Expended Status bit. Feature Not Supported */
-#define HRM_FLAG_MASK_RR_INTERVAL_INCLUDED     (0x01 << 4)                 /**< RR-Interval bit. */
-
 
 /**@brief Function for handling the Connect event.
  *
@@ -78,7 +66,7 @@ static void on_write(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
     if (
         (p_evt_write->handle == p_EEG->hrm_handles.cccd_handle)
         &&
-        (p_evt_write->len == 2)
+        (p_evt_write->len == 2 && Global_connected_state)   //握手成功才能notify数据
        )
     {
         if (ble_srv_is_notification_enabled(p_evt_write->data))
@@ -93,7 +81,7 @@ static void on_write(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
     if (
         (p_evt_write->handle == p_EEG->ele_state_handles.cccd_handle)
         &&
-        (p_evt_write->len == 2)
+        (p_evt_write->len == 2 && Global_connected_state)    //握手成功才能notify数据
        )
     {
         if (ble_srv_is_notification_enabled(p_evt_write->data))
@@ -174,7 +162,7 @@ static uint32_t eeg_ele_state_char_add(ble_EEG_t            * p_EEG,
     attr_char_value.p_attr_md = &attr_md;
     attr_char_value.init_len  = sizeof(uint8_t);
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = MAX_HRM_LEN;
+    attr_char_value.max_len   = 20;
 
     return sd_ble_gatts_characteristic_add(p_EEG->service_handle,
                                            &char_md,
@@ -235,7 +223,7 @@ static uint32_t heart_rate_measurement_char_add(ble_EEG_t            * p_EEG,
     attr_char_value.p_attr_md = &attr_md;
     attr_char_value.init_len  = sizeof(uint8_t);
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = MAX_HRM_LEN;
+    attr_char_value.max_len   = 20;
 
     return sd_ble_gatts_characteristic_add(p_EEG->service_handle,
                                            &char_md,
@@ -292,7 +280,6 @@ uint32_t ble_EEG_init(ble_EEG_t * p_EEG, const ble_EEG_init_t * p_EEG_init)
 uint32_t ble_EEG_DATA_send(ble_EEG_t * p_EEG, uint8_t * p_string, uint16_t length)
 {
     uint32_t err_code = BLE_ERROR_NO_TX_PACKETS;
-//    ble_gatts_value_t gatts_value;
 
     // Send value if connected and notifying.
     if ((p_EEG->conn_handle != BLE_CONN_HANDLE_INVALID) && p_EEG->is_eeg_notification_enabled)

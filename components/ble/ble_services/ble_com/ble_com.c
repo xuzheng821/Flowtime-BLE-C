@@ -20,17 +20,12 @@
 #include "HC_ads129x_driver.h"
 #include "protocol_analysis.h"
 
+extern uint8_t Global_connected_state;
+
 #define BLE_UUID_COM_Up_CHARACTERISTIC   0xFF21                      /**< The UUID of the Up Characteristic. */
 #define BLE_UUID_COM_Down_CHARACTERISTIC 0xFF22                      /**< The UUID of the Down Characteristic. */
 
-#define BLE_COM_MAX_Down_CHAR_LEN      BLE_COM_MAX_DATA_LEN        /**< Maximum length of the Down Characteristic (in bytes). */
-#define BLE_COM_MAX_Up_CHAR_LEN        BLE_COM_MAX_DATA_LEN        /**< Maximum length of the Up Characteristic (in bytes). */
-
 #define COM_BASE_UUID                  {{0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xCD, 0xAB, 0x12, 0x12, 0x00, 0x00, 0x00, 0x00}} /**< Used vendor specific UUID. */
-
-extern uint8_t Global_connected_state;
-
-//extern uint16_t                          m_conn_handle;                              /**< Handle of the current connection. */
 
 /**@brief Function for handling the @ref BLE_GAP_EVT_CONNECTED event from the S110 SoftDevice.
  *
@@ -67,7 +62,7 @@ static void on_write(ble_com_t * p_com, ble_evt_t * p_ble_evt)
 	  if (
         (p_evt_write->handle == p_com->Down_handles.cccd_handle)
         &&
-        (p_evt_write->len == 2 )
+        (p_evt_write->len == 2 && Global_connected_state)   //连接成功才能进行指令的交互
        )
     {
         if (ble_srv_is_notification_enabled(p_evt_write->data))
@@ -79,7 +74,7 @@ static void on_write(ble_com_t * p_com, ble_evt_t * p_ble_evt)
             p_com->is_notification_enabled = false;
         }
     }
-    else if (p_evt_write->handle == p_com->Up_handles.value_handle )  
+    else if (p_evt_write->handle == p_com->Up_handles.value_handle && Global_connected_state)  
     {
         App_Nap_data_Analysis(p_evt_write->data);	  
     } 
@@ -136,7 +131,7 @@ static uint32_t Down_char_add(ble_com_t * p_com, const ble_com_init_t * p_com_in
     attr_char_value.p_attr_md = &attr_md;
     attr_char_value.init_len  = sizeof(uint8_t);
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = BLE_COM_MAX_Down_CHAR_LEN;
+    attr_char_value.max_len   = 20;
 
     return sd_ble_gatts_characteristic_add(p_com->service_handle,
                                            &char_md,
@@ -188,7 +183,7 @@ static uint32_t Up_char_add(ble_com_t * p_com, const ble_com_init_t * p_com_init
     attr_char_value.p_attr_md = &attr_md;
     attr_char_value.init_len  = 1;
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = BLE_COM_MAX_Up_CHAR_LEN;
+    attr_char_value.max_len   = 20;
 
     return sd_ble_gatts_characteristic_add(p_com->service_handle,
                                            &char_md,

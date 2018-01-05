@@ -24,9 +24,6 @@
 #define BLE_UUID_Shakehands_CHARACTERISTIC      0xFF12                      /**< The UUID of the Down Characteristic. */
 #define BLE_UUID_State_up_CHARACTERISTIC        0xFF13                      /**< The UUID of the Up Characteristic. */
 
-#define BLE_CON_MAX_Down_CHAR_LEN      BLE_CON_MAX_DATA_LEN        /**< Maximum length of the Down Characteristic (in bytes). */
-#define BLE_CON_MAX_Up_CHAR_LEN        BLE_CON_MAX_DATA_LEN        /**< Maximum length of the Up Characteristic (in bytes). */
-
 #define CON_BASE_UUID                  {{0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xCD, 0xAB, 0x12, 0x12, 0x00, 0x00, 0x00, 0x00}} /**< Used vendor specific UUID. */
 
 extern bool ID_is_receive;
@@ -68,6 +65,38 @@ static void on_write(ble_conn_t * p_conn, ble_evt_t * p_ble_evt)
 		uint32_t err_code;
     ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
+    if (
+        (p_evt_write->handle == p_conn->Shakehands_handles.cccd_handle)
+        &&
+        (p_evt_write->len == 2)   //握手成功才能notify数据
+       )
+    {
+        if (ble_srv_is_notification_enabled(p_evt_write->data))
+        {
+            p_conn->is_Shakehands_notification_enabled = true;
+        }
+        else
+        {
+            p_conn->is_Shakehands_notification_enabled = false;
+        }
+    }
+    if (
+        (p_evt_write->handle == p_conn->State_up_handles.cccd_handle)
+        &&
+        (p_evt_write->len == 2)    //握手成功才能notify数据
+       )
+    {
+        if (ble_srv_is_notification_enabled(p_evt_write->data))
+        {
+            p_conn->is_state_notification_enabled = true;
+        }
+        else
+        {
+            p_conn->is_state_notification_enabled = false;
+        }
+    }
+	
+	
 	  if (p_evt_write->handle == p_conn->ID_down_handles.value_handle)  
     {
 				ble_Com_ID_Analysis(p_evt_write->data, p_evt_write->len);
@@ -149,7 +178,7 @@ static uint32_t ID_down_char_add(ble_conn_t * p_conn, const ble_conn_init_t * p_
     attr_char_value.p_attr_md = &attr_md;
     attr_char_value.init_len  = 1;
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = BLE_CON_MAX_Up_CHAR_LEN;
+    attr_char_value.max_len   = 20;
 
     return sd_ble_gatts_characteristic_add(p_conn->service_handle,
                                            &char_md,
@@ -205,7 +234,7 @@ static uint32_t Shakehands_down_char_add(ble_conn_t * p_conn, const ble_conn_ini
     attr_char_value.p_attr_md = &attr_md;
     attr_char_value.init_len  = 1;
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = BLE_CON_MAX_Up_CHAR_LEN;
+    attr_char_value.max_len   = 20;
 
     return sd_ble_gatts_characteristic_add(p_conn->service_handle,
                                            &char_md,
@@ -263,7 +292,7 @@ static uint32_t State_up_char_add(ble_conn_t * p_conn, const ble_conn_init_t * p
     attr_char_value.p_attr_md = &attr_md;
     attr_char_value.init_len  = sizeof(uint8_t);
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = BLE_CON_MAX_Down_CHAR_LEN;
+    attr_char_value.max_len   = 20;
 
     return sd_ble_gatts_characteristic_add(p_conn->service_handle,
                                            &char_md,
@@ -313,7 +342,8 @@ uint32_t ble_conn_init(ble_conn_t * p_conn, const ble_conn_init_t * p_conn_init)
     // Initialize the service structure.
     p_conn->conn_handle             = BLE_CONN_HANDLE_INVALID;
     p_conn->data_handler            = p_conn_init->data_handler;
-    p_conn->is_notification_enabled = true;
+    p_conn->is_Shakehands_notification_enabled = false;
+    p_conn->is_state_notification_enabled = false;
 
     /**@snippet [Adding proprietary Service to S110 SoftDevice] */
     // Add a custom base UUID.
@@ -339,9 +369,6 @@ uint32_t ble_conn_init(ble_conn_t * p_conn, const ble_conn_init_t * p_conn_init)
     VERIFY_SUCCESS(err_code);
 
     // Add the Up Characteristic.
-//    err_code = Shakehands_up_char_add(p_conn, p_conn_init);
-//    VERIFY_SUCCESS(err_code);
-
     err_code = State_up_char_add(p_conn, p_conn_init);
     VERIFY_SUCCESS(err_code);
 
@@ -355,7 +382,7 @@ uint32_t ble_Shakehands_string_send(ble_conn_t * p_conn, uint8_t * p_string, uin
 
     VERIFY_PARAM_NOT_NULL(p_conn);
 
-    if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_notification_enabled))
+    if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_Shakehands_notification_enabled))
     {
         return NRF_ERROR_INVALID_STATE;
     }
@@ -381,7 +408,7 @@ uint32_t ble_State_string_send(ble_conn_t * p_conn, uint8_t * p_string, uint16_t
 
     VERIFY_PARAM_NOT_NULL(p_conn);
 
-    if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_notification_enabled))
+    if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_state_notification_enabled))
     {
         return NRF_ERROR_INVALID_STATE;
     }

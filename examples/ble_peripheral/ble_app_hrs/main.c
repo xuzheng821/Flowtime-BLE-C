@@ -487,6 +487,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						}
 						if(Into_factory_test_mode)
 						{
+							  Global_connected_state = 1;
 						    app_uart_put(Nap_Tool_appconnectnap);
 							  factory_buttons_configure();
 						}

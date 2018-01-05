@@ -71,8 +71,8 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
   	bat_vol_old = min(bat_vol_old,bat_vol);
 	  Electricity_percentage = ( min(bat_vol_old,bat_vol) - 3.10 ) * 100; //电量百分比
 	
- 	  err_code = ble_bas_battery_level_update(&m_bas, Electricity_percentage);
-    APP_ERROR_CHECK(err_code);
+		err_code = ble_bas_battery_level_update(&m_bas, Electricity_percentage);
+		APP_ERROR_CHECK(err_code);
 }
 
 void Power_Check(void)
