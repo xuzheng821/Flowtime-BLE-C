@@ -66,30 +66,43 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 {
 		switch(*pdata)
 		{
-			 case App_Nap_Start1291: if(ads1291_is_init == 0) 
-																{
-																		ads1291_init();
-																}							 
-																break;
+			 case App_Nap_Start1291: 
+				    if(ads1291_is_init == 0) 
+						{
+								ads1291_init();
+						}							 
+						break;
 									
-			 case App_Nap_Stop1291: if(ads1291_is_init == 1) 
-																{
-																		ADS1291_disable();
-																}							 
-																break;	
+			 case App_Nap_Stop1291: 
+				    if(ads1291_is_init == 1) 
+						{
+								ADS1291_disable();
+						}							 
+						break;	
 																
 			 case App_Nap_write_deviceid : 
-						memcpy(device_id_receive,pdata+1, 16);
-						StoryDeviceID = true;            
+            if(Into_factory_test_mode)        //进入工厂测试模式
+	          {						 
+								memcpy(device_id_receive,pdata+1, 16);
+								StoryDeviceID = true;            
+					  }						 
 						break;
 			 
 			 case App_Nap_write_SN: 
-						memcpy(device_sn_receive,pdata+1, 16);
-						StorySN = true;            
+            if(Into_factory_test_mode)        //进入工厂测试模式
+	          {						 
+								memcpy(device_sn_receive,pdata+1, 16);
+						    StorySN = true;            
+					  }						 
+						            
 						break;
 			 
 			 case App_Nap_useriddelete: 
-						deleteUserid = true;             
+            if(Into_factory_test_mode)        //进入工厂测试模式
+	          {						 
+								deleteUserid = true;            
+					  }						 
+						             
 						break;
 			 
 			 case App_Nap_Gotoledtest:
