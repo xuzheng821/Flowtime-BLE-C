@@ -100,10 +100,7 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 					 break;
 					 
 					 case App_Nap_Poweroff:
-           if(Into_factory_test_mode)        //进入工厂测试模式
-	         {						 
-							sleep_mode_enter();
-					 }						 
+					 sleep_mode_enter();
 					 break;
 
 			 default:
