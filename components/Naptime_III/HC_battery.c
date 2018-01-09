@@ -4,7 +4,7 @@ ble_bas_t                    m_bas;                     /**< Structure used to i
 
 //全局变量
 double bat_vol;                         //实测电量
-double saft_vol = 3.2;                  //安全电压
+double saft_vol = 3.1;                  //安全电压
 double min_work_vol = 3.3;              //低电量
 
 extern bool Into_factory_test_mode;
@@ -74,7 +74,7 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
 		err_code = ble_bas_battery_level_update(&m_bas, Electricity_percentage);
 		APP_ERROR_CHECK(err_code);
 	
-		if(bat_vol < saft_vol + 0.1)                    //低于3.3V,关机
+		if(bat_vol < saft_vol)                        //低于3.1V,关机
 		{
 			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  sleep_mode_enter();
@@ -90,7 +90,7 @@ void Power_Check(void)
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
 	  bat_vol = ADC_value * 3.6 / 1024.0 * 6;         //电池电压实际电压
 	
-		if(bat_vol < saft_vol)                          //低于3.2V无法开机
+		if(bat_vol < saft_vol)                          //低于3.1V无法开机
 		{
 			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  sleep_mode_enter();

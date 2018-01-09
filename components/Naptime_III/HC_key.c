@@ -19,7 +19,7 @@ void button_power_on(void)
 			 key_tigger_num = 0;
 	     button_timer_start();
        while(nrf_gpio_pin_read(BUTTON) == 0);			
-       nrf_delay_ms(100);		
+       nrf_delay_ms(60);		
 		}
 }
 
@@ -59,14 +59,14 @@ void buttons_state_update(void)
 	  if(nrf_gpio_pin_read(BUTTON) == 0)     
 		{
 			   key_tigger_num ++;
-         if(key_tigger_num == 40)
+         if(key_tigger_num == 80)
 				 {
 		        SEGGER_RTT_printf(0," push_event \r\n");
 					  button_event = m_buttin_events.push_event;
 						button_event_handler(button_event);
 						return;
 				 }
-         else if(key_tigger_num == 80)	
+         else if(key_tigger_num == 160)	
 				 {
 		        SEGGER_RTT_printf(0," long_push_event \r\n");
 	          button_timer_stop();
@@ -78,14 +78,14 @@ void buttons_state_update(void)
 		else  //松开 
 		{
 	       button_timer_stop();
-			   if( key_tigger_num < 40 )
+			   if( key_tigger_num < 80 )
 				 {
 		        SEGGER_RTT_printf(0," tigger_event \r\n");
 					  button_event = m_buttin_events.tigger_event;
 						button_event_handler(button_event);
 						return;
 				 }
-				 if( 40 < key_tigger_num < 80 && button_state == advertising_buttons)  //伪关机
+				 if( 80 < key_tigger_num < 160 && button_state == advertising_buttons)  //伪关机
 				 {
 					   sleep_mode_enter();
 				 }

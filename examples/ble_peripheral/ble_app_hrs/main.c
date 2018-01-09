@@ -386,7 +386,11 @@ static void conn_params_init(void)
 
 static void gpio_reset(void)
 {
-	  nrf_gpio_cfg_output(LED_GPIO_BLUE);
+	  nrf_gpio_cfg_input(BQ_PG ,NRF_GPIO_PIN_PULLUP);
+    nrf_delay_ms(20);
+    while(nrf_gpio_pin_read(BUTTON) == 0);  //按键松开才进入休眠
+
+  	nrf_gpio_cfg_output(LED_GPIO_BLUE);
     nrf_gpio_cfg_output(LED_GPIO_RED);
 	  nrf_gpio_cfg_output(LED_GPIO_GREEN);
 	  nrf_gpio_cfg_output(AEF_PM_EN);
@@ -405,15 +409,13 @@ static void gpio_reset(void)
 void sleep_mode_enter(void)
 {
     uint32_t err_code;
-	
-    while(nrf_gpio_pin_read(BUTTON) == 0);  //按键松开才进入休眠
    		  
     gpio_reset();
     // Prepare wakeup buttons.
     err_code = bsp_wakeup_buttons_set();
     APP_ERROR_CHECK(err_code);
 	
-	
+	  
     // Go to system-off mode (this function will not return; wakeup will cause a reset).
     err_code = sd_power_system_off();
     APP_ERROR_CHECK(err_code);
