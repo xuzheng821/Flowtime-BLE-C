@@ -26,7 +26,7 @@ extern void button_event_handler(button_event_t event);
 
 #define wdt_timer_interval         APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
 #define button_timer_interval      APP_TIMER_TICKS(20, APP_TIMER_PRESCALER)  
-#define led_timer_interval         APP_TIMER_TICKS(20000, APP_TIMER_PRESCALER)
+#define led_timer_interval         APP_TIMER_TICKS(120000, APP_TIMER_PRESCALER)
 #define led_test_timer_interval    APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
 #define battery_timer_interval     APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) /**< Battery level measurement interval (ticks). */
 #define connect_timer_interval     APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
