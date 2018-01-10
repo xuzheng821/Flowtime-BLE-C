@@ -79,8 +79,8 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
 			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  sleep_mode_enter();
 		}
-		else
-			  SEGGER_RTT_printf(0,"\r Voltage is higher than 3.1V \r\n");
+//		else
+//			  SEGGER_RTT_printf(0,"\r Voltage is higher than 3.1V \r\n");
 	
 }
 

@@ -98,12 +98,14 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 				    break;
 
 	    case  BSP_INDICATE_Battery_CHARGING:    //³äµç×´Ì¬£¬ºìµÆ³£ÁÁ
+				    LED_GREEN(0);
             LED_RED(250,LED_Red_pro);
             m_stable_state = indicate;
 				    break;
 
     	case  BSP_INDICATE_Battery_CHARGEOVER:  //³äµçÍê³É×´Ì¬£¬ÂÌµÆ³£ÁÁ
 						LED_GREEN(LED_Green_pro);
+				    LED_RED(2,0);
             m_stable_state = indicate;
 				    break;
 

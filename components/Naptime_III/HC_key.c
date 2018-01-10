@@ -3,7 +3,8 @@
 bsp_button_event_cfg_t m_buttin_events;
 
 uint8_t button_state = 0xff;
-uint8_t key_tigger_num = 0;   //按键按下超时计数
+uint16_t key_tigger_num = 0;   //按键按下超时计数
+uint8_t Key_detection_interval = 20;  //20ms
 
 extern bool APP_restart;      //软复位判断
 extern bool Into_factory_test_mode;
@@ -19,7 +20,7 @@ void button_power_on(void)
 			 key_tigger_num = 0;
 	     button_timer_start();
        while(nrf_gpio_pin_read(BUTTON) == 0);			
-       nrf_delay_ms(60);		
+       nrf_delay_ms(Key_detection_interval * 10);		
 		}
 }
 
@@ -59,14 +60,15 @@ void buttons_state_update(void)
 	  if(nrf_gpio_pin_read(BUTTON) == 0)     
 		{
 			   key_tigger_num ++;
-         if(key_tigger_num == 80)
+			   SEGGER_RTT_printf(0," %d \r\n",key_tigger_num);
+         if(key_tigger_num == 2000/Key_detection_interval)
 				 {
 		        SEGGER_RTT_printf(0," push_event \r\n");
 					  button_event = m_buttin_events.push_event;
 						button_event_handler(button_event);
 						return;
 				 }
-         else if(key_tigger_num == 160)	
+         else if(key_tigger_num == 4000/Key_detection_interval)	
 				 {
 		        SEGGER_RTT_printf(0," long_push_event \r\n");
 	          button_timer_stop();
@@ -78,14 +80,14 @@ void buttons_state_update(void)
 		else  //松开 
 		{
 	       button_timer_stop();
-			   if( key_tigger_num < 80 )
+			   if( key_tigger_num < 2000/Key_detection_interval )
 				 {
 		        SEGGER_RTT_printf(0," tigger_event \r\n");
 					  button_event = m_buttin_events.tigger_event;
 						button_event_handler(button_event);
 						return;
 				 }
-				 if( 80 < key_tigger_num < 160 && button_state == advertising_buttons)  //伪关机
+				 if( 2000/Key_detection_interval < key_tigger_num < 4000/Key_detection_interval && button_state == advertising_buttons)  //伪关机
 				 {
 					   sleep_mode_enter();
 				 }

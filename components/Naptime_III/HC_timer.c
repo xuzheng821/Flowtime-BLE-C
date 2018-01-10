@@ -11,13 +11,6 @@ APP_TIMER_DEF(m_buttons_timer_id);
 APP_TIMER_DEF(m_batterys_timer_id); 
 APP_TIMER_DEF(m_connects_timer_id); 
 
-#define wdt_timer_interval         APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
-#define button_timer_interval      APP_TIMER_TICKS(25, APP_TIMER_PRESCALER)   /**< Battery level measurement interval (ticks). */
-#define led_timer_interval         APP_TIMER_TICKS(20000, APP_TIMER_PRESCALER)
-#define led_test_timer_interval    APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
-#define battery_timer_interval     APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) /**< Battery level measurement interval (ticks). */
-#define connect_timer_interval     APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
-
 bool Is_led_timer_start = false;
 
 extern uint8_t key_tigger_num;      //按键按下超时计数
@@ -30,6 +23,14 @@ extern nrf_drv_wdt_channel_id      m_channel_id;
 extern bsp_button_event_cfg_t      m_buttin_events;
 
 extern void button_event_handler(button_event_t event);
+
+#define wdt_timer_interval         APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
+#define button_timer_interval      APP_TIMER_TICKS(20, APP_TIMER_PRESCALER)  
+#define led_timer_interval         APP_TIMER_TICKS(20000, APP_TIMER_PRESCALER)
+#define led_test_timer_interval    APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
+#define battery_timer_interval     APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) /**< Battery level measurement interval (ticks). */
+#define connect_timer_interval     APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
+
 
 /**@brief Function for the Timer initialization.
  *

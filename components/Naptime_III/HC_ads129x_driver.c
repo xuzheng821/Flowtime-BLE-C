@@ -169,7 +169,7 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 		   memcpy((ADCData1 + Data_Num * 3),Data,3);
 		   Data_Num ++;
 			 
-			 if(Data_Num % 50 == 0)
+			 if(Data_Num % 125 == 0)
 			 {
 					 LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
 					 ble_state_send(LOFF_State);

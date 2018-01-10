@@ -145,6 +145,8 @@ extern bool Into_factory_test_mode;
 extern bool deleteUserid;
 extern bool StoryDeviceID;
 extern bool StorySN;
+//
+extern nrf_drv_wdt_channel_id      m_channel_id;
 //广播状态
 bool ble_is_adv = false;
 //广播UUID
@@ -386,10 +388,12 @@ static void conn_params_init(void)
 
 static void gpio_reset(void)
 {
-	  nrf_gpio_cfg_input(BQ_PG ,NRF_GPIO_PIN_PULLUP);
-    nrf_delay_ms(20);
-    while(nrf_gpio_pin_read(BUTTON) == 0);  //按键松开才进入休眠
-
+    while(nrf_gpio_pin_read(BUTTON) == 0)   //按键松开才进入休眠
+    {
+			 nrf_drv_wdt_channel_feed(m_channel_id);
+			 nrf_delay_ms(100);
+		}
+		
   	nrf_gpio_cfg_output(LED_GPIO_BLUE);
     nrf_gpio_cfg_output(LED_GPIO_RED);
 	  nrf_gpio_cfg_output(LED_GPIO_GREEN);
@@ -409,13 +413,12 @@ static void gpio_reset(void)
 void sleep_mode_enter(void)
 {
     uint32_t err_code;
-   		  
-    gpio_reset();
+
+	  gpio_reset();
     // Prepare wakeup buttons.
     err_code = bsp_wakeup_buttons_set();
     APP_ERROR_CHECK(err_code);
 	
-	  
     // Go to system-off mode (this function will not return; wakeup will cause a reset).
     err_code = sd_power_system_off();
     APP_ERROR_CHECK(err_code);
