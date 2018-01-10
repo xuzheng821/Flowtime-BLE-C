@@ -67,11 +67,11 @@ static void on_write(ble_com_t * p_com, ble_evt_t * p_ble_evt)
     {
         if (ble_srv_is_notification_enabled(p_evt_write->data))
         {
-            p_com->is_notification_enabled = true;
+            p_com->is_com_notification_enabled = true;
         }
         else
         {
-            p_com->is_notification_enabled = false;
+            p_com->is_com_notification_enabled = false;
         }
     }
     else if (p_evt_write->handle == p_com->Up_handles.value_handle && Global_connected_state)  
@@ -231,7 +231,7 @@ uint32_t ble_com_init(ble_com_t * p_com, const ble_com_init_t * p_com_init)
     // Initialize the service structure.
     p_com->conn_handle             = BLE_CONN_HANDLE_INVALID;
     p_com->data_handler            = p_com_init->data_handler;
-    p_com->is_notification_enabled = false;
+    p_com->is_com_notification_enabled = false;
 
     /**@snippet [Adding proprietary Service to S110 SoftDevice] */
     // Add a custom base UUID.
@@ -273,7 +273,7 @@ uint32_t ble_com_string_send(ble_com_t * p_com, uint8_t * p_string, uint16_t len
         return NRF_ERROR_INVALID_PARAM;
     }
 		
-    if ((p_com->conn_handle != BLE_CONN_HANDLE_INVALID) || (p_com->is_notification_enabled))
+    if ((p_com->conn_handle != BLE_CONN_HANDLE_INVALID) && (p_com->is_com_notification_enabled))
     {
 				memset(&hvx_params, 0, sizeof(hvx_params));
 

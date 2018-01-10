@@ -68,7 +68,7 @@ struct ble_com_s
     ble_gatts_char_handles_t Up_handles;              /**< Handles related to the Up characteristic (as provided by the SoftDevice). */
     ble_gatts_char_handles_t Down_handles;              /**< Handles related to the Down characteristic (as provided by the SoftDevice). */
     uint16_t                 conn_handle;             /**< Handle of the current connection (as provided by the SoftDevice). BLE_CONN_HANDLE_INVALID if not in a connection. */
-    bool                     is_notification_enabled; /**< Variable to indicate if the peer has enabled notification of the Down characteristic.*/
+    bool                     is_com_notification_enabled; /**< Variable to indicate if the peer has enabled notification of the Down characteristic.*/
     ble_com_data_handler_t   data_handler;            /**< Event handler to be called for handling received data. */
 };
 

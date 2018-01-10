@@ -660,18 +660,6 @@ void button_event_handler(button_event_t event)
              APP_ERROR_CHECK(err_code);
              break;
 				
-				case BUTTON_EVENT_POWER_OFF:                                        //ok
-					   SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_OFF \n");
-						 err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
-             APP_ERROR_CHECK(err_code);
-				     sleep_mode_enter();
-             break;
-
-				case BUTTON_EVENT_SLEEP:                                            //ok
-					   SEGGER_RTT_printf(0," BUTTON_EVENT_SLEEP \n");
-			 	     sleep_mode_enter();
-             break;
-
         case BUTTON_EVENT_WHITELIST_OFF:                                    //ok
              SEGGER_RTT_printf(0," BUTTON_EVENT_WHITELIST_OFF \n");
 						 err_code = bsp_led_indication(BLE_INDICATE_WITHOUT_WHITELIST);
@@ -687,12 +675,24 @@ void button_event_handler(button_event_t event)
                  APP_ERROR_CHECK(err_code);
 						 }
 				     break;
-				
+
+        case BUTTON_EVENT_DISCONNECT:                                    //ok
+      			 Is_white_adv = false;
+						 err_code = sd_ble_gap_disconnect(m_conn_handle,
+																							 BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+						 APP_ERROR_CHECK(err_code);
+				     break;
+						 
         case BUTTON_EVENT_POWER_OFF_LED:
              SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_OFF_LED \n");
 						 err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
              APP_ERROR_CHECK(err_code);
 				     break;
+				
+				case BUTTON_EVENT_SLEEP:                                            //ok
+					   SEGGER_RTT_printf(0," BUTTON_EVENT_SLEEP \n");
+			 	     sleep_mode_enter();
+             break;
 				
         case BUTTON_EVENT_FACTORY_TEST:
              SEGGER_RTT_printf(0," BUTTON_EVENT_FACTORY_TEST \n");

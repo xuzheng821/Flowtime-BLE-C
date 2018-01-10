@@ -16,6 +16,12 @@ double min(double a, double b)
     return a<b?a:b;
 }
 
+double adv(double a, double b)
+{
+    return (a+b)/2;
+}
+
+
 void ble_battory_serv_init(void)    //电池服务初始化
 {
 	  uint32_t        err_code;
@@ -62,33 +68,30 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
 {
     uint32_t err_code;
 	  double Electricity_percentage;                 //电量百分比
-	  static double  bat_vol_old = 4.10;	                                
+	  static double bat_vol_old = 4.1;
 	
 	  nrf_saadc_value_t  ADC_value = 0;	             //ADC读取数据
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_vol = ADC_value * 3.6 / 1024.0 * 6;        //电池电压实际电压
-
-  	bat_vol_old = min(bat_vol_old,bat_vol);
-	  Electricity_percentage = ( min(bat_vol_old,bat_vol) - 3.10 ) * 100; //电量百分比
-	
+  	bat_vol = ADC_value * 3.68 / 1024.0 * 2;       //电池测量电压
+	  
+		bat_vol_old = adv(bat_vol,bat_vol_old);
+	  Electricity_percentage = ( bat_vol_old - 3.10 ) * 100;     //电量百分比
+	  SEGGER_RTT_printf(0,"\r Voltage %d \r\n",(uint8_t)Electricity_percentage);
 		err_code = ble_bas_battery_level_update(&m_bas, Electricity_percentage);
 		APP_ERROR_CHECK(err_code);
 	
-		if(bat_vol < saft_vol)                        //低于3.1V,关机
+		if(bat_vol < saft_vol)                         //低于3.1V,关机
 		{
 			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  sleep_mode_enter();
 		}
-//		else
-//			  SEGGER_RTT_printf(0,"\r Voltage is higher than 3.1V \r\n");
-	
 }
 
 void Power_Check(void)
 {
 	  nrf_saadc_value_t  ADC_value = 0;	              //ADC读取数据
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_vol = ADC_value * 3.6 / 1024.0 * 6;         //电池电压实际电压
+	  bat_vol = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
 	
 		if(bat_vol < saft_vol)                          //低于3.1V无法开机
 		{
@@ -103,7 +106,7 @@ uint8_t connected_power_check(void)
 {
 		nrf_saadc_value_t  ADC_value = 0;	              //电量检测,先初始化ADC
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_vol = ADC_value * 3.6 / 1024 * 6;           //电池电压
+	  bat_vol = ADC_value * 3.6 / 1024.0 * 2;         //电池电压
 	
 	  if(bat_vol < min_work_vol)                      //低于使用电压
 	  {

@@ -137,6 +137,7 @@ void Handshake_agreement_third(uint8_t * p_data)
 			  Is_white_adv  = true;
 			  connects_timer_stop();
 			  Global_connected_state = 1;
+			  SEGGER_RTT_printf(0,"\r Global_connected_state = 1 \r\n");
 		 }
 		 else
 		 {
