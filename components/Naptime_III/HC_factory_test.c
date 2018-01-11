@@ -55,11 +55,11 @@ void led_test(void)
 
 void button_test(void)
 {
-	    uint32_t err_code;
+//	    uint32_t err_code;
 
-	    uint8_t button_state_test[1] = {Nap_App_keyPress};
-	    err_code = ble_com_string_send(&m_com, button_state_test , 1);
-			APP_ERROR_CHECK(err_code);
+//	    uint8_t button_state_test[1] = {Nap_App_keyPress};
+//	    err_code = ble_com_string_send(&m_com, button_state_test , 1);
+//			APP_ERROR_CHECK(err_code);
 }
 
 void App_Nap_data_Analysis(uint8_t *pdata)

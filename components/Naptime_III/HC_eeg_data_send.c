@@ -65,6 +65,8 @@ void ble_send_more_data(uint8_t *pdata)
 void ble_state_send(uint8_t pdata)
 {
    uint32_t err_code;
-	 err_code = ble_EEG_ELE_STATE_send(&m_EEG,pdata, 1);
-	 APP_ERROR_CHECK(err_code);
+	 do{
+		 err_code = ble_EEG_ELE_STATE_send(&m_EEG,pdata, 1);
+	 }while(err_code == BLE_ERROR_NO_TX_PACKETS);
+
 }

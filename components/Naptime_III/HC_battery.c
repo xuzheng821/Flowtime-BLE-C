@@ -77,7 +77,13 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
 		bat_vol_old = adv(bat_vol,bat_vol_old);
 	  Electricity_percentage = ( bat_vol_old - 3.10 ) * 100;     //电量百分比
 	  SEGGER_RTT_printf(0,"\r Voltage %d \r\n",(uint8_t)Electricity_percentage);
-		err_code = ble_bas_battery_level_update(&m_bas, Electricity_percentage);
+	
+	  if(Electricity_percentage > 100)
+			Electricity_percentage = 100;
+		do{
+		   err_code = ble_bas_battery_level_update(&m_bas, Electricity_percentage);
+		}while(err_code == BLE_ERROR_NO_TX_PACKETS);
+		
 		APP_ERROR_CHECK(err_code);
 	
 		if(bat_vol < saft_vol)                         //低于3.1V,关机

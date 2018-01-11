@@ -164,8 +164,9 @@ void Story_Device_ID(void)
 		 
 	   senddata[0] = Nap_App_send_deviceid;                       //上传App
 	   memcpy(senddata+1,device_id, 16);
-	   err_code = ble_com_string_send(&m_com, senddata , 17);
-		 APP_ERROR_CHECK(err_code);
+		 do{
+	     err_code = ble_com_string_send(&m_com, senddata , 17);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS);
 		 
 		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_Device_ID \r\n\n");
 }
@@ -199,8 +200,10 @@ void Story_SN(void)
 		 
 	   senddata[0] = Nap_App_send_SN;                             //上传App
 	   memcpy(senddata+1,SN_buff, 16);
-	   err_code = ble_com_string_send(&m_com, senddata , 17);
-		 APP_ERROR_CHECK(err_code);
+
+		 do{
+	     err_code = ble_com_string_send(&m_com, senddata , 17);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS);
 		 
 		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_SN \r\n\n");
 }
@@ -250,8 +253,10 @@ void delete_User_id(void)
 		 
 	   senddata[0] = Nap_App_send_userid;
 	   memcpy(senddata+1,userid_buff, 4);
-	   err_code = ble_com_string_send(&m_com, senddata , 5);
-		 APP_ERROR_CHECK(err_code);
+
+		 do{
+	     err_code = ble_com_string_send(&m_com, senddata , 5);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS);
 		 
 		 SEGGER_RTT_printf(0,"<<[FLASH]: delete_User_id \r\n\n"); 
 }
