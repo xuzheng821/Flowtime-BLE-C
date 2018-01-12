@@ -4,7 +4,7 @@ bsp_button_event_cfg_t m_buttin_events;
 
 uint8_t button_state = 0xff;
 uint16_t key_tigger_num = 0;   //按键按下超时计数
-uint8_t Key_detection_interval = 20;  //20ms
+uint8_t Key_detection_interval = 50;  //20ms
 
 extern bool APP_restart;      //软复位判断
 extern bool Into_factory_test_mode;
