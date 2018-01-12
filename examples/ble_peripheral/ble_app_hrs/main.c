@@ -20,10 +20,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "nordic_common.h"
 #include "nrf.h"
-#include "nrf_assert.h"
-#include "nrf_log.h"
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
 #include "nrf_drv_rng.h"
@@ -44,13 +41,14 @@
 #include "ble_dis.h"
 #include "ble_com.h"
 #include "ble_conn.h"
-#include "pstorage.h"
-#include "device_manager.h"
-#include "softdevice_handler.h"
 #ifdef BLE_DFU_APP_SUPPORT
 #include "ble_dfu.h"
 #include "dfu_app_handler.h"
 #endif 
+#include "pstorage.h"
+#include "nordic_common.h"
+#include "device_manager.h"
+#include "softdevice_handler.h"
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
 #include "HC_led.h"
@@ -70,65 +68,65 @@
 #include "protocol_analysis.h"
 
 //服务发现
-#define IS_SRVC_CHANGED_CHARACT_PRESENT  1                                          /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
+#define IS_SRVC_CHANGED_CHARACT_PRESENT  1                                           /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
 //主从机连接数量参数
-#define CENTRAL_LINK_COUNT               0                                          /**< Number of central links used by the application. When changing this number remember to adjust the RAM settings*/
-#define PERIPHERAL_LINK_COUNT            1                                          /**< Number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
+#define CENTRAL_LINK_COUNT               0                                           /**< Number of central links used by the application. When changing this number remember to adjust the RAM settings*/
+#define PERIPHERAL_LINK_COUNT            1                                           /**< Number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
 //广播参数
-#define APP_ADV_FAST_INTERVAL            0x00a0       //200ms                       /**< Fast advertising interval (in units of 0.625 ms. This value corresponds to 25 ms.). */
-#define APP_ADV_SLOW_INTERVAL            0x0320       //1000ms                       /**< Slow advertising interval (in units of 0.625 ms. This value corrsponds to 2 seconds). */
-#define APP_ADV_FAST_TIMEOUT             120                                        /**< The duration of the fast advertising period (in seconds). */
-#define APP_ADV_SLOW_TIMEOUT             0                                          /**< The duration of the slow advertising period (in seconds). */
+#define APP_ADV_FAST_INTERVAL            0x00a0       //100ms                        /**< Fast advertising interval (in units of 0.625 ms. This value corresponds to 25 ms.). */
+#define APP_ADV_SLOW_INTERVAL            0x0320       //500ms                        /**< Slow advertising interval (in units of 0.625 ms. This value corrsponds to 2 seconds). */
+#define APP_ADV_FAST_TIMEOUT             120                                         /**< The duration of the fast advertising period (in seconds). */
+#define APP_ADV_SLOW_TIMEOUT             0                                           /**< The duration of the slow advertising period (in seconds). */
 //定时器参数
-#define APP_TIMER_PRESCALER              0                                          /**< Value of the RTC1 PRESCALER register. */
+#define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
 //连接参数
-#define MIN_CONN_INTERVAL                MSEC_TO_UNITS(30, UNIT_1_25_MS)           /**< Minimum acceptable connection interval (0.4 seconds). */
-#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(60, UNIT_1_25_MS)           /**< Maximum acceptable connection interval (0.65 second). */
-#define SLAVE_LATENCY                    0                                          /**< Slave latency. */
-#define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS(5000, UNIT_10_MS)            /**< Connection supervisory timeout (4 seconds). */
+#define MIN_CONN_INTERVAL                MSEC_TO_UNITS(30, UNIT_1_25_MS)             /**< Minimum acceptable connection interval (0.4 seconds). */
+#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(60, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (0.65 second). */
+#define SLAVE_LATENCY                    0                                           /**< Slave latency. */
+#define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS(5000, UNIT_10_MS)             /**< Connection supervisory timeout (4 seconds). */
 //连接间隔更新参数
-#define FIRST_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(100, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
-#define NEXT_CONN_PARAMS_UPDATE_DELAY    APP_TIMER_TICKS(3000, APP_TIMER_PRESCALER)/**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
-#define MAX_CONN_PARAMS_UPDATE_COUNT     3                                          /**< Number of attempts before giving up the connection parameter negotiation. */
+#define FIRST_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(100, APP_TIMER_PRESCALER)   /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
+#define NEXT_CONN_PARAMS_UPDATE_DELAY    APP_TIMER_TICKS(3000, APP_TIMER_PRESCALER)  /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
+#define MAX_CONN_PARAMS_UPDATE_COUNT     3                                           /**< Number of attempts before giving up the connection parameter negotiation. */
 //堆栈错误调试测参数
-#define DEAD_BEEF                        0xDEADBEEF                                 /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
-#define APP_FEATURE_NOT_SUPPORTED        BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2       /**< Reply when unsupported features are requested. */
+#define DEAD_BEEF                        0xDEADBEEF                                  /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
+#define APP_FEATURE_NOT_SUPPORTED        BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */
 //安全参数
-#define SEC_PARAM_BOND                   1                                          /**< Perform bonding. */
-#define SEC_PARAM_MITM                   0                                          /**< Man In The Middle protection not required. */
-#define SEC_PARAM_LESC                   0                                          /**< LE Secure Connections not enabled. */
-#define SEC_PARAM_KEYPRESS               0                                          /**< Keypress notifications not enabled. */
-#define SEC_PARAM_IO_CAPABILITIES        BLE_GAP_IO_CAPS_NONE                       /**< No I/O capabilities. */
-#define SEC_PARAM_OOB                    0                                          /**< Out Of Band data not available. */
-#define SEC_PARAM_MIN_KEY_SIZE           7                                          /**< Minimum encryption key size. */
-#define SEC_PARAM_MAX_KEY_SIZE           16                                         /**< Maximum encryption key size. */
+#define SEC_PARAM_BOND                   1                                           /**< Perform bonding. */
+#define SEC_PARAM_MITM                   0                                           /**< Man In The Middle protection not required. */
+#define SEC_PARAM_LESC                   0                                           /**< LE Secure Connections not enabled. */
+#define SEC_PARAM_KEYPRESS               0                                           /**< Keypress notifications not enabled. */
+#define SEC_PARAM_IO_CAPABILITIES        BLE_GAP_IO_CAPS_NONE                        /**< No I/O capabilities. */
+#define SEC_PARAM_OOB                    0                                           /**< Out Of Band data not available. */
+#define SEC_PARAM_MIN_KEY_SIZE           7                                           /**< Minimum encryption key size. */
+#define SEC_PARAM_MAX_KEY_SIZE           16                                          /**< Maximum encryption key size. */
 //DFU固件升级
 #ifdef  BLE_DFU_APP_SUPPORT
-#define DFU_REV_MAJOR                    0x00                                       /** DFU Major revision number to be exposed. */
-#define DFU_REV_MINOR                    0x01                                       /** DFU Minor revision number to be exposed. */
-#define DFU_REVISION                     ((DFU_REV_MAJOR << 8) | DFU_REV_MINOR)     /** DFU Revision number to be exposed. combined of major and minor versions. */
-#define APP_SERVICE_HANDLE_START         0x000C                                     /**< Handle of first application specific service when when service changed characteristic is present. */
-#define BLE_HANDLE_MAX                   0xFFFF                                     /**< Max handle value in BLE. */
-STATIC_ASSERT(IS_SRVC_CHANGED_CHARACT_PRESENT);                                     /** When having DFU Service support in application the Service Changed Characteristic should always be present. */
-static ble_dfu_t                         m_dfus;                                    /**< Structure used to identify the DFU service. */
+#define DFU_REV_MAJOR                    0x00                                        /** DFU Major revision number to be exposed. */
+#define DFU_REV_MINOR                    0x01                                        /** DFU Minor revision number to be exposed. */
+#define DFU_REVISION                     ((DFU_REV_MAJOR << 8) | DFU_REV_MINOR)      /** DFU Revision number to be exposed. combined of major and minor versions. */
+#define APP_SERVICE_HANDLE_START         0x000C                                      /**< Handle of first application specific service when when service changed characteristic is present. */
+#define BLE_HANDLE_MAX                   0xFFFF                                      /**< Max handle value in BLE. */
+STATIC_ASSERT(IS_SRVC_CHANGED_CHARACT_PRESENT);                                      /** When having DFU Service support in application the Service Changed Characteristic should always be present. */
+static ble_dfu_t                         m_dfus;                                     /**< Structure used to identify the DFU service. */
 #endif // BLE_DFU_APP_SUPPORT
 //服务变量
+extern ble_bas_t                         m_bas;                                      /**< Structure used to identify the battery service. */
+extern ble_com_t                         m_com;                                      /**< Structure to identify the Nordic UART Service. */
+extern ble_conn_t                        m_conn;                                     /**< Structure to identify the Nordic UART Service. */
+extern ble_EEG_t                         m_EEG;                                      /**< Structure used to identify the heart rate service. */
 extern uint16_t                          m_conn_handle;                              /**< Handle of the current connection. */
 static dm_application_instance_t         m_app_handle;                               /**< Application identifier allocated by device manager. */
-extern ble_bas_t                         m_bas;                                      /**< Structure used to identify the battery service. */
-extern ble_EEG_t                         m_EEG;                                      /**< Structure used to identify the heart rate service. */
-extern ble_conn_t                        m_conn;                                     /**< Structure to identify the Nordic UART Service. */
-extern ble_com_t                         m_com;                                     /**< Structure to identify the Nordic UART Service. */
 //EEG数据传输变量与标志位
-extern uint8_t ADCData2[750];
+extern uint8_t EEG_DATA_SEND[750]; //需要发送的脑电数据
 extern uint8_t Send_Flag;
-extern bool ads1291_is_init;
+extern bool ads1291_is_init;       //1291初始化标志位
 //连接状态标志位
 extern bool Is_white_adv;
 extern bool ID_is_change;
 extern bool Is_device_bond;  
 extern uint8_t communocate_state[5];
-uint8_t Global_connected_state = 0;
+bool Global_connected_state = false;
 //LED状态控制与标志位
 extern uint8_t led_blue_timerout;
 extern uint8_t led_red_timerout;
@@ -137,15 +135,12 @@ extern led_indication_t m_stable_state;
 extern double min_work_vol;
 extern double saft_vol;
 extern double bat_vol;
-extern bool saadc_is_init;
-//按键状态
-extern uint8_t key_tigger_num;
 //工厂测试
 extern bool Into_factory_test_mode;
 extern bool deleteUserid;
 extern bool StoryDeviceID;
 extern bool StorySN;
-//
+//看门狗
 extern nrf_drv_wdt_channel_id      m_channel_id;
 //广播状态
 bool ble_is_adv = false;
@@ -491,7 +486,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						}
 						if(Into_factory_test_mode)
 						{
-							  Global_connected_state = 1;
+							  Global_connected_state = true;
 						    app_uart_put(Nap_Tool_appconnectnap);
 							  factory_buttons_configure();
 						}
@@ -509,12 +504,12 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
 					  err_code = bsp_led_indication(BSP_INDICATE_IDLE);
             APP_ERROR_CHECK(err_code);
-            if(ads1291_is_init == 1)
+            if(ads1291_is_init == true)
 						{			
 					   	 ADS1291_disable();
 						}
 //					  connects_timer_stop();
-						Global_connected_state = 0;
+						Global_connected_state = false;
             break;
 
         case BLE_GATTS_EVT_TIMEOUT:
@@ -527,7 +522,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 				case BLE_EVT_TX_COMPLETE:				//启动后发送20字节，当20字节发送完成后收到BLE_EVT_TX_comPLETE，然后发送剩余数据
 				     if (Send_Flag == 1)
 	           { 
-	    	         ble_send_more_data(ADCData2); 
+	    	         ble_send_more_data(EEG_DATA_SEND); 
 	           }
 				     break;
 
@@ -640,13 +635,13 @@ void button_event_handler(button_event_t event)
                  err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
-						 else if(led_blue_timerout == 1 && Global_connected_state == 1)  //蓝灯灭&&已连接&&电量足  && bat_Vol > MIN_Work_vol  
+						 else if(led_blue_timerout == 1 && Global_connected_state == true)  //蓝灯灭&&已连接&&电量足  && bat_Vol > MIN_Work_vol  
 						 {
 							   led_blue_timerout = 0;
                  err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);   //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 					 	 }
-						 else if(led_blue_timerout == 1 && Global_connected_state == 0)  //蓝灯灭&&未连接&&电量足  && bat_Vol > MIN_Work_vol 
+						 else if(led_blue_timerout == 1 && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_Vol > MIN_Work_vol 
 						 {
 							   led_blue_timerout = 0;
                  err_code = bsp_led_indication(BLE_INDICATE_WITH_WHITELIST);   //LED状态设置
@@ -694,12 +689,6 @@ void button_event_handler(button_event_t event)
 			 	     sleep_mode_enter();
              break;
 				
-        case BUTTON_EVENT_FACTORY_TEST:
-             SEGGER_RTT_printf(0," BUTTON_EVENT_FACTORY_TEST \n");
-						 button_test();                                                 //发送按键被按下
-				     break;				
-				
-
         default:
             break;
     }

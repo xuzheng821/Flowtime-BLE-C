@@ -7,7 +7,7 @@ uint32_t Num_Time;       //每一帧数据包头2个字节，不断累加
 uint8_t send_num = 0;    //一秒发送50帧数据，记录发送到第几帧数据
 uint8_t Send_Flag = 0;   //第一帧数据发送完成
 uint8_t Data_send[17];   //发送数据缓存
-extern uint8_t ADCData2[750];
+extern uint8_t EEG_DATA_SEND[750];
 
 //调用该函数发送第一帧数据
 uint32_t ble_send_data(uint8_t *pdata)
@@ -42,7 +42,7 @@ void ble_send_more_data(uint8_t *pdata)
 			 { 
 					send_num = 0x00;
 					Send_Flag = 0;
-					memset(&ADCData2,0,sizeof(ADCData2));
+					memset(&EEG_DATA_SEND,0,sizeof(EEG_DATA_SEND));
 					return; 
 			 }
 

@@ -96,7 +96,7 @@ struct ble_EEG_s
     ble_EEG_evt_handler_t        evt_handler;                                          /**< Event handler to be called for handling events in the Heart Rate Service. */
     uint16_t                     service_handle;                                       /**< Handle of Heart Rate Service (as provided by the BLE stack). */
     ble_gatts_char_handles_t     ele_state_handles;
-  	ble_gatts_char_handles_t     hrm_handles;                                          /**< Handles related to the Heart Rate Measurement characteristic. */
+  	ble_gatts_char_handles_t     eeg_handles;                                          /**< Handles related to the Heart Rate Measurement characteristic. */
     uint16_t                     conn_handle;                                          /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection). */
     uint8_t                      last_state;
   	bool                         is_eeg_notification_enabled;                              /**< Variable to indicate if the peer has enabled notification of the RX characteristic.*/

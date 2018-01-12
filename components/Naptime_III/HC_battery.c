@@ -76,7 +76,7 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
 	  
 		bat_vol_old = adv(bat_vol,bat_vol_old);
 	  Electricity_percentage = ( bat_vol_old - 3.10 ) * 100;     //电量百分比
-	  SEGGER_RTT_printf(0,"\r Voltage %d \r\n",(uint8_t)Electricity_percentage);
+//	  SEGGER_RTT_printf(0,"\r Voltage %d \r\n",(uint8_t)Electricity_percentage);
 	
 	  if(Electricity_percentage > 100)
 			Electricity_percentage = 100;

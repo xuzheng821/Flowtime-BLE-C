@@ -29,7 +29,7 @@
 extern bool ID_is_receive;
 extern uint8_t communocate_state[5];
 extern ble_conn_t                         m_conn;                                      /**< Structure to identify the Nordic UART Service. */
-extern uint16_t                          m_conn_handle;                              /**< Handle of the current connection. */
+extern uint16_t                           m_conn_handle;                               /**< Handle of the current connection. */
 
 /**@brief Function for handling the @ref BLE_GAP_EVT_CONNECTED event from the S110 SoftDevice.
  *
@@ -61,54 +61,43 @@ static void on_disconnect(ble_conn_t * p_conn, ble_evt_t * p_ble_evt)
  */
 static void on_write(ble_conn_t * p_conn, ble_evt_t * p_ble_evt)
 {
-	  //p_evt_write->data, p_evt_write->len
 		uint32_t err_code;
     ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
-    if (
-        (p_evt_write->handle == p_conn->Shakehands_handles.cccd_handle)
-        &&
-        (p_evt_write->len == 2)   //握手成功才能notify数据
-       )
-    {
-        if (ble_srv_is_notification_enabled(p_evt_write->data))
-        {
-            p_conn->is_Shakehands_notification_enabled = true;
-        }
-        else
-        {
-            p_conn->is_Shakehands_notification_enabled = false;
-        }
-    }
-    if (
-        (p_evt_write->handle == p_conn->State_up_handles.cccd_handle)
-        &&
-        (p_evt_write->len == 2)    //握手成功才能notify数据
-       )
-    {
-        if (ble_srv_is_notification_enabled(p_evt_write->data))
-        {
-            p_conn->is_state_notification_enabled = true;
-        }
-        else
-        {
-            p_conn->is_state_notification_enabled = false;
-        }
-    }
-	
+    if ((p_evt_write->handle == p_conn->Shakehands_handles.cccd_handle)
+        &&(p_evt_write->len == 2))  
+				{
+						if (ble_srv_is_notification_enabled(p_evt_write->data))
+						{
+								p_conn->is_Shakehands_notification_enabled = true;
+						}
+						else
+						{
+								p_conn->is_Shakehands_notification_enabled = false;
+						}
+				}
+		
+    if ((p_evt_write->handle == p_conn->State_up_handles.cccd_handle)
+        &&(p_evt_write->len == 2))   
+				{
+						if (ble_srv_is_notification_enabled(p_evt_write->data))
+						{
+								p_conn->is_state_notification_enabled = true;
+						}
+						else
+						{
+								p_conn->is_state_notification_enabled = false;
+						}
+				}
 	
 	  if (p_evt_write->handle == p_conn->ID_down_handles.value_handle)  
     {
-				ble_Com_ID_Analysis(p_evt_write->data, p_evt_write->len);
+				ble_Com_ID_Analysis(p_evt_write->data, p_evt_write->len);    //收到ID信息
 		}
 		
 		if (p_evt_write->handle == p_conn->Shakehands_handles.value_handle)  
     {
-			if( *p_evt_write->data == 0x00 )
-			{
-			  ble_Com_ID_Analysis(p_evt_write->data, p_evt_write->len);         //收到ID信息
-			}
-      else if( *p_evt_write->data == 0x01 ||  *p_evt_write->data == 0x03)
+			if( *p_evt_write->data == 0x01 || *p_evt_write->data == 0x03)
 		  {
 			   if(ID_is_receive)
 			   {
@@ -129,12 +118,34 @@ static void on_write(ble_conn_t * p_conn, ble_evt_t * p_ble_evt)
 				}
 			}
 	 }
-   else
-   {
-        // Do Nothing. This event is not relevant for this service.
-   }
 }
 
+void ble_conn_on_ble_evt(ble_conn_t * p_conn, ble_evt_t * p_ble_evt)
+{
+    if ((p_conn == NULL) || (p_ble_evt == NULL))
+    {
+        return;
+    }
+
+    switch (p_ble_evt->header.evt_id)
+    {
+        case BLE_GAP_EVT_CONNECTED:
+            on_connect(p_conn, p_ble_evt);
+            break;
+
+        case BLE_GAP_EVT_DISCONNECTED:
+            on_disconnect(p_conn, p_ble_evt);
+            break;
+
+        case BLE_GATTS_EVT_WRITE:
+            on_write(p_conn, p_ble_evt);
+            break;
+
+        default:
+            // No implementation needed.
+            break;
+    }
+}
 
 /**@brief Function for adding Down characteristic.
  *
@@ -193,7 +204,7 @@ static uint32_t ID_down_char_add(ble_conn_t * p_conn, const ble_conn_init_t * p_
  *
  * @return NRF_SUCCESS on success, otherwise an error code.
  */
-static uint32_t Shakehands_down_char_add(ble_conn_t * p_conn, const ble_conn_init_t * p_conn_init)
+static uint32_t Shakehands_char_add(ble_conn_t * p_conn, const ble_conn_init_t * p_conn_init)
 {
 	  ble_gatts_char_md_t char_md;
     ble_gatts_attr_t    attr_char_value;
@@ -301,35 +312,6 @@ static uint32_t State_up_char_add(ble_conn_t * p_conn, const ble_conn_init_t * p
     /**@snippet [Adding proprietary characteristic to S110 SoftDevice] */
 }
 
-
-void ble_conn_on_ble_evt(ble_conn_t * p_conn, ble_evt_t * p_ble_evt)
-{
-    if ((p_conn == NULL) || (p_ble_evt == NULL))
-    {
-        return;
-    }
-
-    switch (p_ble_evt->header.evt_id)
-    {
-        case BLE_GAP_EVT_CONNECTED:
-            on_connect(p_conn, p_ble_evt);
-            break;
-
-        case BLE_GAP_EVT_DISCONNECTED:
-            on_disconnect(p_conn, p_ble_evt);
-            break;
-
-        case BLE_GATTS_EVT_WRITE:
-            on_write(p_conn, p_ble_evt);
-            break;
-
-        default:
-            // No implementation needed.
-            break;
-    }
-}
-
-
 uint32_t ble_conn_init(ble_conn_t * p_conn, const ble_conn_init_t * p_conn_init)
 {
     uint32_t      err_code;
@@ -360,15 +342,15 @@ uint32_t ble_conn_init(ble_conn_t * p_conn, const ble_conn_init_t * p_conn_init)
     /**@snippet [Adding proprietary Service to S110 SoftDevice] */
     VERIFY_SUCCESS(err_code);
 
-    // Add the Down Characteristic.
+    // Add the ID_down Characteristic.
     err_code = ID_down_char_add(p_conn, p_conn_init);
     VERIFY_SUCCESS(err_code);
 
-    // Add the Down Characteristic.
-    err_code = Shakehands_down_char_add(p_conn, p_conn_init);
+    // Add the Shakehands Characteristic.
+    err_code = Shakehands_char_add(p_conn, p_conn_init);
     VERIFY_SUCCESS(err_code);
 
-    // Add the Up Characteristic.
+    // Add the State_up Characteristic.
     err_code = State_up_char_add(p_conn, p_conn_init);
     VERIFY_SUCCESS(err_code);
 
@@ -378,53 +360,41 @@ uint32_t ble_conn_init(ble_conn_t * p_conn, const ble_conn_init_t * p_conn_init)
 
 uint32_t ble_Shakehands_string_send(ble_conn_t * p_conn, uint8_t * p_string, uint16_t length)
 {
+	  uint32_t err_code = NRF_SUCCESS;
     ble_gatts_hvx_params_t hvx_params;
-
     VERIFY_PARAM_NOT_NULL(p_conn);
 
-    if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_Shakehands_notification_enabled))
+    if ((p_conn->conn_handle != BLE_CONN_HANDLE_INVALID) && (p_conn->is_Shakehands_notification_enabled))
     {
-        return NRF_ERROR_INVALID_STATE;
-    }
+				memset(&hvx_params, 0, sizeof(hvx_params));
 
-    if (length > BLE_CON_MAX_DATA_LEN)
-    {
-        return NRF_ERROR_INVALID_PARAM;
-    }
+				hvx_params.handle = p_conn->Shakehands_handles.value_handle;
+				hvx_params.p_data = p_string;
+				hvx_params.p_len  = &length;
+				hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
 
-    memset(&hvx_params, 0, sizeof(hvx_params));
-
-    hvx_params.handle = p_conn->Shakehands_handles.value_handle;
-    hvx_params.p_data = p_string;
-    hvx_params.p_len  = &length;
-    hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
-
-    return sd_ble_gatts_hvx(p_conn->conn_handle, &hvx_params);
+				return sd_ble_gatts_hvx(p_conn->conn_handle, &hvx_params);
+		}
+		return err_code;
 }
 
 uint32_t ble_State_string_send(ble_conn_t * p_conn, uint8_t * p_string, uint16_t length)
 {
+	  uint32_t err_code = NRF_SUCCESS;
     ble_gatts_hvx_params_t hvx_params;
-
     VERIFY_PARAM_NOT_NULL(p_conn);
 
-    if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_state_notification_enabled))
+    if ((p_conn->conn_handle != BLE_CONN_HANDLE_INVALID) && (p_conn->is_state_notification_enabled))
     {
-        return NRF_ERROR_INVALID_STATE;
-    }
+				memset(&hvx_params, 0, sizeof(hvx_params));
 
-    if (length > BLE_CON_MAX_DATA_LEN)
-    {
-        return NRF_ERROR_INVALID_PARAM;
-    }
+				hvx_params.handle = p_conn->State_up_handles.value_handle;
+				hvx_params.p_data = p_string;
+				hvx_params.p_len  = &length;
+				hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
 
-    memset(&hvx_params, 0, sizeof(hvx_params));
-
-    hvx_params.handle = p_conn->State_up_handles.value_handle;
-    hvx_params.p_data = p_string;
-    hvx_params.p_len  = &length;
-    hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
-
-    return sd_ble_gatts_hvx(p_conn->conn_handle, &hvx_params);
+				return sd_ble_gatts_hvx(p_conn->conn_handle, &hvx_params);
+		}
+		return err_code;
 }
 

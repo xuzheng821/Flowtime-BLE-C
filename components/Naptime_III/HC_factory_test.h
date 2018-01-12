@@ -16,7 +16,6 @@
 
 void bootup_check(void);
 void led_test(void);
-void button_test(void);
 void App_Nap_data_Analysis(uint8_t *pdata);
 
 #endif

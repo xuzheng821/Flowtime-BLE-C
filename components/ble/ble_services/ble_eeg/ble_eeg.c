@@ -24,9 +24,9 @@
 #include "sdk_common.h"
 #include "HC_ads129x_driver.h"
 
-extern uint8_t Global_connected_state;
+extern bool Global_connected_state;
  
-#define BLE_UUID_EEG_TX_CHARACTERISTIC         0xFF31                      /**< The UUID of the RX Characteristic. */
+#define BLE_UUID_EEG_EEG_DATA_CHARACTERISTIC   0xFF31                      /**< The UUID of the RX Characteristic. */
 #define BLE_UUID_EEG_ELE_STATE_CHARACTERISTIC  0xFF32
 
 #define EEG_BASE_UUID  {{0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xCD, 0xAB, 0x12, 0x12, 0x00, 0x00, 0x00, 0x00}} /**< Used vendor specific UUID. */
@@ -60,39 +60,33 @@ static void on_disconnect(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
  */
 static void on_write(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
 {
-	  //p_evt_write->data, p_evt_write->len
 		ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
+    if ((p_evt_write->handle == p_EEG->eeg_handles.cccd_handle)
+        &&(p_evt_write->len == 2) && Global_connected_state )   //握手成功才能notify数据 
+				{
+						if (ble_srv_is_notification_enabled(p_evt_write->data))
+						{
+								p_EEG->is_eeg_notification_enabled = true;
 
-    if (
-        (p_evt_write->handle == p_EEG->hrm_handles.cccd_handle)
-        &&
-        (p_evt_write->len == 2 && Global_connected_state)   //握手成功才能notify数据
-       )
-    {
-        if (ble_srv_is_notification_enabled(p_evt_write->data))
-        {
-            p_EEG->is_eeg_notification_enabled = true;
-        }
-        else
-        {
-            p_EEG->is_eeg_notification_enabled = false;
-        }
-    }
-    if (
-        (p_evt_write->handle == p_EEG->ele_state_handles.cccd_handle)
-        &&
-        (p_evt_write->len == 2 && Global_connected_state)    //握手成功才能notify数据
-       )
-    {
-        if (ble_srv_is_notification_enabled(p_evt_write->data))
-        {
-            p_EEG->is_state_notification_enabled = true;
-        }
-        else
-        {
-            p_EEG->is_state_notification_enabled = false;
-        }
-    }
+						}
+						else
+						{
+								p_EEG->is_eeg_notification_enabled = false;
+						}
+				}
+				
+    if ((p_evt_write->handle == p_EEG->ele_state_handles.cccd_handle)
+        &&(p_evt_write->len == 2) && Global_connected_state)    //握手成功才能notify数据 
+				{
+						if (ble_srv_is_notification_enabled(p_evt_write->data))
+						{
+								p_EEG->is_state_notification_enabled = true;
+						}
+						else
+						{
+								p_EEG->is_state_notification_enabled = false;
+						}
+				}
 }
 
 
@@ -179,7 +173,7 @@ static uint32_t eeg_ele_state_char_add(ble_EEG_t            * p_EEG,
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-static uint32_t heart_rate_measurement_char_add(ble_EEG_t            * p_EEG,
+static uint32_t eeg_data_char_add(ble_EEG_t            * p_EEG,
                                                 const ble_EEG_init_t * p_EEG_init)
 {
     ble_gatts_char_md_t char_md;
@@ -205,7 +199,7 @@ static uint32_t heart_rate_measurement_char_add(ble_EEG_t            * p_EEG,
     char_md.p_sccd_md         = NULL;
 
     ble_uuid.type = p_EEG->uuid_type;
-    ble_uuid.uuid = BLE_UUID_EEG_TX_CHARACTERISTIC;
+    ble_uuid.uuid = BLE_UUID_EEG_EEG_DATA_CHARACTERISTIC;
 
     memset(&attr_md, 0, sizeof(attr_md));
 		
@@ -228,7 +222,7 @@ static uint32_t heart_rate_measurement_char_add(ble_EEG_t            * p_EEG,
     return sd_ble_gatts_characteristic_add(p_EEG->service_handle,
                                            &char_md,
                                            &attr_char_value,
-                                           &p_EEG->hrm_handles);
+                                           &p_EEG->eeg_handles);
 }
 
 uint32_t ble_EEG_init(ble_EEG_t * p_EEG, const ble_EEG_init_t * p_EEG_init)
@@ -259,15 +253,15 @@ uint32_t ble_EEG_init(ble_EEG_t * p_EEG, const ble_EEG_init_t * p_EEG_init)
         return err_code;
     }
 
-    // Add heart rate measurement characteristic
+    // Add ele state characteristic
     err_code = eeg_ele_state_char_add(p_EEG, p_EEG_init);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
 				
-		// Add heart rate measurement characteristic
-    err_code = heart_rate_measurement_char_add(p_EEG, p_EEG_init);
+		// Add eeg data characteristic
+    err_code = eeg_data_char_add(p_EEG, p_EEG_init);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
@@ -279,14 +273,15 @@ uint32_t ble_EEG_init(ble_EEG_t * p_EEG, const ble_EEG_init_t * p_EEG_init)
 
 uint32_t ble_EEG_DATA_send(ble_EEG_t * p_EEG, uint8_t * p_string, uint16_t length)
 {
-    uint32_t err_code = BLE_ERROR_NO_TX_PACKETS;
+	  uint32_t err_code = NRF_SUCCESS;
+    ble_gatts_hvx_params_t hvx_params;
+    VERIFY_PARAM_NOT_NULL(p_EEG);
 
-    // Send value if connected and notifying.
+	  // Send value if connected and notifying.
     if ((p_EEG->conn_handle != BLE_CONN_HANDLE_INVALID) && p_EEG->is_eeg_notification_enabled)
     {
-       ble_gatts_hvx_params_t hvx_params;
        memset(&hvx_params, 0, sizeof(hvx_params));
-       hvx_params.handle = p_EEG->hrm_handles.value_handle;
+       hvx_params.handle = p_EEG->eeg_handles.value_handle;
        hvx_params.p_data = p_string;
        hvx_params.p_len  = &length;
        hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
@@ -299,6 +294,7 @@ uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t *p_EEG, uint8_t state, uint16_t length
 {
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
+    VERIFY_PARAM_NOT_NULL(p_EEG);
 	
     if (p_EEG == NULL)
     {

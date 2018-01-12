@@ -174,7 +174,7 @@ void factory_buttons_configure(void)       //工厂测试模式按键功能
 		SEGGER_RTT_printf(0,"\rfactory_buttons_configure \r\n");
 	  button_state = factory_buttons;
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
-                                      BUTTON_EVENT_FACTORY_TEST);
+                                      BUTTON_EVENT_IDLE);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_PUSH,
                                       BUTTON_EVENT_IDLE);

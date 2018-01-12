@@ -10,7 +10,7 @@ bool Is_device_bond = false;
 
 uint8_t ID_receive_buff[4] = {0};
 extern uint8_t User_ID[4];             
-extern uint8_t Global_connected_state;
+extern bool Global_connected_state;
 
 uint8_t Handshark_buff1[3];
 uint8_t Handshark_buff2[5];
@@ -136,7 +136,7 @@ void Handshake_agreement_third(uint8_t * p_data)
 			  memcpy(User_ID,ID_receive_buff, 4);
 			  Is_white_adv  = true;
 			  connects_timer_stop();
-			  Global_connected_state = 1;
+			  Global_connected_state = true;
 			  SEGGER_RTT_printf(0,"\r Global_connected_state = 1 \r\n");
 		 }
 		 else

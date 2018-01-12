@@ -84,7 +84,7 @@ struct ble_bas_s
     uint16_t                      report_ref_handle;              /**< Handle of the Report Reference descriptor. */
     uint8_t                       battery_level_last;             /**< Last Battery Level measurement passed to the Battery Service. */
     uint16_t                      conn_handle;                    /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection). */
-    bool                          is_notification_enabled;      /**< TRUE if notification of Battery Level is supported. */
+    bool                          is_battery_notification_enabled;      /**< TRUE if notification of Battery Level is supported. */
 };
 
 /**@brief Function for initializing the Battery Service.

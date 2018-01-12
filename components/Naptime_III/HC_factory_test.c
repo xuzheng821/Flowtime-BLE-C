@@ -53,29 +53,20 @@ void led_test(void)
       APP_ERROR_CHECK(err_code);
 }
 
-void button_test(void)
-{
-//	    uint32_t err_code;
-
-//	    uint8_t button_state_test[1] = {Nap_App_keyPress};
-//	    err_code = ble_com_string_send(&m_com, button_state_test , 1);
-//			APP_ERROR_CHECK(err_code);
-}
-
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
     uint32_t err_code;
 		switch(*pdata)
 		{
 			 case App_Nap_Start1291: 
-				    if(ads1291_is_init == 0) 
+				    if(ads1291_is_init == false) 
 						{
 								ads1291_init();
 						}							 
 						break;
 									
 			 case App_Nap_Stop1291: 
-				    if(ads1291_is_init == 1) 
+				    if(ads1291_is_init == true) 
 						{
 								ADS1291_disable();
 						}							 

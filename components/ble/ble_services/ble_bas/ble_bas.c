@@ -15,13 +15,13 @@
 *  qualification listings, this section of source code must not be modified.
 */
 
-#include "ble_bas.h"
 #include <string.h>
+#include "ble_bas.h"
 #include "nordic_common.h"
 #include "ble_srv_common.h"
 #include "app_util.h"
 
-extern uint8_t Global_connected_state;
+extern bool Global_connected_state;
 
 /**@brief Function for handling the Connect event.
  *
@@ -44,7 +44,6 @@ static void on_disconnect(ble_bas_t * p_bas, ble_evt_t * p_ble_evt)
     p_bas->conn_handle = BLE_CONN_HANDLE_INVALID;
 }
 
-
 /**@brief Function for handling the Write event.
  *
  * @param[in]   p_bas       Battery Service structure.
@@ -54,19 +53,16 @@ static void on_write(ble_bas_t * p_bas, ble_evt_t * p_ble_evt)
 {
     ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
-    if (
-        (p_evt_write->handle == p_bas->battery_level_handles.cccd_handle)
-        &&
-        (p_evt_write->len == 2 && Global_connected_state)  //连接成功才能notify电量
-       )
+    if ((p_evt_write->handle == p_bas->battery_level_handles.cccd_handle)
+        &&(p_evt_write->len == 2) && Global_connected_state)         //连接成功才能notify电量 
 			 {
 					if (ble_srv_is_notification_enabled(p_evt_write->data))
 					{
-							p_bas->is_notification_enabled = true;
+							p_bas->is_battery_notification_enabled = true;
 					}
 					else
 					{
-							p_bas->is_notification_enabled = false;
+							p_bas->is_battery_notification_enabled = false;
 					}
 			 }
 }
@@ -112,9 +108,9 @@ static uint32_t battery_level_char_add(ble_bas_t * p_bas, const ble_bas_init_t *
     uint32_t            err_code;
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_md_t cccd_md;
+    ble_gatts_attr_md_t attr_md;
     ble_gatts_attr_t    attr_char_value;
     ble_uuid_t          ble_uuid;
-    ble_gatts_attr_md_t attr_md;
 	
     uint8_t             initial_battery_level;
     uint8_t             encoded_report_ref[BLE_SRV_ENCODED_REPORT_REF_LEN];
@@ -225,8 +221,9 @@ uint32_t ble_bas_init(ble_bas_t * p_bas, const ble_bas_init_t * p_bas_init)
     // Initialize service structure
     p_bas->evt_handler               = p_bas_init->evt_handler;
     p_bas->conn_handle               = BLE_CONN_HANDLE_INVALID;
-    p_bas->is_notification_enabled = p_bas_init->support_notification;
-
+    p_bas->is_battery_notification_enabled = p_bas_init->support_notification;
+    p_bas->battery_level_last = 100;
+		
     // Add service
     BLE_UUID_BLE_ASSIGN(ble_uuid, BLE_UUID_BATTERY_SERVICE);
 
@@ -275,7 +272,7 @@ uint32_t ble_bas_battery_level_update(ble_bas_t * p_bas, uint8_t battery_level)
         }
 
         // Send value if connected and notifying.
-        if ((p_bas->conn_handle != BLE_CONN_HANDLE_INVALID) && p_bas->is_notification_enabled)
+        if ((p_bas->conn_handle != BLE_CONN_HANDLE_INVALID) && p_bas->is_battery_notification_enabled)
         {
             ble_gatts_hvx_params_t hvx_params;
 
