@@ -28,7 +28,10 @@ uint32_t bsp_led_indication(led_indication_t indicate)
     switch (indicate)
     {
 			case  BSP_INDICATE_IDLE:                //关闭LED和超时定时器，PWM去初始化，LED口输出低电平
-						PWM_uint();
+				    if(!Into_factory_test_mode) //如果没有初始化PWM且非工厂测试模式，初始化PWM
+						{
+					    	PWM_uint();
+						}
             m_stable_state = indicate;  
             break;
 

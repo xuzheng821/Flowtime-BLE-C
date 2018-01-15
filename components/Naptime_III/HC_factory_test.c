@@ -29,6 +29,7 @@ void bootup_check(void)
 			  Into_factory_test_mode = true;
         Uart_init();
         app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--串口接收到单板成功进入工厂测试
+			  led_pwm_init();
 		}
 		else
 		{
