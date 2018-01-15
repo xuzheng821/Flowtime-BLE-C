@@ -39,7 +39,12 @@ void led_pwm_init(void)
 void LED_RED(uint8_t fre,uint8_t PWM)
 {
 	  ret_code_t err_code;
-	  PWM1_fre_changge(fre);                              //改变频率
+	  static uint8_t fre_old = 5;
+	  if(fre_old != fre)         //改变频率
+		{
+	     PWM1_fre_changge(fre); 
+			 fre_old = fre;
+		}			
 	  err_code = app_pwm_channel_duty_set(&PWM1, 0, PWM); //设置占空比，打开红灯
 	  APP_ERROR_CHECK(err_code);
 }
@@ -54,7 +59,12 @@ void LED_GREEN(uint8_t PWM)
 void LED_BLUE(uint8_t fre,uint8_t PWM)
 {
 	  ret_code_t err_code;
-	  PWM3_fre_changge(fre);                              //改变频率
+	  static uint8_t fre_old = 5;
+	  if(fre_old != fre)         //改变频率
+		{
+	     PWM3_fre_changge(fre); 
+			 fre_old = fre;
+		}			
 	  err_code = app_pwm_channel_duty_set(&PWM3, 0, PWM); //设置占空比，打开蓝灯
 	  APP_ERROR_CHECK(err_code);
 }

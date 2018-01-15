@@ -128,8 +128,8 @@ extern bool Is_device_bond;
 extern uint8_t communocate_state[5];
 bool Global_connected_state = false;
 //LED状态控制与标志位
-extern uint8_t led_blue_timerout;
-extern uint8_t led_red_timerout;
+extern bool led_blue_timerout;
+extern bool led_red_timerout;
 extern led_indication_t m_stable_state;
 //电池电量变量
 extern double min_work_vol;
@@ -488,7 +488,6 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						{
 							  Global_connected_state = true;
 						    app_uart_put(Nap_Tool_appconnectnap);
-							  factory_buttons_configure();
 						}
 						else
 						{
@@ -626,34 +625,30 @@ void button_event_handler(button_event_t event)
     {
 			  case BUTTON_EVENT_IDLE:
 				     break;
-				case BUTTON_EVENT_LEDSTATE:
-					   SEGGER_RTT_printf(0," BUTTON_EVENT_LEDSTATE \n");
-					   SEGGER_RTT_printf(0,"%d \n",led_blue_timerout);
-					   SEGGER_RTT_printf(0,"%d \n",Global_connected_state);
-						 if(led_red_timerout == 1 && bat_vol < min_work_vol)  //红灯灭&&电量不足
-						 {
-                 err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
-                 APP_ERROR_CHECK(err_code);	
-						 }
-						 else if(led_blue_timerout == 1 && Global_connected_state == true)  //蓝灯灭&&已连接&&电量足  && bat_Vol > MIN_Work_vol  
-						 {
-							   led_blue_timerout = 0;
-                 err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);   //LED状态设置
-                 APP_ERROR_CHECK(err_code);	
-					 	 }
-						 else if(led_blue_timerout == 1 && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_Vol > MIN_Work_vol 
-						 {
-							   led_blue_timerout = 0;
-                 err_code = bsp_led_indication(BLE_INDICATE_WITH_WHITELIST);   //LED状态设置
-                 APP_ERROR_CHECK(err_code);	
-						 }
-						 break;
 						 
 				case BUTTON_EVENT_POWER_ON:                                         //ok
 					   SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_ON \n");
 						 err_code = bsp_led_indication(BSP_INDICATE_POWER_ON);
              APP_ERROR_CHECK(err_code);
              break;
+				
+        case BUTTON_EVENT_POWER_OFF_LED:
+             SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_OFF_LED \n");
+						 err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
+             APP_ERROR_CHECK(err_code);
+				     break;
+				
+				case BUTTON_EVENT_SLEEP:                                            //ok
+					   SEGGER_RTT_printf(0," BUTTON_EVENT_SLEEP \n");
+			 	     sleep_mode_enter();
+             break;
+				
+        case BUTTON_EVENT_DISCONNECT:                                    //ok
+      			 Is_white_adv = false;
+						 err_code = sd_ble_gap_disconnect(m_conn_handle,
+																							 BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+						 APP_ERROR_CHECK(err_code);
+				     break;
 				
         case BUTTON_EVENT_WHITELIST_OFF:                                    //ok
              SEGGER_RTT_printf(0," BUTTON_EVENT_WHITELIST_OFF \n");
@@ -670,25 +665,30 @@ void button_event_handler(button_event_t event)
                  APP_ERROR_CHECK(err_code);
 						 }
 				     break;
-
-        case BUTTON_EVENT_DISCONNECT:                                    //ok
-      			 Is_white_adv = false;
-						 err_code = sd_ble_gap_disconnect(m_conn_handle,
-																							 BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-						 APP_ERROR_CHECK(err_code);
-				     break;
 						 
-        case BUTTON_EVENT_POWER_OFF_LED:
-             SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_OFF_LED \n");
-						 err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
-             APP_ERROR_CHECK(err_code);
-				     break;
-				
-				case BUTTON_EVENT_SLEEP:                                            //ok
-					   SEGGER_RTT_printf(0," BUTTON_EVENT_SLEEP \n");
-			 	     sleep_mode_enter();
-             break;
-				
+				case BUTTON_EVENT_LEDSTATE:
+					   SEGGER_RTT_printf(0," BUTTON_EVENT_LEDSTATE \n");
+					   SEGGER_RTT_printf(0,"%d \n",led_blue_timerout);
+					   SEGGER_RTT_printf(0,"%d \n",Global_connected_state);
+						 if(led_red_timerout == true && bat_vol < min_work_vol)  //红灯灭&&电量不足
+						 {
+                 err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
+                 APP_ERROR_CHECK(err_code);	
+						 }
+						 else if(led_blue_timerout == true && Global_connected_state == true)  //蓝灯灭&&已连接&&电量足  && bat_Vol > MIN_Work_vol  
+						 {
+							   led_blue_timerout = false;
+                 err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);   //LED状态设置
+                 APP_ERROR_CHECK(err_code);	
+					 	 }
+						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_Vol > MIN_Work_vol 
+						 {
+							   led_blue_timerout = false;
+                 err_code = bsp_led_indication(BLE_INDICATE_WITH_WHITELIST);   //LED状态设置
+                 APP_ERROR_CHECK(err_code);	
+						 }
+						 break;
+
         default:
             break;
     }

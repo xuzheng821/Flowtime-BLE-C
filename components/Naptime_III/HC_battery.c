@@ -1,26 +1,17 @@
 #include "HC_battery.h"
-//单个开机周期内电量以采集到的最低电量作为实际电量，即电池电量值只会变小，不会变大，充电或者重新开机刷新成为最大值
+#include "math.h"
+
 ble_bas_t                    m_bas;                     /**< Structure used to identify the battery service. */
 
 //全局变量
 double bat_vol;                         //实测电量
 double saft_vol = 3.1;                  //安全电压
 double min_work_vol = 3.3;              //低电量
+#define VOLTAGE_AVG_NUM  10             //电池电压滤波数组大小
 
 extern bool Into_factory_test_mode;
 
 extern void sleep_mode_enter(void);
-
-double min(double a, double b)
-{
-    return a<b?a:b;
-}
-
-double adv(double a, double b)
-{
-    return (a+b)/2;
-}
-
 
 void ble_battory_serv_init(void)    //电池服务初始化
 {
@@ -67,30 +58,51 @@ void saadc_init(void)
 void battery_level_update(void)                    //电池电量更新到bat_vol
 {
     uint32_t err_code;
-	  double Electricity_percentage;                 //电量百分比
-	  static double bat_vol_old = 4.1;
-	
+	  uint8_t bat_vol_pre;                           //电量百分比
+    static uint8_t bat_vol_arrary_index = 0;
+    static double bat_vol_arrary[VOLTAGE_AVG_NUM] = {0};
+
 	  nrf_saadc_value_t  ADC_value = 0;	             //ADC读取数据
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
-  	bat_vol = ADC_value * 3.68 / 1024.0 * 2;       //电池测量电压
-	  
-		bat_vol_old = adv(bat_vol,bat_vol_old);
-	  Electricity_percentage = ( bat_vol_old - 3.10 ) * 100;     //电量百分比
-//	  SEGGER_RTT_printf(0,"\r Voltage %d \r\n",(uint8_t)Electricity_percentage);
-	
-	  if(Electricity_percentage > 100)
-			Electricity_percentage = 100;
-		do{
-		   err_code = ble_bas_battery_level_update(&m_bas, Electricity_percentage);
-		}while(err_code == BLE_ERROR_NO_TX_PACKETS);
+  	bat_vol = ADC_value * 3.60 / 1024.0 * 2;       //电池测量电压
 		
-		APP_ERROR_CHECK(err_code);
-	
-		if(bat_vol < saft_vol)                         //低于3.1V,关机
+		if( bat_vol_arrary[0] == 0 )                   
 		{
-			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
-			  sleep_mode_enter();
+				for( int i = 0; i < VOLTAGE_AVG_NUM; i++ )
+			  {
+						bat_vol_arrary[i] = bat_vol;
+				}
 		}
+		else
+		{
+				bat_vol_arrary[bat_vol_arrary_index] = bat_vol;
+				bat_vol_arrary_index = ( bat_vol_arrary_index + 1 )%VOLTAGE_AVG_NUM;
+				if(bat_vol_arrary_index == 0)              //一个循环计算一次平均数
+				{
+						bat_vol = 0;
+						for( int i = 0; i < VOLTAGE_AVG_NUM; i++ )
+						{
+								bat_vol += bat_vol_arrary[i];
+						}
+						bat_vol = bat_vol / VOLTAGE_AVG_NUM;
+						bat_vol_pre = (uint8_t)((bat_vol - 3.10 ) * 100);     //电量百分比
+	          SEGGER_RTT_printf(0,"\r Voltage %d \r\n",bat_vol_pre);
+						
+						if(bat_vol_pre > 100)
+							 bat_vol_pre = 100;
+						do{
+							 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
+						}while(err_code == BLE_ERROR_NO_TX_PACKETS);
+						
+						if(bat_vol < saft_vol)                         //低于3.1V,关机
+						{
+								SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
+								sleep_mode_enter();
+						}
+			 }
+		}
+
+	
 }
 
 void Power_Check(void)

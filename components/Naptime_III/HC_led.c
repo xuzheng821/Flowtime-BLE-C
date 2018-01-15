@@ -3,81 +3,67 @@
 led_indication_t m_stable_state = BSP_INDICATE_IDLE;
 
 extern bool Is_pwm_init;             //打开LED才进行PWM配置，降低功耗
-extern bool Is_device_bond;          
+extern bool Is_device_bond;          //设备是否绑定   
 extern bool Is_led_timer_start;      //LED亮灯时间计时判断，如果亮灯中途切换状态，重新计时
-extern bool Into_factory_test_mode;
+extern bool Into_factory_test_mode;  //是否进入工厂测试模式
 
 uint8_t LED_Red_pro = 50;            //LED占空比调节
 uint8_t LED_Green_pro = 25;
 uint8_t LED_Blue_pro = 40;
 
-uint8_t led_blue_timerout = 0;       //蓝灯亮灯时间超时标志
-uint8_t led_red_timerout = 0;        //红灯亮灯时间超时标志
+bool led_blue_timerout = false;       //蓝灯亮灯时间超时标志
+bool led_red_timerout = false;        //红灯亮灯时间超时标志
 
 uint32_t bsp_led_indication(led_indication_t indicate)
 {
-    uint32_t err_code = NRF_SUCCESS;
-		if(Is_pwm_init == false && !Into_factory_test_mode)         //如果没有初始化PWM，初始化PWM
+		if(Is_pwm_init == false && !Into_factory_test_mode) //如果没有初始化PWM且非工厂测试模式，初始化PWM
 		{
 				led_pwm_init();
+		}
+		if(Is_led_timer_start)  //如果开启了定时器，先关闭定时器
+		{
+				led_timer_stop();
 		}
 
     switch (indicate)
     {
-			case  BSP_INDICATE_IDLE:       //关闭LED和超时定时器，PWM去初始化，LED口输出低电平
-				    if(Is_led_timer_start)
-						{
-							  led_timer_stop();
-						}
+			case  BSP_INDICATE_IDLE:                //关闭LED和超时定时器，PWM去初始化，LED口输出低电平
 						PWM_uint();
             m_stable_state = indicate;  
             break;
 
-      case  BSP_INDICATE_POWER_ON:    //蓝灯闪烁频率5HZ，闪烁2次后关闭	
+      case  BSP_INDICATE_POWER_ON:            //蓝灯闪烁频率5HZ，闪烁2次后关闭	
             LED_BLUE(5,LED_Blue_pro);
 						nrf_delay_ms(500);
-			      LED_BLUE(1,0);
+			      LED_BLUE(5,0);
             m_stable_state = indicate;
 				    break;
 
-      case  BSP_INDICATE_POWER_OFF:   //蓝灯闪烁频率5HZ，闪烁2次后关闭	
-				    if(Is_led_timer_start)
-						{
-							  led_timer_stop();
-						}
-						LED_BLUE(1,0);
+      case  BSP_INDICATE_POWER_OFF:           //蓝灯闪烁频率5HZ，闪烁2次后关闭	
+						LED_BLUE(5,0);
 			      nrf_delay_ms(500);
             LED_BLUE(5,LED_Blue_pro);
-            nrf_delay_ms(500);
-			      LED_BLUE(1,0);
+            nrf_delay_ms(400);
+			      LED_BLUE(5,0);
             m_stable_state = indicate;
 				    break;
 
-    	case  BSP_INDICATE_CONNECTED:   //蓝灯常亮，如果进入工厂测试模式则不开启超时定时器，将一直常亮
-      			if(Is_led_timer_start)
-						{
-							  led_timer_stop();
-						}
+    	case  BSP_INDICATE_CONNECTED:           //蓝灯常亮，如果进入工厂测试模式则不开启超时定时器，将一直常亮
       			LED_BLUE(250,LED_Blue_pro);  
 						if(!Into_factory_test_mode)
 						{
 						    led_timer_start();
 						}
-			      m_stable_state = indicate;	  //记录当前led状态，便于超时且按键按下后恢复当前状态
+			      m_stable_state = indicate;	      //记录当前led状态，便于超时且按键按下后恢复当前状态
 				    break;
 
-	    case  BLE_INDICATE_WITH_WHITELIST:  //待机亮灯状态，蓝灯1HZ频率闪烁，开启超时定时器
-				    if(Is_led_timer_start)
-						{
-							  led_timer_stop();
-						}
+	    case  BLE_INDICATE_WITH_WHITELIST:      //待机亮灯状态，蓝灯1HZ频率闪烁，开启超时定时器
 						led_timer_start();
 			      LED_BLUE(1,LED_Blue_pro);
-            m_stable_state = indicate;
+            m_stable_state = indicate;        //记录当前led状态，便于超时且按键按下后恢复当前状态
  			      break;
 
-    	case  BLE_INDICATE_WITHOUT_WHITELIST: //蓝灯快速闪烁，频率5HZ，如果绑定过且未进入工厂测试模式则打开超时定时器
-				    nrf_delay_ms(100);
+    	case  BLE_INDICATE_WITHOUT_WHITELIST:   //蓝灯快速闪烁，频率5HZ，如果绑定过且未进入工厂测试模式则打开超时定时器
 						if(Is_device_bond && (!Into_factory_test_mode))
 						{
 						    led_timer_start();
@@ -86,12 +72,8 @@ uint32_t bsp_led_indication(led_indication_t indicate)
             m_stable_state = indicate;			      
 				    break;
 
-	    case  BSP_INDICATE_Battery_LOW:     //红灯慢速闪烁，频率1HZ，开启超时定时器，注意此状态之前可能为蓝灯亮，所以要先关闭蓝灯
+	    case  BSP_INDICATE_Battery_LOW:         //红灯慢速闪烁，频率1HZ，开启超时定时器，注意此状态之前可能为蓝灯亮，所以要先关闭蓝灯
 				    LED_BLUE(1,0);
-			      if(Is_led_timer_start)
-						{
-							  led_timer_stop();
-						}
 						led_timer_start();
       			LED_RED(1,LED_Red_pro);
             m_stable_state = indicate;
@@ -104,8 +86,8 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 				    break;
 
     	case  BSP_INDICATE_Battery_CHARGEOVER:  //充电完成状态，绿灯常亮
+				    LED_RED(1,0);
 						LED_GREEN(LED_Green_pro);
-				    LED_RED(2,0);
             m_stable_state = indicate;
 				    break;
 
@@ -125,7 +107,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 			default:
             break;
     }
-    return err_code;
+    return NRF_SUCCESS;
 }
 
 void leds_state_update(void)                             //LED超时定时器回调函数
@@ -135,12 +117,12 @@ void leds_state_update(void)                             //LED超时定时器回调函数
 		   m_stable_state == BLE_INDICATE_WITHOUT_WHITELIST)
 		{
 				LED_BLUE(1,0);
-				led_blue_timerout = 1;	
+				led_blue_timerout = true;	
 		}
 	  if(m_stable_state == BSP_INDICATE_Battery_LOW)       //低电量状态连接后，超时定时器打开，并在超时后红灯超时标志置1
 		{
 				LED_RED(1,0);
-				led_red_timerout = 1;	
+				led_red_timerout = true;	
 		}
 		PWM_uint();                                          //LED已经熄灭，将PWM去初始化
 }

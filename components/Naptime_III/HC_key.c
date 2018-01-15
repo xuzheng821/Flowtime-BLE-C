@@ -3,24 +3,24 @@
 bsp_button_event_cfg_t m_buttin_events;
 
 uint8_t button_state = 0xff;
-uint16_t key_tigger_num = 0;   //按键按下超时计数
-uint8_t Key_detection_interval = 50;  //20ms
+uint16_t key_tigger_num = 0;          //按键按下超时计数
+uint8_t Key_detection_interval = 50;  //定时器50ms检测一次
 
-extern bool APP_restart;      //软复位判断
-extern bool Into_factory_test_mode;
+extern bool APP_restart;              //软复位判断
+extern bool Into_factory_test_mode;   //是否进入工厂测试模式
 
-extern void sleep_mode_enter(void);
-extern void button_event_handler(button_event_t event);
+extern void sleep_mode_enter(void);   //关机
+extern void button_event_handler(button_event_t event);  //按键事件处理函数
 
 void button_power_on(void)
 {
-		if(!Into_factory_test_mode && !APP_restart)  //工厂测试模式或者软复位直接开机，否则需要按键开机
+		if(!Into_factory_test_mode && !APP_restart)          //工厂测试模式或者软复位直接开机，否则需要按键开机
 	  {
 	     buttons_configure_init();
 			 key_tigger_num = 0;
 	     button_timer_start();
        while(nrf_gpio_pin_read(BUTTON) == 0);			
-       nrf_delay_ms(Key_detection_interval * 10);		
+       nrf_delay_ms(Key_detection_interval * 2);	       //如果进入休眠，100ms内完成关机操作	
 		}
 }
 
@@ -60,7 +60,7 @@ void buttons_state_update(void)
 	  if(nrf_gpio_pin_read(BUTTON) == 0)     
 		{
 			   key_tigger_num ++;
-//			   SEGGER_RTT_printf(0," %d \r\n",key_tigger_num);
+			   SEGGER_RTT_printf(0," %d \r\n",key_tigger_num);
          if(key_tigger_num == 2000/Key_detection_interval)
 				 {
 		        SEGGER_RTT_printf(0," push_event \r\n");
@@ -168,21 +168,6 @@ void connection_buttons_configure(void)   //已连接状态按键功能
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
                                       BUTTON_EVENT_DISCONNECT);
 }
-
-void factory_buttons_configure(void)       //工厂测试模式按键功能    
-{
-		SEGGER_RTT_printf(0,"\rfactory_buttons_configure \r\n");
-	  button_state = factory_buttons;
-	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
-                                      BUTTON_EVENT_IDLE);
-
-	  bsp_event_to_button_action_assign(BUTTON_ACTION_PUSH,
-                                      BUTTON_EVENT_IDLE);
-
-	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
-                                      BUTTON_EVENT_IDLE);
-}
-
 
 uint32_t bsp_wakeup_buttons_set(void)        //休眠唤醒按键配置
 {
