@@ -28,7 +28,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
     switch (indicate)
     {
 			case  BSP_INDICATE_IDLE:                //关闭LED和超时定时器，PWM去初始化，LED口输出低电平
-				    if(!Into_factory_test_mode) //如果没有初始化PWM且非工厂测试模式，初始化PWM
+				    if(!Into_factory_test_mode)       //如果没有初始化PWM且非工厂测试模式，初始化PWM
 						{
 					    	PWM_uint();
 						}
@@ -46,7 +46,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						LED_BLUE(5,0);
 			      nrf_delay_ms(500);
             LED_BLUE(5,LED_Blue_pro);
-            nrf_delay_ms(400);
+            nrf_delay_ms(500);
 			      LED_BLUE(5,0);
             m_stable_state = indicate;
 				    break;
@@ -60,25 +60,25 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 			      m_stable_state = indicate;	      //记录当前led状态，便于超时且按键按下后恢复当前状态
 				    break;
 
-	    case  BLE_INDICATE_WITH_WHITELIST:      //待机亮灯状态，蓝灯1HZ频率闪烁，开启超时定时器
-						led_timer_start();
+	    case  BSP_INDICATE_WITH_WHITELIST:      //待机亮灯状态，蓝灯1HZ频率闪烁，开启超时定时器
 			      LED_BLUE(1,LED_Blue_pro);
+						led_timer_start();
             m_stable_state = indicate;        //记录当前led状态，便于超时且按键按下后恢复当前状态
  			      break;
 
-    	case  BLE_INDICATE_WITHOUT_WHITELIST:   //蓝灯快速闪烁，频率5HZ，如果绑定过且未进入工厂测试模式则打开超时定时器
+    	case  BSP_INDICATE_WITHOUT_WHITELIST:   //蓝灯快速闪烁，频率5HZ，如果绑定过且未进入工厂测试模式则打开超时定时器
+      			LED_BLUE(5,LED_Blue_pro);
 						if(Is_device_bond && (!Into_factory_test_mode))
 						{
 						    led_timer_start();
 						}
-      			LED_BLUE(5,LED_Blue_pro);
             m_stable_state = indicate;			      
 				    break;
 
 	    case  BSP_INDICATE_Battery_LOW:         //红灯慢速闪烁，频率1HZ，开启超时定时器，注意此状态之前可能为蓝灯亮，所以要先关闭蓝灯
 				    LED_BLUE(1,0);
-						led_timer_start();
       			LED_RED(1,LED_Red_pro);
+						led_timer_start();
             m_stable_state = indicate;
 				    break;
 
@@ -116,8 +116,8 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 void leds_state_update(void)                             //LED超时定时器回调函数
 {
 	  if(m_stable_state == BSP_INDICATE_CONNECTED ||       //该3种状态下，超时后标志位置1，关闭蓝灯，如果按键按下，LED恢复状态。
-			 m_stable_state == BLE_INDICATE_WITH_WHITELIST || 
-		   m_stable_state == BLE_INDICATE_WITHOUT_WHITELIST)
+			 m_stable_state == BSP_INDICATE_WITH_WHITELIST || 
+		   m_stable_state == BSP_INDICATE_WITHOUT_WHITELIST)
 		{
 				LED_BLUE(1,0);
 				led_blue_timerout = true;	

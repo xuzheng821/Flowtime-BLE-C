@@ -440,7 +440,7 @@ void on_adv_evt(ble_adv_evt_t ble_adv_evt)
              break;
         case BLE_ADV_EVT_WITH_WHITELIST:
 					   advertising_buttons_configure();
-					   err_code = bsp_led_indication(BLE_INDICATE_WITH_WHITELIST);
+					   err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);
              APP_ERROR_CHECK(err_code);
              break;
         case BLE_ADV_EVT_WITH_WHITELIST_SLOW:
@@ -450,7 +450,7 @@ void on_adv_evt(ble_adv_evt_t ble_adv_evt)
              break;
 				case BLE_ADV_EVT_WITHOUT_WHITELIST:
 					   pairing_buttons_configure();
-					   err_code = bsp_led_indication(BLE_INDICATE_WITHOUT_WHITELIST);  //BLE_INDICATE_WITHOUT_WHITELIST
+					   err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);  //BLE_INDICATE_WITHOUT_WHITELIST
              APP_ERROR_CHECK(err_code);
              break;
 
@@ -652,7 +652,7 @@ void button_event_handler(button_event_t event)
 				
         case BUTTON_EVENT_WHITELIST_OFF:                                    //ok
              SEGGER_RTT_printf(0," BUTTON_EVENT_WHITELIST_OFF \n");
-						 err_code = bsp_led_indication(BLE_INDICATE_WITHOUT_WHITELIST);
+						 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);
              APP_ERROR_CHECK(err_code);
       			 Is_white_adv = false;
 				     if(ble_is_adv)
@@ -684,7 +684,7 @@ void button_event_handler(button_event_t event)
 						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_Vol > MIN_Work_vol 
 						 {
 							   led_blue_timerout = false;
-                 err_code = bsp_led_indication(BLE_INDICATE_WITH_WHITELIST);   //LED状态设置
+                 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);   //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
 						 break;

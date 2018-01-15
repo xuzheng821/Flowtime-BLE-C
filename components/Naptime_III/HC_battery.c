@@ -86,7 +86,7 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
 						}
 						bat_vol = bat_vol / VOLTAGE_AVG_NUM;
 						bat_vol_pre = (uint8_t)((bat_vol - 3.10 ) * 100);     //电量百分比
-	          SEGGER_RTT_printf(0,"\r Voltage %d \r\n",bat_vol_pre);
+//	          SEGGER_RTT_printf(0,"\r Voltage %d \r\n",bat_vol_pre);
 						
 						if(bat_vol_pre > 100)
 							 bat_vol_pre = 100;
