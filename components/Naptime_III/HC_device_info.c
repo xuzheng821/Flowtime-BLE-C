@@ -4,9 +4,7 @@ ble_gap_addr_t address;
 
 extern uint8_t device_id_sn[32];
 
-/*******************************************************************************
-* Device information init
-********************************************************************************/
+//设备信息服务初始化
 void ble_devinfo_serv_init(void)
 {
     uint32_t        err_code;
@@ -32,6 +30,7 @@ void ble_devinfo_serv_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
+//获取从机MAC地址
 void mac_get(void)
 {
 	  uint32_t err_code = sd_ble_gap_address_get(&address);

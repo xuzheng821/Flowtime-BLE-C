@@ -33,7 +33,7 @@
 #define Tool_App_chargeovernormal     0x56
 #define Tool_App_chargingtesterror    0x57
 #define Tool_App_advdata              0x58
-
+#define Tool_App_Tooldisconnectnap    0x59
 
 #define App_Tool_appconnectnap        0x60
 #define App_Tool_lofftest             0x61

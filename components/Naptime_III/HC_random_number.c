@@ -13,7 +13,7 @@ uint8_t random_vector_generate(uint8_t * p_buff, uint8_t size)
     APP_ERROR_CHECK(err_code);
     return length;
 }
-
+//获取随机数
 uint8_t get_random_number(void)
 {
 	  uint8_t p_buff[1] = {0};

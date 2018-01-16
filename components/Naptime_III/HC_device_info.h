@@ -14,7 +14,7 @@
 #define FW_REV_STR        "0.7.5"
 #define HW_REV_STR        "1.0.0"             /**< Hardware Revision String. */
 
-void ble_devinfo_serv_init(void);
 void mac_get(void);
+void ble_devinfo_serv_init(void);
 
 #endif

@@ -1,19 +1,24 @@
 #include "HC_battery.h"
-#include "math.h"
 
-ble_bas_t                    m_bas;                     /**< Structure used to identify the battery service. */
+ble_bas_t                    m_bas;     /**< Structure used to identify the battery service. */
+
+#define VOLTAGE_AVG_NUM  10             //电池电压滤波数组大小
 
 //全局变量
 double bat_vol;                         //实测电量
 double saft_vol = 3.1;                  //安全电压
 double min_work_vol = 3.3;              //低电量
-#define VOLTAGE_AVG_NUM  10             //电池电压滤波数组大小
 
-extern bool Into_factory_test_mode;
+extern bool Into_factory_test_mode;     //是否进入工厂测试模式
 
 extern void sleep_mode_enter(void);
-
-void ble_battory_serv_init(void)    //电池服务初始化
+//取两个数中较小的数
+uint8_t min(uint8_t a, uint8_t b)
+{
+	return a > b ? b : a;
+}
+//电池服务初始化
+void ble_battory_serv_init(void)    
 {
 	  uint32_t        err_code;
 	  ble_bas_init_t  bas_init;
@@ -36,11 +41,13 @@ void ble_battory_serv_init(void)    //电池服务初始化
     APP_ERROR_CHECK(err_code);
 }
 
+//SAADC回调函数
 void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
 {
 
 }																	 
 
+//SAADC初始化-PIN30-ADC第六通道-采集电池电压
 void saadc_init(void)
 {
     ret_code_t err_code;
@@ -51,22 +58,25 @@ void saadc_init(void)
     err_code = nrf_drv_saadc_channel_init(0, &channel_config);
     APP_ERROR_CHECK(err_code);
 	
-	  nrf_gpio_cfg_output(TPS_CTRL);   
+	  nrf_gpio_cfg_output(TPS_CTRL);                 //打开TPS62746内部开关才能采集到电池电压
 	  NRF_GPIO->OUTSET = 1<<TPS_CTRL;	 
 }
 
-void battery_level_update(void)                    //电池电量更新到bat_vol
+
+//电池电量更新到bat_vol，每个1s更新一次，然后取10次的数据的平均值发送
+void battery_level_update(void)                   
 {
     uint32_t err_code;
-	  uint8_t bat_vol_pre;                           //电量百分比
+	  uint8_t bat_vol_pre;                                 //电量百分比
+	  static uint8_t bat_vol_pre_old = 100;                //上一次电量百分比
     static uint8_t bat_vol_arrary_index = 0;
     static double bat_vol_arrary[VOLTAGE_AVG_NUM] = {0};
-
-	  nrf_saadc_value_t  ADC_value = 0;	             //ADC读取数据
+    
+	  nrf_saadc_value_t  ADC_value = 0;	                   //ADC读取数据
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
-  	bat_vol = ADC_value * 3.60 / 1024.0 * 2;       //电池测量电压
+  	bat_vol = ADC_value * 3.60 / 1024.0 * 2;             //电池测量电压
 		
-		if( bat_vol_arrary[0] == 0 )                   
+		if( bat_vol_arrary[0] == 0 )                         //第一次进入，数组为空             
 		{
 				for( int i = 0; i < VOLTAGE_AVG_NUM; i++ )
 			  {
@@ -77,7 +87,7 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
 		{
 				bat_vol_arrary[bat_vol_arrary_index] = bat_vol;
 				bat_vol_arrary_index = ( bat_vol_arrary_index + 1 )%VOLTAGE_AVG_NUM;
-				if(bat_vol_arrary_index == 0)              //一个循环计算一次平均数
+				if(bat_vol_arrary_index == 0)                    //10个数据后计算一次平均数
 				{
 						bat_vol = 0;
 						for( int i = 0; i < VOLTAGE_AVG_NUM; i++ )
@@ -86,25 +96,28 @@ void battery_level_update(void)                    //电池电量更新到bat_vol
 						}
 						bat_vol = bat_vol / VOLTAGE_AVG_NUM;
 						bat_vol_pre = (uint8_t)((bat_vol - 3.10 ) * 100);     //电量百分比
+						
+						bat_vol_pre = min(bat_vol_pre,bat_vol_pre_old);       //取与上次计算数据两者中较小的数，避免手机端数据会增大
+						bat_vol_pre_old = bat_vol_pre;
+						
+						if(bat_vol_pre > 100)                                 //最大显示电量100%
+							 bat_vol_pre = 100;
 //	          SEGGER_RTT_printf(0,"\r Voltage %d \r\n",bat_vol_pre);
 						
-						if(bat_vol_pre > 100)
-							 bat_vol_pre = 100;
 						do{
 							 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
 						}while(err_code == BLE_ERROR_NO_TX_PACKETS);
 						
-						if(bat_vol < saft_vol)                         //低于3.1V,关机
+						if(bat_vol < saft_vol)                                //低于3.1V,关机
 						{
-								SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
+//								SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 								sleep_mode_enter();
 						}
 			 }
 		}
-
-	
 }
 
+//开机电池电压Check，低电压不能开机
 void Power_Check(void)
 {
 	  nrf_saadc_value_t  ADC_value = 0;	              //ADC读取数据
@@ -113,35 +126,27 @@ void Power_Check(void)
 	
 		if(bat_vol < saft_vol)                          //低于3.1V无法开机
 		{
-			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
+//			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  sleep_mode_enter();
 		}
-		else
-			  SEGGER_RTT_printf(0,"\r Voltage is higher than 3.1V \r\n");
+//		else
+//			  SEGGER_RTT_printf(0,"\r Voltage is higher than 3.1V \r\n");
 }
 
+//主机发起连接后进行电量Check，电量低（小于3.3V）则提示低电量
 uint8_t connected_power_check(void)
 {
 		nrf_saadc_value_t  ADC_value = 0;	              //电量检测,先初始化ADC
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
 	  bat_vol = ADC_value * 3.6 / 1024.0 * 2;         //电池电压
-	
-	  if(bat_vol < min_work_vol)                      //低于使用电压
-	  {
-			 SEGGER_RTT_printf(0,"\r Voltage is lower than 3.2V \r\n");
-			 return true;
-	  }
-		else
-		{
-			 SEGGER_RTT_printf(0,"\r Voltage is higher than 3.2V \r\n");
-			 return false;
-		}
-}
 
+	  return bat_vol < min_work_vol ? true : false;   //电量过低返回true
+}
+//USB插入且为非工厂测试模式时进入，充电不执行其他操作
 void charging_check(void)
 {
 		uint32_t err_code;	   
-		while(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)     //USB插入且为非工厂测试模式，充电不执行其他操作。
+		while(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)    
 		{
 			 nrf_delay_ms(500);
 			 if(nrf_gpio_pin_read(BQ_CHG) == 0)   //charging

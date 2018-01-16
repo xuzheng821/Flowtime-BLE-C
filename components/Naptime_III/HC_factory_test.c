@@ -1,19 +1,19 @@
 #include "HC_factory_test.h"
 
-ble_com_t                                m_com;                                      /**< Structure to identify the Nordic UART Service. */
+ble_com_t                                m_com;         /**< Structure to identify the Nordic UART Service. */
 
-bool APP_restart = false;
-bool Into_factory_test_mode = false;
-bool StoryDeviceID =false;
-bool StorySN =false;
-bool deleteUserid =false;
+bool APP_restart = false;                               //APP软复位标志
+bool Into_factory_test_mode = false;                    //是否进入工厂测试模式
+bool StoryDeviceID =false;                              //是否存储deviceID
+bool StorySN =false;                                    //是否存储SN
+bool deleteUserid =false;                               //是否删除UserID
 
-extern bool ads1291_is_init;
-extern uint8_t device_id_receive[16];
-extern uint8_t device_sn_receive[16];
+extern bool ads1291_is_init;                            //ADS1291是否初始化
+extern uint8_t device_id_receive[16];                   //缓存主机端发送过来的deviceID-16位
+extern uint8_t device_sn_receive[16];                   //缓存主机端发送过来的SN-16位
 
 extern void sleep_mode_enter(void);
-
+//启动Check，判断是否为软复位启动，是否进入工厂测试模式
 void bootup_check(void)
 {	  
 	  SEGGER_RTT_printf(0," NRF_POWER->GPREGRET:%x\r\n\n",NRF_POWER->GPREGRET);
@@ -28,19 +28,19 @@ void bootup_check(void)
 			  SEGGER_RTT_printf(0,"\r Into_factory_test_mode \r\n");
 			  Into_factory_test_mode = true;
         Uart_init();
-        app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--串口接收到单板成功进入工厂测试
-			  led_pwm_init();
+        app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--单板成功进入工厂测试
+			  led_pwm_init();                             //LED的PWM初始化，工厂测试模式结束前PWM不会去初始化
 		}
 		else
 		{
 			  Into_factory_test_mode = false;
 		}
 }
-
+//LED测试，循环闪烁
 void led_test(void)
 {
 	    uint32_t err_code;
-	    PWM_uint();                          //进入led_test之前，单板蓝牙连接手机，所以PWM已经初始化
+	    PWM_uint();                                   //进入led_test之前，单板蓝牙连接手机，所以PWM已经初始化
 	
 	    nrf_gpio_cfg_output(LED_GPIO_BLUE);
       nrf_gpio_cfg_output(LED_GPIO_RED);
@@ -53,13 +53,13 @@ void led_test(void)
 	 		err_code = bsp_led_indication(BSP_INDICATE_factory_led_test);   //LED状态设置
       APP_ERROR_CHECK(err_code);
 }
-
+//手机端数据解析，com服务接收到的数据
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
     uint32_t err_code;
 		switch(*pdata)
 		{
-			 case App_Nap_Start1291: 
+			 case App_Nap_Start1291:             
 				    if(ads1291_is_init == false) 
 						{
 								ads1291_init();
@@ -74,27 +74,27 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						break;	
 																
 			 case App_Nap_write_deviceid : 
-						memcpy(device_id_receive,pdata+1, 16);
-						StoryDeviceID = true;            
+						memcpy(device_id_receive,pdata+1, 16);  //去除第一个字节
+						StoryDeviceID = true;                   //flash操作在main函数进入
 						break;
 			 
 			 case App_Nap_write_SN: 			 
-						memcpy(device_sn_receive,pdata+1, 16);
-						StorySN = true;            
+						memcpy(device_sn_receive,pdata+1, 16);  //去除第一个字节
+						StorySN = true;                         //flash操作在main函数进入
 						break;
 			 
 			 case App_Nap_useriddelete: 
-					  deleteUserid = true;                        
+					  deleteUserid = true;                    //flash操作在main函数进入                   
 						break;
 			 
 			 case App_Nap_Gotoledtest:
-           if(Into_factory_test_mode)        //进入工厂测试模式
+           if(Into_factory_test_mode)               //进入工厂测试模式
 	         {						 
 							led_test(); 
 					 }						 
 					 break;
 					 
-				case App_Nap_Poweroff:
+				case App_Nap_Poweroff:                      //关机指令  
              err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
              APP_ERROR_CHECK(err_code);
 					   sleep_mode_enter();
