@@ -16,7 +16,7 @@ bool led_red_timerout = false;        //红灯亮灯时间超时标志
 
 uint32_t bsp_led_indication(led_indication_t indicate)
 {
-		if(Is_pwm_init == false && !Into_factory_test_mode) //如果没有初始化PWM且非工厂测试模式，初始化PWM
+		if(Is_pwm_init == false && !Into_factory_test_mode) //如果没有初始化PWM且非工厂测试模式或者开关机，初始化PWM
 		{
 				led_pwm_init();
 		}
@@ -35,19 +35,39 @@ uint32_t bsp_led_indication(led_indication_t indicate)
             m_stable_state = indicate;  
             break;
 
-      case  BSP_INDICATE_POWER_ON:            //蓝灯闪烁频率5HZ，闪烁2次后关闭	
-            LED_BLUE(5,LED_Blue_pro);
-						nrf_delay_ms(500);
-			      LED_BLUE(5,0);
+      case  BSP_INDICATE_POWER_ON:            //蓝灯闪烁频率5HZ，闪烁2次后关闭
+				    if(Is_pwm_init == true)       
+						{
+					    	PWM_uint();
+						}
+	          nrf_gpio_cfg_output(LED_GPIO_BLUE);
+	          NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
+						nrf_delay_ms(100);	  
+	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
+						nrf_delay_ms(100);	  
+	          NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
+						nrf_delay_ms(100);	  
+	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
+						nrf_delay_ms(100);	  
             m_stable_state = indicate;
 				    break;
 
       case  BSP_INDICATE_POWER_OFF:           //蓝灯闪烁频率5HZ，闪烁2次后关闭	
-						LED_BLUE(5,0);
-			      nrf_delay_ms(500);
-            LED_BLUE(5,LED_Blue_pro);
-            nrf_delay_ms(500);
-			      LED_BLUE(5,0);
+				    if(Is_pwm_init == true)       
+						{
+					    	PWM_uint();
+						}
+	          nrf_gpio_cfg_output(LED_GPIO_BLUE);
+	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
+						nrf_delay_ms(500);	  
+	          NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
+						nrf_delay_ms(100);	  
+	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
+						nrf_delay_ms(100);	  
+	          NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
+						nrf_delay_ms(100);	  
+	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
+						nrf_delay_ms(100);	  
             m_stable_state = indicate;
 				    break;
 

@@ -95,8 +95,6 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 					 break;
 					 
 				case App_Nap_Poweroff:                      //¹Ø»úÖ¸Áî  
-             err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
-             APP_ERROR_CHECK(err_code);
 					   sleep_mode_enter();
 					 break;
 
