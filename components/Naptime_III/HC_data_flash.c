@@ -62,7 +62,7 @@ void flash_init(void)
    module_param.block_count = 3;
    module_param.block_size = 16; 
    //0---User_id
-	 //1---Device_id+SN
+	 //1---Device_id
 	 //2---SN
 	 
 	 module_param.cb = flash_callback;// //²Ù×÷»Øµ÷

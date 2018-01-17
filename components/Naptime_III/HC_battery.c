@@ -129,8 +129,6 @@ void Power_Check(void)
 //			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  sleep_mode_enter();
 		}
-//		else
-//			  SEGGER_RTT_printf(0,"\r Voltage is higher than 3.1V \r\n");
 }
 
 //主机发起连接后进行电量Check，电量低（小于3.3V）则提示低电量

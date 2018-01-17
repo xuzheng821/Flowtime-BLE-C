@@ -4,6 +4,7 @@ ble_com_t                                m_com;         /**< Structure to identi
 
 bool APP_restart = false;                               //APP软复位标志
 bool Into_factory_test_mode = false;                    //是否进入工厂测试模式
+bool Into_System_test_mode = false;                     //是否进入系统测试模式
 bool StoryDeviceID =false;                              //是否存储deviceID
 bool StorySN =false;                                    //是否存储SN
 bool deleteUserid =false;                               //是否删除UserID
@@ -29,7 +30,6 @@ void bootup_check(void)
 			  Into_factory_test_mode = true;
         Uart_init();
         app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--单板成功进入工厂测试
-			  led_pwm_init();                             //LED的PWM初始化，工厂测试模式结束前PWM不会去初始化
 		}
 		else
 		{
@@ -59,6 +59,10 @@ void App_Nap_data_Analysis(uint8_t *pdata)
     uint32_t err_code;
 		switch(*pdata)
 		{
+			 case App_Nap_SystemTest:             
+				    Into_System_test_mode = true;							 
+						break;
+
 			 case App_Nap_Start1291:             
 				    if(ads1291_is_init == false) 
 						{

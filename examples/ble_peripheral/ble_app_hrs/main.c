@@ -83,7 +83,7 @@
 #define MIN_CONN_INTERVAL                MSEC_TO_UNITS(30, UNIT_1_25_MS)             /**< Minimum acceptable connection interval (0.4 seconds). */
 #define MAX_CONN_INTERVAL                MSEC_TO_UNITS(60, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (0.65 second). */
 #define SLAVE_LATENCY                    0                                           /**< Slave latency. */
-#define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS(5000, UNIT_10_MS)             /**< Connection supervisory timeout (4 seconds). */
+#define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS(2000, UNIT_10_MS)             /**< Connection supervisory timeout (4 seconds). */
 //连接间隔更新参数
 #define FIRST_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(100, APP_TIMER_PRESCALER)   /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
 #define NEXT_CONN_PARAMS_UPDATE_DELAY    APP_TIMER_TICKS(3000, APP_TIMER_PRESCALER)  /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
@@ -643,7 +643,7 @@ void button_event_handler(button_event_t event)
 			 	     sleep_mode_enter();
              break;
 				
-        case BUTTON_EVENT_DISCONNECT:                                    //ok
+        case BUTTON_EVENT_DISCONNECT:                                       //ok
       			 Is_white_adv = false;
 						 err_code = sd_ble_gap_disconnect(m_conn_handle,
 																							 BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
@@ -670,21 +670,21 @@ void button_event_handler(button_event_t event)
 					   SEGGER_RTT_printf(0," BUTTON_EVENT_LEDSTATE \n");
 					   SEGGER_RTT_printf(0,"%d \n",led_blue_timerout);
 					   SEGGER_RTT_printf(0,"%d \n",Global_connected_state);
-						 if(led_red_timerout == true && bat_vol < min_work_vol)  //红灯灭&&电量不足
+						 if(led_red_timerout == true && bat_vol < min_work_vol)          //红灯灭&&电量不足
 						 {
-                 err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
+                 err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);    //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
-						 else if(led_blue_timerout == true && Global_connected_state == true)  //蓝灯灭&&已连接&&电量足  && bat_Vol > MIN_Work_vol  
+						 else if(led_blue_timerout == true && Global_connected_state == true)   //蓝灯灭&&已连接&&电量足  && bat_Vol > MIN_Work_vol  
 						 {
 							   led_blue_timerout = false;
-                 err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);   //LED状态设置
+                 err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);      //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 					 	 }
 						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_Vol > MIN_Work_vol 
 						 {
 							   led_blue_timerout = false;
-                 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);   //LED状态设置
+                 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST); //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
 						 break;
