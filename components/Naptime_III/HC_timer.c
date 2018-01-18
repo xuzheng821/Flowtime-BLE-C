@@ -67,6 +67,7 @@ void led_timer_start(void)
 	  led_red_timerout = false;
 	  Is_led_timer_start = true;
 }
+
 void led_timer_stop(void)
 {
     uint32_t err_code;
@@ -81,12 +82,14 @@ void leds_test_timer_handler(void * p_context)
     UNUSED_PARAMETER(p_context);
     UNUSED_VARIABLE(bsp_led_indication(BSP_INDICATE_factory_led_test));
 }
+
 void led_test_timer_init(void)
 {
     uint32_t err_code;
 	  err_code = app_timer_create(&m_leds_test_timer_id, APP_TIMER_MODE_SINGLE_SHOT, leds_test_timer_handler);   //单次触发
 	  APP_ERROR_CHECK(err_code);
 }
+
 void led_test_timer_start(void)
 {
     uint32_t err_code;
@@ -107,18 +110,21 @@ void wdts_timer_handler(void * p_context)
 	  UNUSED_PARAMETER(p_context);
     nrf_drv_wdt_channel_feed(m_channel_id);  //喂狗，WDT设置时间为5s，喂狗时间为4s
 }
+
 void wdt_timer_init(void)
 {
     uint32_t err_code;
     err_code = app_timer_create(&m_wdts_timer_id,APP_TIMER_MODE_REPEATED,wdts_timer_handler);
     APP_ERROR_CHECK(err_code);
 }
+
 void wdt_timer_start(void)
 {
 	  uint32_t err_code;
 	  err_code = app_timer_start(m_wdts_timer_id, wdt_timer_interval, NULL);
     APP_ERROR_CHECK(err_code);
 }
+
 void wdt_timer_stop(void)
 {
     uint32_t err_code;
@@ -132,42 +138,49 @@ void buttons_timer_handler(void * p_context)
 	  UNUSED_PARAMETER(p_context);
 	  buttons_state_update();
 }
+
 void button_timer_init(void)
 {
     uint32_t err_code;
     err_code = app_timer_create(&m_buttons_timer_id,APP_TIMER_MODE_REPEATED,buttons_timer_handler);
     APP_ERROR_CHECK(err_code);
 }
+
 void button_timer_start(void)
 {
 	  uint32_t err_code;
 	  err_code = app_timer_start(m_buttons_timer_id, button_timer_interval, NULL);
     APP_ERROR_CHECK(err_code);
 }
+
 void button_timer_stop(void)
 {
     uint32_t err_code;
     err_code = app_timer_stop(m_buttons_timer_id);
     APP_ERROR_CHECK(err_code);
 }
+
 //SAADC定时器
 void batterys_timer_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);
     battery_level_update();
 }
+
 void battery_timer_init(void)
 {
     uint32_t err_code;
     err_code = app_timer_create(&m_batterys_timer_id,APP_TIMER_MODE_REPEATED,batterys_timer_handler);
     APP_ERROR_CHECK(err_code);
 }
+
 void battery_timer_start(void)
 {
     uint32_t err_code;
 	  err_code = app_timer_start(m_batterys_timer_id, battery_timer_interval, NULL);
     APP_ERROR_CHECK(err_code);
 }
+
 void battery_timer_stop(void)
 {
     uint32_t err_code;
@@ -187,18 +200,21 @@ void connects_timer_handler(void * p_context)
 		 }
 		 app_timer_stop(m_connects_timer_id);
 }
+
 void connects_timer_init(void)
 {
 	  uint32_t err_code;
     err_code = app_timer_create(&m_connects_timer_id,APP_TIMER_MODE_REPEATED,connects_timer_handler);
     APP_ERROR_CHECK(err_code);
 }
+
 void connects_timer_start(void)
 {
 	  uint32_t err_code;
 		err_code = app_timer_start(m_connects_timer_id, connect_timer_interval, NULL); 
     APP_ERROR_CHECK(err_code);
 }
+
 void connects_timer_stop(void)
 {
     uint32_t err_code;

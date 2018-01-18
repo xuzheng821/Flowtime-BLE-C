@@ -12,6 +12,7 @@ bool deleteUserid =false;                               //是否删除UserID
 extern bool ads1291_is_init;                            //ADS1291是否初始化
 extern uint8_t device_id_receive[16];                   //缓存主机端发送过来的deviceID-16位
 extern uint8_t device_sn_receive[16];                   //缓存主机端发送过来的SN-16位
+extern bool Global_connected_state;                     //连接+握手成功标志
 
 extern void sleep_mode_enter(void);
 //启动Check，判断是否为软复位启动，是否进入工厂测试模式
@@ -57,6 +58,7 @@ void led_test(void)
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
     uint32_t err_code;
+	  SEGGER_RTT_printf(0," %x \r\n",*pdata);
 		switch(*pdata)
 		{
 			 case App_Nap_SystemTest:             
@@ -78,13 +80,19 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						break;	
 																
 			 case App_Nap_write_deviceid : 
-						memcpy(device_id_receive,pdata+1, 16);  //去除第一个字节
-						StoryDeviceID = true;                   //flash操作在main函数进入
+				    if(Into_System_test_mode)
+						{
+								memcpy(device_id_receive,pdata+1, 16);  //去除第一个字节
+								StoryDeviceID = true;                   //flash操作在main函数进入
+						}
 						break;
 			 
 			 case App_Nap_write_SN: 			 
-						memcpy(device_sn_receive,pdata+1, 16);  //去除第一个字节
-						StorySN = true;                         //flash操作在main函数进入
+				    if(Into_System_test_mode)
+						{
+								memcpy(device_sn_receive,pdata+1, 16);  //去除第一个字节
+								StorySN = true;                         //flash操作在main函数进入
+						}
 						break;
 			 
 			 case App_Nap_useriddelete: 
@@ -99,8 +107,15 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 					 break;
 					 
 				case App_Nap_Poweroff:                      //关机指令  
-					   sleep_mode_enter();
-					 break;
+					  if(ads1291_is_init == true)
+						{			
+					   	 ADS1291_disable();
+						}
+						Global_connected_state = false;
+					  err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
+					  APP_ERROR_CHECK(err_code);
+					  sleep_mode_enter();
+					  break;
 
 			 default:
 						break;

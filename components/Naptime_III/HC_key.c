@@ -8,6 +8,7 @@ uint8_t Key_detection_interval = 50;  //定时器50ms检测一次
 
 extern bool APP_restart;              //软复位判断
 extern bool Into_factory_test_mode;   //是否进入工厂测试模式
+extern bool Global_connected_state;   //连接+握手成功标志
 
 extern void sleep_mode_enter(void);   //关机
 extern void button_event_handler(button_event_t event);  //按键事件处理函数
@@ -20,7 +21,7 @@ void button_power_on(void)
 			 key_tigger_num = 0;
 	     button_timer_start();
        while(nrf_gpio_pin_read(BUTTON) == 0);			
-       nrf_delay_ms(Key_detection_interval * 2);	       //如果进入休眠，100ms内完成关机操作	
+       nrf_delay_ms(Key_detection_interval * 6);	       //如果进入休眠，300ms内完成关机操作	
 		}
 }
 
@@ -90,6 +91,7 @@ void buttons_state_update(void)
 				 if( 2000/Key_detection_interval < key_tigger_num < 4000/Key_detection_interval 
 					   && ( button_state == advertising_buttons || button_state == pairing_buttons || button_state == connection_buttons))  //伪关机
 				 {
+					   Global_connected_state = false;
 					   sleep_mode_enter();
 				 }
 		}

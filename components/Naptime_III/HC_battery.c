@@ -10,6 +10,7 @@ double saft_vol = 3.1;                  //安全电压
 double min_work_vol = 3.3;              //低电量
 
 extern bool Into_factory_test_mode;     //是否进入工厂测试模式
+extern bool Global_connected_state;     //连接+握手成功标志
 
 extern void sleep_mode_enter(void);
 //取两个数中较小的数
@@ -106,11 +107,12 @@ void battery_level_update(void)
 						
 						do{
 							 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
-						}while(err_code == BLE_ERROR_NO_TX_PACKETS);
+		          }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 						
 						if(bat_vol < saft_vol)                                //低于3.1V,关机
 						{
 //								SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
+							  Global_connected_state = false;
 								sleep_mode_enter();
 						}
 			 }
@@ -127,6 +129,7 @@ void Power_Check(void)
 		if(bat_vol < saft_vol)                          //低于3.1V无法开机
 		{
 //			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
+			  Global_connected_state = false;
 			  sleep_mode_enter();
 		}
 }

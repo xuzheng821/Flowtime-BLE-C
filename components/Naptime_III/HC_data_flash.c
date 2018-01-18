@@ -11,6 +11,7 @@ static uint8_t pstorage_wait_flag = 0; //flash操作完成标志
 
 extern bool Is_white_adv;
 extern bool Is_device_bond;
+extern bool Global_connected_state;
 
 extern void power_manage(void);
 
@@ -166,7 +167,7 @@ void Story_Device_ID(void)
 	   memcpy(senddata+1,device_id, 16);
 		 do{
 	     err_code = ble_com_string_send(&m_com, senddata , 17);
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 		 
 		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_Device_ID \r\n\n");
 }
@@ -203,7 +204,7 @@ void Story_SN(void)
 
 		 do{
 	     err_code = ble_com_string_send(&m_com, senddata , 17);
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 		 
 		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_SN \r\n\n");
 }
@@ -256,7 +257,7 @@ void delete_User_id(void)
 
 		 do{
 	     err_code = ble_com_string_send(&m_com, senddata , 5);
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 		 
 		 SEGGER_RTT_printf(0,"<<[FLASH]: delete_User_id \r\n\n"); 
 }

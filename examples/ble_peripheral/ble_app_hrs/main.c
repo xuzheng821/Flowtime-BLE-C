@@ -434,6 +434,7 @@ void on_adv_evt(ble_adv_evt_t ble_adv_evt)
     switch (ble_adv_evt)
     {
         case BLE_ADV_EVT_IDLE:
+					   Global_connected_state = false;
              err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
              APP_ERROR_CHECK(err_code);
 					   sleep_mode_enter();
@@ -640,6 +641,7 @@ void button_event_handler(button_event_t event)
 				
 				case BUTTON_EVENT_SLEEP:                                            //ok
 					   SEGGER_RTT_printf(0," BUTTON_EVENT_SLEEP \n");
+				     Global_connected_state = false;
 			 	     sleep_mode_enter();
              break;
 				
@@ -827,8 +829,9 @@ int main(void)
     gpio_init();
 	  bootup_check();
  	  timers_init(); 
-	  wdt_Init();
   	button_gpiote_init();
+	
+	  wdt_Init();
   	saadc_init();
   	flash_init();
     Read_User_ID();	
@@ -858,6 +861,7 @@ int main(void)
 				   if(nrf_gpio_pin_read(BQ_PG) == 0)
 					 {
 							 SEGGER_RTT_printf(0," charging mode\r\n");
+						   Global_connected_state = false;
 							 err_code = sd_power_gpregret_set(0x55);
 							 APP_ERROR_CHECK(err_code);
 							 sleep_mode_enter();
