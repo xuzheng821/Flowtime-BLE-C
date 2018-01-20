@@ -119,6 +119,10 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 				    break;
 
     	case  BSP_INDICATE_factory_led_test:    //LED工厂测试状态，定时器1s进入一次，蓝红绿灯依次点亮
+				    if(Is_pwm_init == true)       
+						{
+					    	PWM_uint();
+						}
 			      led_test_timer_start();	      
 						NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
 						NRF_GPIO->OUTSET = 1<<LED_GPIO_RED;
