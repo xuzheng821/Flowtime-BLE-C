@@ -75,7 +75,7 @@
 //广播参数
 #define APP_ADV_FAST_INTERVAL            0x00a0       //100ms                        /**< Fast advertising interval (in units of 0.625 ms. This value corresponds to 25 ms.). */
 #define APP_ADV_SLOW_INTERVAL            0x0320       //500ms                        /**< Slow advertising interval (in units of 0.625 ms. This value corrsponds to 2 seconds). */
-#define APP_ADV_FAST_TIMEOUT             12                                         /**< The duration of the fast advertising period (in seconds). */
+#define APP_ADV_FAST_TIMEOUT             120                                         /**< The duration of the fast advertising period (in seconds). */
 #define APP_ADV_SLOW_TIMEOUT             0                                           /**< The duration of the slow advertising period (in seconds). */
 //定时器参数
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */

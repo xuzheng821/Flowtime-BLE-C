@@ -1,7 +1,7 @@
 #include "HC_timer.h"
 
 //定时器参数
-#define APP_TIMER_OP_QUEUE_SIZE          8                                          /**< Size of timer operation queues. */
+#define APP_TIMER_OP_QUEUE_SIZE          8                                           /**< Size of timer operation queues. */
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
 
 APP_TIMER_DEF(m_leds_timer_id);
@@ -24,12 +24,12 @@ extern bsp_button_event_cfg_t      m_buttin_events;
 
 extern void button_event_handler(button_event_t event);
 
-#define wdt_timer_interval         APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
-#define button_timer_interval      APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)       //按键50ms检测一次
-#define led_timer_interval         APP_TIMER_TICKS(12000, APP_TIMER_PRESCALER)
-#define led_test_timer_interval    APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
-#define battery_timer_interval     APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) 
-#define connect_timer_interval     APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
+#define wdt_timer_interval           APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
+#define button_timer_interval        APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)       //按键50ms检测一次
+#define led_timer_interval           APP_TIMER_TICKS(120000, APP_TIMER_PRESCALER)
+#define led_test_timer_interval      APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
+#define battery_timer_interval       APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) 
+#define connect_timer_interval       APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
 
 void timers_init(void)
 {

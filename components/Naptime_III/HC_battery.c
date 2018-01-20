@@ -133,26 +133,23 @@ void Power_Check(void)
 		}
 }
 
-//主机发起连接后进行电量Check，电量低（小于3.3V）则提示低电量
-uint8_t connected_power_check(void)
-{
-//	  return bat_vol < min_work_vol ? true : false;   //电量过低返回true
-}
 //USB插入且为非工厂测试模式时进入，充电不执行其他操作
 void charging_check(void)
 {
 		uint32_t err_code;	   
 		while(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)    
 		{
-			 nrf_delay_ms(500);
+			 nrf_delay_ms(1000);
 			 if(nrf_gpio_pin_read(BQ_CHG) == 0)   //charging
 			 {
-				  err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGING);
+//			     SEGGER_RTT_printf(0,"\r charging \r\n");
+				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGING);
            APP_ERROR_CHECK(err_code);
 			 }
 			 else                                 //charging_over
 			 {
-				  err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGEOVER);
+//			     SEGGER_RTT_printf(0,"\r charging over \r\n");
+				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGEOVER);
            APP_ERROR_CHECK(err_code);
 			 }
 		}

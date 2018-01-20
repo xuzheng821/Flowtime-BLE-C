@@ -15,8 +15,10 @@ void PWM_uint(void);
 void LED_RED(uint8_t fre,uint8_t PWM);
 void LED_BLUE(uint8_t fre,uint8_t PWM);
 void LED_GREEN(uint8_t PWM);
+void LED_YELLOW(uint8_t PWM);
 void LED_OFF(void);
 void PWM1_fre_changge(uint8_t fre);
+void PWM2_fre_changge(uint8_t fre); 
 void PWM3_fre_changge(uint8_t fre);
 
 #endif

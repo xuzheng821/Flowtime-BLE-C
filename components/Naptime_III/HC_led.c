@@ -16,7 +16,13 @@ bool led_red_timerout = false;        //红灯亮灯时间超时标志
 
 uint32_t bsp_led_indication(led_indication_t indicate)
 {
-		if(Is_pwm_init == false) //如果没有初始化PWM，初始化PWM
+		if(Is_pwm_init == false 
+			&& indicate != BSP_INDICATE_IDLE
+			&& indicate != BSP_INDICATE_POWER_ON
+			&& indicate != BSP_INDICATE_POWER_OFF  
+			&& indicate != BSP_INDICATE_Battery_CHARGEOVER
+			&& indicate != BSP_INDICATE_factory_led_test
+		  ) //如果没有初始化PWM，初始化PWM
 		{
 				led_pwm_init();
 		}
@@ -99,7 +105,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 				    break;
 
 	    case  BSP_INDICATE_Battery_CHARGING:    //充电状态，红灯常亮，led切换先关闭所有灯
-				    if(Is_pwm_init == true)
+				    if(Is_pwm_init == true)       
 						{
 					    	PWM_uint();
 						}
