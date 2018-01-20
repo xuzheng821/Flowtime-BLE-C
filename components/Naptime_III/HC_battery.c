@@ -2,12 +2,12 @@
 
 ble_bas_t                    m_bas;     /**< Structure used to identify the battery service. */
 
-#define VOLTAGE_AVG_NUM  10             //电池电压滤波数组大小
+#define VOLTAGE_AVG_NUM  3              //电池电压滤波数组大小
 
 //全局变量
 double bat_vol;                         //实测电量
-double saft_vol = 3.1;                  //安全电压
-double min_work_vol = 3.3;              //低电量
+uint8_t bat_vol_pre;                    //电量百分比
+uint8_t bat_vol_pre_work = 20;          //电量百分比
 
 extern bool Into_factory_test_mode;     //是否进入工厂测试模式
 extern bool Global_connected_state;     //连接+握手成功标志
@@ -36,7 +36,7 @@ void ble_battory_serv_init(void)
     bas_init.evt_handler          = NULL;
     bas_init.support_notification = false;
     bas_init.p_report_ref         = NULL;
-    bas_init.initial_batt_level   = 100;
+    bas_init.initial_batt_level   = bat_vol_pre;
 
     err_code = ble_bas_init(&m_bas, &bas_init);
     APP_ERROR_CHECK(err_code);
@@ -68,7 +68,6 @@ void saadc_init(void)
 void battery_level_update(void)                   
 {
     uint32_t err_code;
-	  uint8_t bat_vol_pre;                                 //电量百分比
 	  static uint8_t bat_vol_pre_old = 100;                //上一次电量百分比
     static uint8_t bat_vol_arrary_index = 0;
     static double bat_vol_arrary[VOLTAGE_AVG_NUM] = {0};
@@ -103,13 +102,13 @@ void battery_level_update(void)
 						
 						if(bat_vol_pre > 100)                                 //最大显示电量100%
 							 bat_vol_pre = 100;
-//	          SEGGER_RTT_printf(0,"\r Voltage %d \r\n",bat_vol_pre);
+	          SEGGER_RTT_printf(0,"\r Voltage %d \r\n",bat_vol_pre);
 						
 						do{
 							 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
 		          }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 						
-						if(bat_vol < saft_vol)                                //低于3.1V,关机
+						if(bat_vol_pre < 5)                                //低于3.15V,关机
 						{
 //								SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 							  Global_connected_state = false;
@@ -126,7 +125,7 @@ void Power_Check(void)
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
 	  bat_vol = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
 	
-		if(bat_vol < saft_vol)                          //低于3.1V无法开机
+		if(bat_vol < 3.1)                          //低于3.1V无法开机
 		{
 //			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  Global_connected_state = false;
@@ -137,11 +136,7 @@ void Power_Check(void)
 //主机发起连接后进行电量Check，电量低（小于3.3V）则提示低电量
 uint8_t connected_power_check(void)
 {
-		nrf_saadc_value_t  ADC_value = 0;	              //电量检测,先初始化ADC
-  	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_vol = ADC_value * 3.6 / 1024.0 * 2;         //电池电压
-
-	  return bat_vol < min_work_vol ? true : false;   //电量过低返回true
+//	  return bat_vol < min_work_vol ? true : false;   //电量过低返回true
 }
 //USB插入且为非工厂测试模式时进入，充电不执行其他操作
 void charging_check(void)

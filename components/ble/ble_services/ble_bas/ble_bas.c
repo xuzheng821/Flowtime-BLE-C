@@ -22,6 +22,7 @@
 #include "app_util.h"
 
 extern bool Global_connected_state;
+extern uint8_t bat_vol_pre;                   //电量百分比
 
 /**@brief Function for handling the Connect event.
  *
@@ -222,7 +223,7 @@ uint32_t ble_bas_init(ble_bas_t * p_bas, const ble_bas_init_t * p_bas_init)
     p_bas->evt_handler               = p_bas_init->evt_handler;
     p_bas->conn_handle               = BLE_CONN_HANDLE_INVALID;
     p_bas->is_battery_notification_enabled = p_bas_init->support_notification;
-    p_bas->battery_level_last = 100;
+    p_bas->battery_level_last = bat_vol_pre;
 		
     // Add service
     BLE_UUID_BLE_ASSIGN(ble_uuid, BLE_UUID_BATTERY_SERVICE);

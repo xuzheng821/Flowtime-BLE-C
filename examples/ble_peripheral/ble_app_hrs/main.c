@@ -132,9 +132,8 @@ extern bool led_blue_timerout;
 extern bool led_red_timerout;
 extern led_indication_t m_stable_state;
 //电池电量变量
-extern double min_work_vol;
-extern double saft_vol;
-extern double bat_vol;
+extern uint8_t bat_vol_pre;                   //电量百分比
+extern uint8_t bat_vol_pre_work;
 //工厂测试
 extern bool Into_factory_test_mode;
 extern bool deleteUserid;
@@ -475,7 +474,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 					  SEGGER_RTT_printf(0,"\r BLE_GAP_EVT_CONNECTED \r\n");
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 				    ble_is_adv = false;
-					  if(connected_power_check())    //低于使用电压
+					  if(bat_vol_pre < bat_vol_pre_work)    //低于使用电压
 	          {
 		            err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
                 APP_ERROR_CHECK(err_code);	
@@ -672,18 +671,18 @@ void button_event_handler(button_event_t event)
 					   SEGGER_RTT_printf(0," BUTTON_EVENT_LEDSTATE \n");
 					   SEGGER_RTT_printf(0,"%d \n",led_blue_timerout);
 					   SEGGER_RTT_printf(0,"%d \n",Global_connected_state);
-						 if(led_red_timerout == true && bat_vol < min_work_vol)          //红灯灭&&电量不足
+						 if(led_red_timerout == true && bat_vol_pre < bat_vol_pre_work)          //红灯灭&&电量不足
 						 {
                  err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);    //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
-						 else if(led_blue_timerout == true && Global_connected_state == true)   //蓝灯灭&&已连接&&电量足  && bat_Vol > MIN_Work_vol  
+						 else if(led_blue_timerout == true && Global_connected_state == true)   //蓝灯灭&&已连接&&电量足  && bat_vol_pre > 20  
 						 {
 							   led_blue_timerout = false;
                  err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);      //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 					 	 }
-						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_Vol > MIN_Work_vol 
+						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_vol_pre > 20
 						 {
 							   led_blue_timerout = false;
                  err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST); //LED状态设置
