@@ -117,38 +117,32 @@ void ADS_Config(ADS_ConfigDef *Config)
 
 void ADS_Setting(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size )
 {
-	  ADS_SPI_Delay(2);
 	  uint8_t SendData[3];
 	  REG |=ADS_WREG;
 	  SendData[0] = REG;
 	  SendData[1] = Num;
 	  SendData[2] = *pData;
     ADS_SPI_Write(SendData,3);
-    ADS_SPI_Delay(2);
+	  ADS_SPI_Delay(1);
 }
 
 void ADS_Command(uint8_t CMD)
 {
-    ADS_SPI_Delay(2);
     ADS_SPI_Write(&CMD,1);
-    ADS_SPI_Delay(2);
+	  ADS_SPI_Delay(1);
 }
 
 void ADS_ReadData(uint8_t *pRxData,uint8_t Size)
 {
-    ADS_SPI_Delay(2);
     ADS_SPI_Read(pRxData,Size);
-    ADS_SPI_Delay(2);
 }
 
 void ADS_ReadStatue(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size)
 {
     REG |= ADS_RREG;
-    ADS_SPI_Delay(2);
     ADS_SPI_Write(&REG,1);
     ADS_SPI_Write(&Num,1);
     ADS_SPI_Read(pData,Size);
-    ADS_SPI_Delay(2);
 }
 
 void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
