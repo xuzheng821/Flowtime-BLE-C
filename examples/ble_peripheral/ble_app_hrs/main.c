@@ -495,8 +495,8 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						else
 						{
 				        connection_buttons_configure();	  
+				        connects_timer_start();
 						}
-//				    connects_timer_start();
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
@@ -510,7 +510,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						{
 					   	 ADS1291_disable();
 						}
-//					  connects_timer_stop();
+					  connects_timer_stop();
 						Global_connected_state = false;
             break;
 

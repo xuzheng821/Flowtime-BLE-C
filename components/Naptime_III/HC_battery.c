@@ -143,26 +143,25 @@ bool connect_power_check(void)
 	  return bat_vol > 3.3 ? false : true;            //低于3.3V提示低电量
 }
 
-
 //USB插入且为非工厂测试模式时进入，充电不执行其他操作
 void charging_check(void)
 {
 		uint32_t err_code;	   
 		while(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)    
 		{
-			 nrf_delay_ms(1000);
 			 if(nrf_gpio_pin_read(BQ_CHG) == 0 && nrf_gpio_pin_read(BQ_PG) == 0)   //charging
 			 {
-//			     SEGGER_RTT_printf(0,"\r charging \r\n");
+			     SEGGER_RTT_printf(0,"\r charging \r\n");
 				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGING);
            APP_ERROR_CHECK(err_code);
 			 }
 			 if(nrf_gpio_pin_read(BQ_CHG) == 1 && nrf_gpio_pin_read(BQ_PG) == 0)     //charging_over
 			 {
-//			     SEGGER_RTT_printf(0,"\r charging over \r\n");
+			     SEGGER_RTT_printf(0,"\r charging over \r\n");
 				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGEOVER);
            APP_ERROR_CHECK(err_code);
 			 }
+			 nrf_delay_ms(1000);
 		}
 		err_code = bsp_led_indication(BSP_INDICATE_IDLE);
     APP_ERROR_CHECK(err_code);
