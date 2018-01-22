@@ -101,7 +101,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 				    LED_OFF();
       			LED_RED(1,LED_Red_pro);
 						led_timer_start();
-            m_stable_state = indicate;
+            m_stable_state = indicate;        //记录当前led状态，便于超时且按键按下后恢复当前状态
 				    break;
 
 	    case  BSP_INDICATE_Battery_CHARGING:    //充电状态，红灯常亮，led切换先关闭所有灯

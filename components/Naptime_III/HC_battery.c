@@ -125,13 +125,24 @@ void Power_Check(void)
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
 	  bat_vol = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
 	
-		if(bat_vol < 3.1)                          //低于3.1V无法开机
+		if(bat_vol < 3.1)                               //低于3.1V无法开机
 		{
 //			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  Global_connected_state = false;
 			  sleep_mode_enter();
 		}
 }
+
+//连接时电压Check
+bool connect_power_check(void)
+{
+	  nrf_saadc_value_t  ADC_value = 0;	              //ADC读取数据
+  	nrf_drv_saadc_sample_convert(0,&ADC_value);
+	  bat_vol = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+	
+	  return bat_vol > 3.3 ? false : true;            //低于3.3V提示低电量
+}
+
 
 //USB插入且为非工厂测试模式时进入，充电不执行其他操作
 void charging_check(void)

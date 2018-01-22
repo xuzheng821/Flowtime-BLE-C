@@ -1,6 +1,6 @@
 #include "HC_factory_test.h"
 
-ble_com_t                                m_com;         /**< Structure to identify the Nordic UART Service. */
+ble_com_t                   m_com;                      /**< Structure to identify the Nordic UART Service. */
 
 bool APP_restart = false;                               //APP软复位标志
 bool Into_factory_test_mode = false;                    //是否进入工厂测试模式
@@ -58,7 +58,7 @@ void led_test(void)
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
     uint32_t err_code;
-	  SEGGER_RTT_printf(0," %x \r\n",*pdata);
+//	  SEGGER_RTT_printf(0," %x \r\n",*pdata);
 		switch(*pdata)
 		{
 			 case App_Nap_SystemTest:             

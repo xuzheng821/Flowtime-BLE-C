@@ -1,6 +1,6 @@
 #include "HC_eeg_data_send.h"
 
-ble_EEG_t               m_EEG;                                     /**< Structure used to identify the heart rate service. */
+ble_eeg_t               m_eeg;                                     /**< Structure used to identify the heart rate service. */
 
 /*******************数据吞吐量测试*********************/
 uint32_t Num_Time;       //每一帧数据包头2个字节，不断累加
@@ -23,7 +23,7 @@ uint32_t ble_send_data(uint8_t *pdata)
 		Data_send[0] = Num_Time >> 8;    //添加包头--2个字节
 		Data_send[1] = Num_Time & 0xFF;
 			 
-		err_code = ble_EEG_DATA_send(&m_EEG, Data_send, 17);   //数据发送，长度17字节
+		err_code = ble_EEG_DATA_send(&m_eeg, Data_send, 17);   //数据发送，长度17字节
 		if (NRF_SUCCESS == err_code)
 		{
 			 send_num++;	
@@ -54,7 +54,7 @@ void ble_send_more_data(uint8_t *pdata)
 			 Data_send[0] = Num_Time >> 8;
 			 Data_send[1] = Num_Time & 0xFF;
 
-			 err_code = ble_EEG_DATA_send(&m_EEG,Data_send, 17 );
+			 err_code = ble_EEG_DATA_send(&m_eeg,Data_send, 17 );
 			 if (NRF_SUCCESS == err_code)
 			 {
 					send_num++;	
@@ -67,6 +67,6 @@ void ble_state_send(uint8_t pdata)
 {
    uint32_t err_code;
 	 do{
-		 err_code = ble_EEG_ELE_STATE_send(&m_EEG,pdata, 1);
+		 err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
 		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 }

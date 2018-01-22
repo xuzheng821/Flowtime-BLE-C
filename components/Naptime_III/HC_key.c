@@ -21,7 +21,7 @@ void button_power_on(void)
 			 key_tigger_num = 0;
 	     button_timer_start();
        while(nrf_gpio_pin_read(BUTTON) == 0);			
-       nrf_delay_ms(Key_detection_interval * 6);	       //如果进入休眠，300ms内完成关机操作	
+       nrf_delay_ms(Key_detection_interval * 10);	       //如果进入休眠，500ms内完成关机操作	
 		}
 }
 

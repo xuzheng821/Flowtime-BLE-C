@@ -21,6 +21,7 @@ void saadc_callback(nrf_drv_saadc_evt_t const * p_event);
 void saadc_init(void);
 void battery_level_update(void);
 void Power_Check(void);
+bool connect_power_check(void);
 void charging_check(void);
 
 #endif

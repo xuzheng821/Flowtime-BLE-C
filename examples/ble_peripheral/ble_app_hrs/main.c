@@ -9,7 +9,7 @@
  * the file.
  *
  */
-/** @example examples/ble_peripheral/ble_app_EEG/main.c
+/** @example examples/ble_peripheral/ble_app_eeg/main.c
  *
  * @brief Heart Rate Service Sample Application main file.
  *
@@ -37,10 +37,10 @@
 #include "app_uart.h"
 #include "app_util_platform.h"
 #include "ble_bas.h"
-#include "ble_EEG.h"
-#include "ble_dis.h"
 #include "ble_com.h"
 #include "ble_conn.h"
+#include "ble_dis.h"
+#include "ble_eeg.h"
 #ifdef BLE_DFU_APP_SUPPORT
 #include "ble_dfu.h"
 #include "dfu_app_handler.h"
@@ -52,11 +52,11 @@
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
 #include "HC_led.h"
-#include "HC_key.h"
 #include "HC_pwm.h"
 #include "HC_wdt.h"
-#include "HC_uart.h"
 #include "HC_timer.h"
+#include "HC_key.h"
+#include "HC_uart.h"
 #include "HC_Battery.h"
 #include "HC_data_flash.h"
 #include "HC_factory_test.h"
@@ -114,35 +114,35 @@ static ble_dfu_t                         m_dfus;                                
 extern ble_bas_t                         m_bas;                                      /**< Structure used to identify the battery service. */
 extern ble_com_t                         m_com;                                      /**< Structure to identify the Nordic UART Service. */
 extern ble_conn_t                        m_conn;                                     /**< Structure to identify the Nordic UART Service. */
-extern ble_EEG_t                         m_EEG;                                      /**< Structure used to identify the heart rate service. */
+extern ble_eeg_t                         m_eeg;                                      /**< Structure used to identify the heart rate service. */
 extern uint16_t                          m_conn_handle;                              /**< Handle of the current connection. */
 static dm_application_instance_t         m_app_handle;                               /**< Application identifier allocated by device manager. */
-//EEG数据传输变量与标志位
-extern uint8_t EEG_DATA_SEND[750]; //需要发送的脑电数据
-extern uint8_t Send_Flag;
-extern bool ads1291_is_init;       //1291初始化标志位
+//eeg数据传输变量与标志位
+extern uint8_t EEG_DATA_SEND[750];            //需要发送的脑电数据
+extern uint8_t Send_Flag;                     //脑电数据是否发送完成标志
+extern bool ads1291_is_init;                  //1291初始化标志位
 //连接状态标志位
-extern bool Is_white_adv;
-extern bool ID_is_change;
-extern bool Is_device_bond;  
-extern uint8_t communocate_state[5];
-bool Global_connected_state = false;
+extern bool Is_white_adv;                     //是否白名单广播
+extern bool ID_is_change;                     //接收到的ID与原先ID不同，可能需要更新绑定ID
+extern bool Is_device_bond;                   //设备是否绑定
+extern uint8_t communocate_state[5];          //握手状态返回
+bool Global_connected_state = false;          //连接+握手成功标志
 //LED状态控制与标志位
-extern bool led_blue_timerout;
-extern bool led_red_timerout;
+extern bool led_blue_timerout;                //蓝灯亮灯时间超时标志    
+extern bool led_red_timerout;                 //红灯亮灯时间超时标志
 extern led_indication_t m_stable_state;
 //电池电量变量
 extern uint8_t bat_vol_pre;                   //电量百分比
-extern uint8_t bat_vol_pre_work;
+extern uint8_t bat_vol_pre_work;              //低电量提示的电量百分比20% -> 3.3V
 //工厂测试
-extern bool Into_factory_test_mode;
-extern bool deleteUserid;
-extern bool StoryDeviceID;
-extern bool StorySN;
+extern bool Into_factory_test_mode;           //是否进入工厂测试模式
+extern bool deleteUserid;                     //是否删除UserID
+extern bool StoryDeviceID;                    //是否存储deviceID
+extern bool StorySN;                          //是否存储SN
 //看门狗
 extern nrf_drv_wdt_channel_id      m_channel_id;
 //广播状态
-bool ble_is_adv = false;
+bool ble_is_adv = false;                      //设备是否开启广播
 //广播UUID
 #define BLE_UUID_Naptime_Profile 0xFF00
 static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_Naptime_Profile, BLE_UUID_TYPE_VENDOR_BEGIN}}; /**< Universally unique service identifiers. */
@@ -282,23 +282,23 @@ static void reset_prepare(void)
 static void services_init(void)
 {
     uint32_t         err_code;
-    ble_EEG_init_t   EEG_init;
-	  ble_conn_init_t  conn_init;
 	  ble_com_init_t   com_init;
-
-	  memset(&conn_init, 0, sizeof(conn_init));
-    conn_init.data_handler = NULL;   
-    err_code = ble_conn_init(&m_conn, &conn_init);
-    APP_ERROR_CHECK(err_code);
+	  ble_conn_init_t  conn_init;
+    ble_eeg_init_t   eeg_init;
 
 	  memset(&com_init, 0, sizeof(com_init));
     com_init.data_handler = NULL;   
     err_code = ble_com_init(&m_com, &com_init);
     APP_ERROR_CHECK(err_code);
 
-    memset(&EEG_init, 0, sizeof(EEG_init));
-    EEG_init.evt_handler = NULL;
-    err_code = ble_EEG_init(&m_EEG, &EEG_init);
+	  memset(&conn_init, 0, sizeof(conn_init));
+    conn_init.data_handler = NULL;   
+    err_code = ble_conn_init(&m_conn, &conn_init);
+    APP_ERROR_CHECK(err_code);
+
+    memset(&eeg_init, 0, sizeof(eeg_init));
+    eeg_init.evt_handler = NULL;
+    err_code = ble_eeg_init(&m_eeg, &eeg_init);
     APP_ERROR_CHECK(err_code);
 
     // Initialize Battery Service.
@@ -385,7 +385,7 @@ static void gpio_reset(void)
     while(nrf_gpio_pin_read(BUTTON) == 0)   //按键松开才进入休眠
     {
 			 nrf_drv_wdt_channel_feed(m_channel_id);
-			 nrf_delay_ms(100);
+			 nrf_delay_ms(200);
 		}
 		
   	nrf_gpio_cfg_output(LED_GPIO_BLUE);
@@ -426,7 +426,7 @@ void sleep_mode_enter(void)
  *
  * @param[in] ble_adv_evt  Advertising event.
  */
-void on_adv_evt(ble_adv_evt_t ble_adv_evt)
+static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 {
     uint32_t err_code;
 
@@ -438,16 +438,19 @@ void on_adv_evt(ble_adv_evt_t ble_adv_evt)
              APP_ERROR_CHECK(err_code);
 					   sleep_mode_enter();
              break;
+
         case BLE_ADV_EVT_WITH_WHITELIST:
 					   advertising_buttons_configure();
 					   err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);
              APP_ERROR_CHECK(err_code);
              break;
+
         case BLE_ADV_EVT_WITH_WHITELIST_SLOW:
 						 advertising_buttons_configure();
 					   err_code = bsp_led_indication(BSP_INDICATE_IDLE);
              APP_ERROR_CHECK(err_code);
              break;
+
 				case BLE_ADV_EVT_WITHOUT_WHITELIST:
 					   pairing_buttons_configure();
 					   err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);  //BLE_INDICATE_WITHOUT_WHITELIST
@@ -474,7 +477,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 					  SEGGER_RTT_printf(0,"\r BLE_GAP_EVT_CONNECTED \r\n");
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 				    ble_is_adv = false;
-					  if(bat_vol_pre < bat_vol_pre_work)    //低于使用电压
+					  if(connect_power_check())    //电量低于使用电压返回true
 	          {
 		            err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
                 APP_ERROR_CHECK(err_code);	
@@ -504,7 +507,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 					  err_code = bsp_led_indication(BSP_INDICATE_IDLE);
             APP_ERROR_CHECK(err_code);
             if(ads1291_is_init == true)
-						{			
+						{
 					   	 ADS1291_disable();
 						}
 //					  connects_timer_stop();
@@ -550,7 +553,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
     ble_bas_on_ble_evt(&m_bas, p_ble_evt);
 	  ble_com_on_ble_evt(&m_com, p_ble_evt);
 	  ble_conn_on_ble_evt(&m_conn, p_ble_evt);
-    ble_eeg_on_ble_evt(&m_EEG, p_ble_evt);
+    ble_eeg_on_ble_evt(&m_eeg, p_ble_evt);
     on_ble_evt(p_ble_evt);
     dm_ble_evt_handler(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
@@ -645,10 +648,12 @@ void button_event_handler(button_event_t event)
              break;
 				
         case BUTTON_EVENT_DISCONNECT:                                       //ok
-      			 Is_white_adv = false;
+					   SEGGER_RTT_printf(0," BUTTON_EVENT_DISCONNECT \n");
 						 err_code = sd_ble_gap_disconnect(m_conn_handle,
 																							 BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
 						 APP_ERROR_CHECK(err_code);
+      			 Is_white_adv = false;
+				     Global_connected_state = false;
 				     break;
 				
         case BUTTON_EVENT_WHITELIST_OFF:                                    //ok
@@ -669,23 +674,23 @@ void button_event_handler(button_event_t event)
 						 
 				case BUTTON_EVENT_LEDSTATE:
 					   SEGGER_RTT_printf(0," BUTTON_EVENT_LEDSTATE \n");
-					   SEGGER_RTT_printf(0,"%d \n",led_blue_timerout);
+					   SEGGER_RTT_printf(0,"led_blue_timerout：%d led_red_timerout：%d \n",led_blue_timerout,led_red_timerout);
 					   SEGGER_RTT_printf(0,"%d \n",Global_connected_state);
 						 if(led_red_timerout == true && bat_vol_pre < bat_vol_pre_work)         //红灯灭&&电量不足
 						 {
-                 err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);    //LED状态设置
+                 err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);           //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
 						 else if(led_blue_timerout == true && Global_connected_state == true)   //蓝灯灭&&已连接&&电量足  && bat_vol_pre > 20  
 						 {
 							   led_blue_timerout = false;
-                 err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);      //LED状态设置
+                 err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);             //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 					 	 }
 						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_vol_pre > 20
 						 {
 							   led_blue_timerout = false;
-                 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST); //LED状态设置
+                 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);        //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
 						 break;
@@ -765,8 +770,8 @@ static void advertising_init(void)
 				app_uart_put(Tool_App_advdata);			
 				app_uart_put(data[0]);
 				app_uart_put(data[1]);
-				manuf_data.data.p_data              = data;    
-				manuf_data.data.size                = sizeof(data);	
+				manuf_data.data.p_data          = data;    
+				manuf_data.data.size            = sizeof(data);	
 				advdata.p_manuf_specific_data   = &manuf_data;
 	  }
 	

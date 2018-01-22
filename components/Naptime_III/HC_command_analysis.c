@@ -15,7 +15,7 @@ extern bool Global_connected_state;//连接+握手成功标志
 uint8_t Handshark_buff1[3];        //握手数据存储
 uint8_t Handshark_buff2[5];
 uint8_t Handshark_buff3[3];
-uint8_t communocate_state[5] = {0x04,0x00,0x00,0x00,0xFF};
+uint8_t communocate_state[5] = {0x04,0x00,0x00,0x00,0xFF}; //握手状态返回
 //接收ID并进行解析
 void ble_Com_ID_Analysis(uint8_t * p_data, uint16_t length)
 {

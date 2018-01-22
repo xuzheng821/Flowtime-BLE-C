@@ -57,7 +57,7 @@ static int8_t                          m_tx_power_level;                        
 
 
 /**@brief Function for checking that the whitelist has entries.
- */
+ 
 static bool whitelist_has_entries(ble_gap_whitelist_t const * whitelist)
 {
     if ((whitelist->addr_count != 0) || (whitelist->irk_count != 0))
@@ -66,7 +66,7 @@ static bool whitelist_has_entries(ble_gap_whitelist_t const * whitelist)
     }
     return false;
 }
-
+*/
 
 /**@brief Function for setting the stored peer address back to zero.
  */

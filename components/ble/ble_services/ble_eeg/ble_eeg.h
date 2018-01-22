@@ -12,7 +12,7 @@
 
 /** @file
  *
- * @defgroup ble_sdk_srv_EEG Heart Rate Service
+ * @defgroup ble_sdk_srv_eeg Heart Rate Service
  * @{
  * @ingroup ble_sdk_srv
  * @brief Heart Rate Service module.
@@ -24,7 +24,7 @@
  *          Body Sensor Location and Heart Rate Control Point characteristics.
  *
  *          If enabled, notification of the Heart Rate Measurement characteristic is performed
- *          when the application calls ble_EEG_send().
+ *          when the application calls ble_eeg_send().
  *
  *          The Heart Rate Service also provides a set of functions for manipulating the
  *          various fields in the Heart Rate Measurement characteristic, as well as setting
@@ -74,26 +74,26 @@ typedef enum
 typedef struct
 {
     ble_EEG_evt_type_t evt_type;                        /**< Type of event. */
-} ble_EEG_evt_t;
+} ble_eeg_evt_t;
 
-// Forward declaration of the ble_EEG_t type. 
-typedef struct ble_EEG_s ble_EEG_t;
+// Forward declaration of the ble_eeg_t type. 
+typedef struct ble_eeg_s ble_eeg_t;
 
 /**@brief Heart Rate Service event handler type. */
-typedef void (*ble_EEG_evt_handler_t) (ble_EEG_t * p_EEG, ble_EEG_evt_t * p_evt);
+typedef void (*ble_eeg_evt_handler_t) (ble_eeg_t * p_eeg, ble_eeg_evt_t * p_evt);
 
 /**@brief Heart Rate Service init structure. This contains all options and data needed for
  *        initialization of the service. */
 typedef struct
 {
-    ble_EEG_evt_handler_t        evt_handler;                                          /**< Event handler to be called for handling events in the Heart Rate Service. */
-} ble_EEG_init_t;
+    ble_eeg_evt_handler_t        evt_handler;                                          /**< Event handler to be called for handling events in the Heart Rate Service. */
+} ble_eeg_init_t;
 
 /**@brief Heart Rate Service structure. This contains various status information for the service. */
-struct ble_EEG_s
+struct ble_eeg_s
 {
 	  uint8_t                      uuid_type;               /**< UUID type for Nordic UART Service Base UUID. */
-    ble_EEG_evt_handler_t        evt_handler;                                          /**< Event handler to be called for handling events in the Heart Rate Service. */
+    ble_eeg_evt_handler_t        evt_handler;                                          /**< Event handler to be called for handling events in the Heart Rate Service. */
     uint16_t                     service_handle;                                       /**< Handle of Heart Rate Service (as provided by the BLE stack). */
     ble_gatts_char_handles_t     ele_state_handles;
   	ble_gatts_char_handles_t     eeg_handles;                                          /**< Handles related to the Heart Rate Measurement characteristic. */
@@ -105,23 +105,23 @@ struct ble_EEG_s
 
 /**@brief Function for initializing the Heart Rate Service.
  *
- * @param[out]  p_EEG       Heart Rate Service structure. This structure will have to be supplied by
+ * @param[out]  p_eeg       Heart Rate Service structure. This structure will have to be supplied by
  *                          the application. It will be initialized by this function, and will later
  *                          be used to identify this particular service instance.
- * @param[in]   p_EEG_init  Information needed to initialize the service.
+ * @param[in]   p_eeg_init  Information needed to initialize the service.
  *
  * @return      NRF_SUCCESS on successful initialization of service, otherwise an error code.
  */
-uint32_t ble_EEG_init(ble_EEG_t * p_EEG, const ble_EEG_init_t * p_EEG_init);
+uint32_t ble_eeg_init(ble_eeg_t * p_eeg, const ble_eeg_init_t * p_eeg_init);
 
 /**@brief Function for handling the Application's BLE Stack events.
  *
  * @details Handles all events from the BLE stack of interest to the Heart Rate Service.
  *
- * @param[in]   p_EEG      Heart Rate Service structure.
+ * @param[in]   p_eeg      Heart Rate Service structure.
  * @param[in]   p_ble_evt  Event received from the BLE stack.
  */
-void ble_eeg_on_ble_evt(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt);
+void ble_eeg_on_ble_evt(ble_eeg_t * p_eeg, ble_evt_t * p_ble_evt);
 
 /**@brief Function for sending heart rate measurement if notification has been enabled.
  *
@@ -129,61 +129,61 @@ void ble_eeg_on_ble_evt(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt);
  *          If notification has been enabled, the heart rate measurement data is encoded and sent to
  *          the client.
  *
- * @param[in]   p_EEG                    Heart Rate Service structure.
+ * @param[in]   p_eeg                    Heart Rate Service structure.
  * @param[in]   heart_rate               New heart rate measurement.
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_EEG_DATA_send(ble_EEG_t * p_EEG, uint8_t * p_string, uint16_t length);
-uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t * p_EEG, uint8_t state, uint16_t length);
+uint32_t ble_EEG_DATA_send(ble_eeg_t * p_eeg, uint8_t * p_string, uint16_t length);
+uint32_t ble_EEG_ELE_STATE_send(ble_eeg_t * p_eeg, uint8_t state, uint16_t length);
 /**@brief Function for adding a RR Interval measurement to the RR Interval buffer.
  *
  * @details All buffered RR Interval measurements will be included in the next heart rate
  *          measurement message, up to the maximum number of measurements that will fit into the
  *          message. If the buffer is full, the oldest measurement in the buffer will be deleted.
  *
- * @param[in]   p_EEG        Heart Rate Service structure.
+ * @param[in]   p_eeg        Heart Rate Service structure.
  * @param[in]   rr_interval  New RR Interval measurement (will be buffered until the next
  *                           transmission of Heart Rate Measurement).
  */
-void ble_EEG_rr_interval_add(ble_EEG_t * p_EEG, uint16_t rr_interval);
+void ble_eeg_rr_interval_add(ble_eeg_t * p_eeg, uint16_t rr_interval);
 
 /**@brief Function for checking if RR Interval buffer is full.
  *
- * @param[in]   p_EEG        Heart Rate Service structure.
+ * @param[in]   p_eeg        Heart Rate Service structure.
  *
  * @return      true if RR Interval buffer is full, false otherwise.
  */
-bool ble_EEG_rr_interval_buffer_is_full(ble_EEG_t * p_EEG);
+bool ble_eeg_rr_interval_buffer_is_full(ble_eeg_t * p_eeg);
 
 /**@brief Function for setting the state of the Sensor Contact Supported bit.
  *
- * @param[in]   p_EEG                        Heart Rate Service structure.
+ * @param[in]   p_eeg                        Heart Rate Service structure.
  * @param[in]   is_sensor_contact_supported  New state of the Sensor Contact Supported bit.
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_EEG_sensor_contact_supported_set(ble_EEG_t * p_EEG, bool is_sensor_contact_supported);
+uint32_t ble_eeg_sensor_contact_supported_set(ble_eeg_t * p_eeg, bool is_sensor_contact_supported);
 
 /**@brief Function for setting the state of the Sensor Contact Detected bit.
  *
- * @param[in]   p_EEG                        Heart Rate Service structure.
+ * @param[in]   p_eeg                        Heart Rate Service structure.
  * @param[in]   is_sensor_contact_detected   TRUE if sensor contact is detected, FALSE otherwise.
  */
-void ble_EEG_sensor_contact_detected_update(ble_EEG_t * p_EEG, bool is_sensor_contact_detected);
+void ble_eeg_sensor_contact_detected_update(ble_eeg_t * p_eeg, bool is_sensor_contact_detected);
 
 /**@brief Function for setting the Body Sensor Location.
  *
  * @details Sets a new value of the Body Sensor Location characteristic. The new value will be sent
  *          to the client the next time the client reads the Body Sensor Location characteristic.
  *
- * @param[in]   p_EEG                 Heart Rate Service structure.
+ * @param[in]   p_eeg                 Heart Rate Service structure.
  * @param[in]   body_sensor_location  New Body Sensor Location.
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_EEG_body_sensor_location_set(ble_EEG_t * p_EEG, uint8_t body_sensor_location);
+uint32_t ble_eeg_body_sensor_location_set(ble_eeg_t * p_eeg, uint8_t body_sensor_location);
 
-#endif // BLE_EEG_H__
+#endif // BLE_eeg_H__
 
 /** @} */

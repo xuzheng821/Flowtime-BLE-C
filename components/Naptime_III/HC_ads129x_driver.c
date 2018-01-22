@@ -9,7 +9,7 @@ ADS_ConfigDef ADS_Config1;
 
 extern uint8_t Send_Flag;
 
-extern ble_EEG_t                   m_EEG;                                      /**< Structure used to identify the heart rate service. */
+extern ble_eeg_t                   m_eeg;                                      /**< Structure used to identify the heart rate service. */
 
 #define SPI_INSTANCE  1   /**< SPI instance index. */
 nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */
@@ -147,7 +147,7 @@ void ADS_ReadStatue(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size)
 
 void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
-    if(m_EEG.is_eeg_notification_enabled && ads1291_is_init)
+    if(m_eeg.is_eeg_notification_enabled && ads1291_is_init)
     {		 
 	     uint8_t Rx[6] = {0};
   	   uint32_t ADCData;

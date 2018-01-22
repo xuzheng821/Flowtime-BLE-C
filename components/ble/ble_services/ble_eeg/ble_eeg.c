@@ -33,77 +33,77 @@ extern bool Global_connected_state;
 
 /**@brief Function for handling the Connect event.
  *
- * @param[in]   p_EEG       Heart Rate Service structure.
+ * @param[in]   p_eeg       Heart Rate Service structure.
  * @param[in]   p_ble_evt   Event received from the BLE stack.
  */
-static void on_connect(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
+static void on_connect(ble_eeg_t * p_eeg, ble_evt_t * p_ble_evt)
 {
-    p_EEG->conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
+    p_eeg->conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
 
 /**@brief Function for handling the Disconnect event.
  *
- * @param[in]   p_EEG       Heart Rate Service structure.
+ * @param[in]   p_eeg       Heart Rate Service structure.
  * @param[in]   p_ble_evt   Event received from the BLE stack.
  */
-static void on_disconnect(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
+static void on_disconnect(ble_eeg_t * p_eeg, ble_evt_t * p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
-    p_EEG->conn_handle = BLE_CONN_HANDLE_INVALID;
+    p_eeg->conn_handle = BLE_CONN_HANDLE_INVALID;
 }
 
 /**@brief Function for handling the Write event.
  *
- * @param[in]   p_EEG       Heart Rate Service structure.
+ * @param[in]   p_eeg       Heart Rate Service structure.
  * @param[in]   p_ble_evt   Event received from the BLE stack.
  */
-static void on_write(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
+static void on_write(ble_eeg_t * p_eeg, ble_evt_t * p_ble_evt)
 {
 		ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
-    if ((p_evt_write->handle == p_EEG->eeg_handles.cccd_handle)
+    if ((p_evt_write->handle == p_eeg->eeg_handles.cccd_handle)
         &&(p_evt_write->len == 2) && Global_connected_state )   //握手成功才能notify数据 
 				{
 						if (ble_srv_is_notification_enabled(p_evt_write->data))
 						{
-								p_EEG->is_eeg_notification_enabled = true;
+								p_eeg->is_eeg_notification_enabled = true;
 
 						}
 						else
 						{
-								p_EEG->is_eeg_notification_enabled = false;
+								p_eeg->is_eeg_notification_enabled = false;
 						}
 				}
 				
-    if ((p_evt_write->handle == p_EEG->ele_state_handles.cccd_handle)
+    if ((p_evt_write->handle == p_eeg->ele_state_handles.cccd_handle)
         &&(p_evt_write->len == 2) && Global_connected_state)    //握手成功才能notify数据 
 				{
 						if (ble_srv_is_notification_enabled(p_evt_write->data))
 						{
-								p_EEG->is_state_notification_enabled = true;
+								p_eeg->is_state_notification_enabled = true;
 						}
 						else
 						{
-								p_EEG->is_state_notification_enabled = false;
+								p_eeg->is_state_notification_enabled = false;
 						}
 				}
 }
 
 
-void ble_eeg_on_ble_evt(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
+void ble_eeg_on_ble_evt(ble_eeg_t * p_eeg, ble_evt_t * p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-            on_connect(p_EEG, p_ble_evt);
+            on_connect(p_eeg, p_ble_evt);
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
-            on_disconnect(p_EEG, p_ble_evt);
+            on_disconnect(p_eeg, p_ble_evt);
             break;
 
         case BLE_GATTS_EVT_WRITE:
-            on_write(p_EEG, p_ble_evt);
+            on_write(p_eeg, p_ble_evt);
             break;
 
         default:
@@ -112,8 +112,8 @@ void ble_eeg_on_ble_evt(ble_EEG_t * p_EEG, ble_evt_t * p_ble_evt)
     }
 }
 
-static uint32_t eeg_ele_state_char_add(ble_EEG_t            * p_EEG,
-                                      const ble_EEG_init_t * p_EEG_init)
+static uint32_t eeg_ele_state_char_add(ble_eeg_t            * p_eeg,
+                                      const ble_eeg_init_t * p_eeg_init)
 {
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_md_t cccd_md;
@@ -137,7 +137,7 @@ static uint32_t eeg_ele_state_char_add(ble_EEG_t            * p_EEG,
     char_md.p_cccd_md         = &cccd_md;
     char_md.p_sccd_md         = NULL;
 
-    ble_uuid.type = p_EEG->uuid_type;
+    ble_uuid.type = p_eeg->uuid_type;
     ble_uuid.uuid = BLE_UUID_EEG_ELE_STATE_CHARACTERISTIC;
 
     memset(&attr_md, 0, sizeof(attr_md));
@@ -158,23 +158,23 @@ static uint32_t eeg_ele_state_char_add(ble_EEG_t            * p_EEG,
     attr_char_value.init_offs = 0;
     attr_char_value.max_len   = 20;
 
-    return sd_ble_gatts_characteristic_add(p_EEG->service_handle,
+    return sd_ble_gatts_characteristic_add(p_eeg->service_handle,
                                            &char_md,
                                            &attr_char_value,
-                                           &p_EEG->ele_state_handles);
+                                           &p_eeg->ele_state_handles);
 }
 
 
 
 /**@brief Function for adding the Heart Rate Measurement characteristic.
  *
- * @param[in]   p_EEG        Heart Rate Service structure.
- * @param[in]   p_EEG_init   Information needed to initialize the service.
+ * @param[in]   p_eeg        Heart Rate Service structure.
+ * @param[in]   p_eeg_init   Information needed to initialize the service.
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-static uint32_t eeg_data_char_add(ble_EEG_t            * p_EEG,
-                                                const ble_EEG_init_t * p_EEG_init)
+static uint32_t eeg_data_char_add(ble_eeg_t            * p_eeg,
+                                                const ble_eeg_init_t * p_eeg_init)
 {
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_md_t cccd_md;
@@ -198,7 +198,7 @@ static uint32_t eeg_data_char_add(ble_EEG_t            * p_EEG,
     char_md.p_cccd_md         = &cccd_md;
     char_md.p_sccd_md         = NULL;
 
-    ble_uuid.type = p_EEG->uuid_type;
+    ble_uuid.type = p_eeg->uuid_type;
     ble_uuid.uuid = BLE_UUID_EEG_EEG_DATA_CHARACTERISTIC;
 
     memset(&attr_md, 0, sizeof(attr_md));
@@ -219,34 +219,34 @@ static uint32_t eeg_data_char_add(ble_EEG_t            * p_EEG,
     attr_char_value.init_offs = 0;
     attr_char_value.max_len   = 20;
 
-    return sd_ble_gatts_characteristic_add(p_EEG->service_handle,
+    return sd_ble_gatts_characteristic_add(p_eeg->service_handle,
                                            &char_md,
                                            &attr_char_value,
-                                           &p_EEG->eeg_handles);
+                                           &p_eeg->eeg_handles);
 }
 
-uint32_t ble_EEG_init(ble_EEG_t * p_EEG, const ble_EEG_init_t * p_EEG_init)
+uint32_t ble_eeg_init(ble_eeg_t * p_eeg, const ble_eeg_init_t * p_eeg_init)
 {
     uint32_t   err_code;
     ble_uuid_t ble_uuid;
-    ble_uuid128_t EEG_base_uuid = EEG_BASE_UUID;
+    ble_uuid128_t eeg_base_uuid = EEG_BASE_UUID;
 	
     // Initialize service structure
-    p_EEG->evt_handler                 = p_EEG_init->evt_handler;
-    p_EEG->conn_handle                 = BLE_CONN_HANDLE_INVALID;
-	  p_EEG->is_eeg_notification_enabled = false;
-	  p_EEG->is_state_notification_enabled = false;
-    p_EEG->last_state = 0x24;
+    p_eeg->evt_handler                 = p_eeg_init->evt_handler;
+    p_eeg->conn_handle                 = BLE_CONN_HANDLE_INVALID;
+	  p_eeg->is_eeg_notification_enabled = false;
+	  p_eeg->is_state_notification_enabled = false;
+    p_eeg->last_state = 0x24;
 	
-    err_code = sd_ble_uuid_vs_add(&EEG_base_uuid, &p_EEG->uuid_type);
+    err_code = sd_ble_uuid_vs_add(&eeg_base_uuid, &p_eeg->uuid_type);
     VERIFY_SUCCESS(err_code);
 		
-	  ble_uuid.type = p_EEG->uuid_type;
+	  ble_uuid.type = p_eeg->uuid_type;
 		ble_uuid.uuid = BLE_UUID_EEG_SERVICE;
 	
     err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
                                         &ble_uuid,
-                                        &p_EEG->service_handle);
+                                        &p_eeg->service_handle);
 
     if (err_code != NRF_SUCCESS)
     {
@@ -254,14 +254,14 @@ uint32_t ble_EEG_init(ble_EEG_t * p_EEG, const ble_EEG_init_t * p_EEG_init)
     }
 
     // Add ele state characteristic
-    err_code = eeg_ele_state_char_add(p_EEG, p_EEG_init);
+    err_code = eeg_ele_state_char_add(p_eeg, p_eeg_init);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
 				
 		// Add eeg data characteristic
-    err_code = eeg_data_char_add(p_EEG, p_EEG_init);
+    err_code = eeg_data_char_add(p_eeg, p_eeg_init);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
@@ -271,37 +271,37 @@ uint32_t ble_EEG_init(ble_EEG_t * p_EEG, const ble_EEG_init_t * p_EEG_init)
 
 }
 
-uint32_t ble_EEG_DATA_send(ble_EEG_t * p_EEG, uint8_t * p_string, uint16_t length)
+uint32_t ble_EEG_DATA_send(ble_eeg_t * p_eeg, uint8_t * p_string, uint16_t length)
 {
 	  uint32_t err_code = NRF_SUCCESS;
     ble_gatts_hvx_params_t hvx_params;
-    VERIFY_PARAM_NOT_NULL(p_EEG);
+    VERIFY_PARAM_NOT_NULL(p_eeg);
 
 	  // Send value if connected and notifying.
-    if ((p_EEG->conn_handle != BLE_CONN_HANDLE_INVALID) && p_EEG->is_eeg_notification_enabled)
+    if ((p_eeg->conn_handle != BLE_CONN_HANDLE_INVALID) && p_eeg->is_eeg_notification_enabled)
     {
        memset(&hvx_params, 0, sizeof(hvx_params));
-       hvx_params.handle = p_EEG->eeg_handles.value_handle;
+       hvx_params.handle = p_eeg->eeg_handles.value_handle;
        hvx_params.p_data = p_string;
        hvx_params.p_len  = &length;
        hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
-       return sd_ble_gatts_hvx(p_EEG->conn_handle, &hvx_params);
+       return sd_ble_gatts_hvx(p_eeg->conn_handle, &hvx_params);
 		}
     return err_code;
 }
 
-uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t *p_EEG, uint8_t state, uint16_t length)
+uint32_t ble_EEG_ELE_STATE_send(ble_eeg_t *p_eeg, uint8_t state, uint16_t length)
 {
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
-    VERIFY_PARAM_NOT_NULL(p_EEG);
+    VERIFY_PARAM_NOT_NULL(p_eeg);
 	
-    if (p_EEG == NULL)
+    if (p_eeg == NULL)
     {
         return NRF_ERROR_NULL;
     }
     
-    if (state != p_EEG->last_state)
+    if (state != p_eeg->last_state)
     {
         // Initialize value struct.
         memset(&gatts_value, 0, sizeof(gatts_value));
@@ -311,13 +311,13 @@ uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t *p_EEG, uint8_t state, uint16_t length
         gatts_value.p_value = &state;
 
         // Update database.
-        err_code = sd_ble_gatts_value_set(p_EEG->conn_handle,
-                                          p_EEG->ele_state_handles.value_handle,
+        err_code = sd_ble_gatts_value_set(p_eeg->conn_handle,
+                                          p_eeg->ele_state_handles.value_handle,
                                           &gatts_value);
         if (err_code == NRF_SUCCESS)
         {
             // Save new battery value.
-            p_EEG->last_state = state;
+            p_eeg->last_state = state;
         }
         else
         {
@@ -325,19 +325,19 @@ uint32_t ble_EEG_ELE_STATE_send(ble_EEG_t *p_EEG, uint8_t state, uint16_t length
         }
 
         // Send value if connected and notifying.
-        if ((p_EEG->conn_handle != BLE_CONN_HANDLE_INVALID) && p_EEG->is_state_notification_enabled)
+        if ((p_eeg->conn_handle != BLE_CONN_HANDLE_INVALID) && p_eeg->is_state_notification_enabled)
         {
             ble_gatts_hvx_params_t hvx_params;
 
             memset(&hvx_params, 0, sizeof(hvx_params));
 
-            hvx_params.handle = p_EEG->ele_state_handles.value_handle;
+            hvx_params.handle = p_eeg->ele_state_handles.value_handle;
             hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
             hvx_params.offset = gatts_value.offset;
             hvx_params.p_len  = &gatts_value.len;
             hvx_params.p_data = gatts_value.p_value;
 
-            return sd_ble_gatts_hvx(p_EEG->conn_handle, &hvx_params);
+            return sd_ble_gatts_hvx(p_eeg->conn_handle, &hvx_params);
 				}
 		}
     return err_code;
