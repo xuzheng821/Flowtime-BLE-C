@@ -38,6 +38,8 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						{
 					    	PWM_uint();
 						}
+				    led_blue_timerout = true;	
+				    led_red_timerout = true;							
             m_stable_state = indicate;  
             break;
 
@@ -110,6 +112,8 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 					    	PWM_uint();
 						}
 	          nrf_gpio_cfg_output(LED_GPIO_RED);
+	          nrf_gpio_cfg_output(LED_GPIO_GREEN);
+	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
 	          NRF_GPIO->OUTSET = 1<<LED_GPIO_RED;
             m_stable_state = indicate;
 				    break;
@@ -119,7 +123,9 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						{
 					    	PWM_uint();
 						}
+	          nrf_gpio_cfg_output(LED_GPIO_RED);
 	          nrf_gpio_cfg_output(LED_GPIO_GREEN);
+	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
 	          NRF_GPIO->OUTSET = 1<<LED_GPIO_GREEN;
             m_stable_state = indicate;
 				    break;
@@ -149,6 +155,8 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 
 void leds_state_update(void)                             //LED超时定时器回调函数
 {
+	  SEGGER_RTT_printf(0," leds_state_update \n");
+
 	  if(m_stable_state == BSP_INDICATE_CONNECTED ||       //该3种状态下，超时后标志位置1，关闭蓝灯，如果按键按下，LED恢复状态。
 			 m_stable_state == BSP_INDICATE_WITH_WHITELIST || 
 		   m_stable_state == BSP_INDICATE_WITHOUT_WHITELIST)

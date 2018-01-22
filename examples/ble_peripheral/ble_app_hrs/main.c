@@ -674,7 +674,7 @@ void button_event_handler(button_event_t event)
 						 
 				case BUTTON_EVENT_LEDSTATE:
 					   SEGGER_RTT_printf(0," BUTTON_EVENT_LEDSTATE \n");
-					   SEGGER_RTT_printf(0,"led_blue_timerout£º%d led_red_timerout£º%d \n",led_blue_timerout,led_red_timerout);
+			    	 SEGGER_RTT_printf(0,"led_blue_timerout: %d led_red_timerout: %d \n",led_blue_timerout,led_red_timerout);
 					   SEGGER_RTT_printf(0,"%d \n",Global_connected_state);
 						 if(led_red_timerout == true && bat_vol_pre < bat_vol_pre_work)         //ºìµÆÃð&&µçÁ¿²»×ã
 						 {

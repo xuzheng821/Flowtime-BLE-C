@@ -102,7 +102,7 @@ void battery_level_update(void)
 						
 						if(bat_vol_pre > 100)                                 //最大显示电量100%
 							 bat_vol_pre = 100;
-	          SEGGER_RTT_printf(0,"\r Voltage %d \r\n",bat_vol_pre);
+//	          SEGGER_RTT_printf(0,"\r Voltage %d \r\n",bat_vol_pre);
 						
 						do{
 							 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
@@ -151,13 +151,13 @@ void charging_check(void)
 		while(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)    
 		{
 			 nrf_delay_ms(1000);
-			 if(nrf_gpio_pin_read(BQ_CHG) == 0)   //charging
+			 if(nrf_gpio_pin_read(BQ_CHG) == 0 && nrf_gpio_pin_read(BQ_PG) == 0)   //charging
 			 {
 //			     SEGGER_RTT_printf(0,"\r charging \r\n");
 				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGING);
            APP_ERROR_CHECK(err_code);
 			 }
-			 else                                 //charging_over
+			 if(nrf_gpio_pin_read(BQ_CHG) == 1 && nrf_gpio_pin_read(BQ_PG) == 0)     //charging_over
 			 {
 //			     SEGGER_RTT_printf(0,"\r charging over \r\n");
 				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGEOVER);
