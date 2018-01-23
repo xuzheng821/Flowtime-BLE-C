@@ -432,7 +432,7 @@ static void on_rw_authorize_req(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
  */
 static void on_write(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
 {
-    if (p_ble_evt->evt.gatts_evt.params.write.handle == p_dfu->dfu_pkt_handles.value_handle)
+    if (p_ble_evt->evt.gatts_evt.params.write.handle == p_dfu->dfu_pkt_handles.value_handle && Global_connected_state)
     {
         // DFU Packet written
 
