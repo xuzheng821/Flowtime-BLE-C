@@ -2,7 +2,7 @@
 
 ble_bas_t                    m_bas;     /**< Structure used to identify the battery service. */
 
-#define VOLTAGE_AVG_NUM  3              //电池电压滤波数组大小
+#define VOLTAGE_AVG_NUM  5              //电池电压滤波数组大小
 
 //全局变量
 double bat_vol;                         //实测电量
@@ -64,7 +64,7 @@ void saadc_init(void)
 }
 
 
-//电池电量更新到bat_vol，每个1s更新一次，然后取10次的数据的平均值发送
+//电池电量更新到bat_vol，每个1s更新一次，然后取5次的数据的平均值发送
 void battery_level_update(void)                   
 {
     uint32_t err_code;
@@ -87,7 +87,7 @@ void battery_level_update(void)
 		{
 				bat_vol_arrary[bat_vol_arrary_index] = bat_vol;
 				bat_vol_arrary_index = ( bat_vol_arrary_index + 1 )%VOLTAGE_AVG_NUM;
-				if(bat_vol_arrary_index == 0)                    //10个数据后计算一次平均数
+				if(bat_vol_arrary_index == 0)                    //5个数据后计算一次平均数
 				{
 						bat_vol = 0;
 						for( int i = 0; i < VOLTAGE_AVG_NUM; i++ )
@@ -110,7 +110,6 @@ void battery_level_update(void)
 						
 						if(bat_vol_pre < 5)                                //低于3.15V,关机
 						{
-//								SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 							  Global_connected_state = false;
 								sleep_mode_enter();
 						}
@@ -121,13 +120,22 @@ void battery_level_update(void)
 //开机电池电压Check，低电压不能开机
 void Power_Check(void)
 {
-	  nrf_saadc_value_t  ADC_value = 0;	              //ADC读取数据
+	  double bat_V[3] = {0};
+	  nrf_saadc_value_t  ADC_value = 0;	               //ADC读取数据
+
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_vol = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+	  bat_V[0] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+  	nrf_delay_ms(10);
+		nrf_drv_saadc_sample_convert(0,&ADC_value);
+	  bat_V[1] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+  	nrf_delay_ms(10);
+  	nrf_drv_saadc_sample_convert(0,&ADC_value);
+	  bat_V[2] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+
+	  bat_vol = (bat_V[0] + bat_V[1] + bat_V[2]) / 3;
 	
 		if(bat_vol < 3.1)                               //低于3.1V无法开机
 		{
-//			  SEGGER_RTT_printf(0,"\r Voltage is lower than 3.1V \r\n");
 			  Global_connected_state = false;
 			  sleep_mode_enter();
 		}
@@ -136,10 +144,20 @@ void Power_Check(void)
 //连接时电压Check
 bool connect_power_check(void)
 {
-	  nrf_saadc_value_t  ADC_value = 0;	              //ADC读取数据
+	  double bat_V[3] = {0};
+	  nrf_saadc_value_t  ADC_value = 0;	               //ADC读取数据
+
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_vol = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
-	
+	  bat_V[0] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+  	nrf_delay_ms(10);
+		nrf_drv_saadc_sample_convert(0,&ADC_value);
+	  bat_V[1] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+  	nrf_delay_ms(10);
+  	nrf_drv_saadc_sample_convert(0,&ADC_value);
+	  bat_V[2] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+
+	  bat_vol = (bat_V[0] + bat_V[1] + bat_V[2]) / 3;
+
 	  return bat_vol > 3.3 ? false : true;            //低于3.3V提示低电量
 }
 
@@ -161,7 +179,7 @@ void charging_check(void)
 				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGEOVER);
            APP_ERROR_CHECK(err_code);
 			 }
-			 nrf_delay_ms(1000);
+			 nrf_delay_ms(500);
 		}
 		err_code = bsp_led_indication(BSP_INDICATE_IDLE);
     APP_ERROR_CHECK(err_code);
