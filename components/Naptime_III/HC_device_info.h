@@ -10,9 +10,9 @@
 
 // Device Information
 #define DEVICE_NAME       "Naptime3"       /**< Name of device. Will be included in the advertising data. */
-#define MANUFACTURER_NAME "Huiche Inc"        /**< Manufacturer. Will be passed to Device Information Service. */
+#define MANUFACTURER_NAME "HZHuiche Inc"        /**< Manufacturer. Will be passed to Device Information Service. */
 #define FW_REV_STR        "1.0.0"
-#define HW_REV_STR        "1.0.1"             /**< Hardware Revision String. */
+#define HW_REV_STR        "1.0.0"             /**< Hardware Revision String. */
 
 void mac_get(void);
 void ble_devinfo_serv_init(void);
