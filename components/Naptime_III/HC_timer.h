@@ -35,5 +35,8 @@ void battery_timer_stop(void);
 void connects_timer_init(void);
 void connects_timer_start(void);
 void connects_timer_stop(void);
+void ledFlips_timer_init(void);
+void ledFlips_timer_start(uint16_t ms);
+void ledFlips_timer_stop(void);
 
 #endif

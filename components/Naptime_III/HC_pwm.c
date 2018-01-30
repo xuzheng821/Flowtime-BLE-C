@@ -5,6 +5,9 @@ APP_PWM_INSTANCE(PWM2,2);                   // ´´½¨Ò»¸öÊ¹ÓÃ¶¨Ê±Æ÷2²úÉúPWM²¨µÄÊµÀ
 APP_PWM_INSTANCE(PWM3,3);                   // ´´½¨Ò»¸öÊ¹ÓÃ¶¨Ê±Æ÷3²úÉúPWM²¨µÄÊµÀý
 
 bool Is_pwm_init = false;
+bool Is_red_on = false;
+bool Is_green_on = false;
+bool Is_blue_on = false;
 
 void led_pwm_init(void)
 {
@@ -44,8 +47,19 @@ void LED_ON_duty(uint8_t RED_duty,uint8_t GREEN_duty,uint8_t BLUE_duty)
 	  err_code = app_pwm_channel_duty_set(&PWM2, 0, GREEN_duty);
     APP_ERROR_CHECK(err_code);  
 	  err_code = app_pwm_channel_duty_set(&PWM3, 0, BLUE_duty); 
-	  APP_ERROR_CHECK(err_code);
-	  
+	  APP_ERROR_CHECK(err_code);	 
+    if(RED_duty > 0)
+			 Is_red_on = true;
+		else
+			 Is_red_on = false;
+    if(GREEN_duty > 0)
+			 Is_green_on = true;
+		else
+			 Is_green_on = false;
+    if(BLUE_duty > 0)
+			 Is_blue_on = true;
+		else
+			 Is_blue_on = false;		
 }
 
 void LED_OFF(void)
@@ -57,9 +71,10 @@ void LED_OFF(void)
     APP_ERROR_CHECK(err_code);  
 	  err_code = app_pwm_channel_duty_set(&PWM3, 0, 0); 
 	  APP_ERROR_CHECK(err_code);
-	  
+    Is_red_on = false;
+    Is_green_on = false;
+    Is_blue_on = false; 
 }
-
 
 void PWM_uint(void)
 {
@@ -75,6 +90,10 @@ void PWM_uint(void)
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;               //IO¿ÚÊä³öµÍµçÆ½
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
+	
+	  Is_red_on = false;
+    Is_green_on = false;
+    Is_blue_on = false; 
 }
 
 

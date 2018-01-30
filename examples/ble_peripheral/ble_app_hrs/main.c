@@ -75,7 +75,7 @@
 //广播参数
 #define APP_ADV_FAST_INTERVAL            0x00a0       //100ms                        /**< Fast advertising interval (in units of 0.625 ms. This value corresponds to 25 ms.). */
 #define APP_ADV_SLOW_INTERVAL            0x0320       //500ms                        /**< Slow advertising interval (in units of 0.625 ms. This value corrsponds to 2 seconds). */
-#define APP_ADV_FAST_TIMEOUT             120                                         /**< The duration of the fast advertising period (in seconds). */
+#define APP_ADV_FAST_TIMEOUT             10                                         /**< The duration of the fast advertising period (in seconds). */
 #define APP_ADV_SLOW_TIMEOUT             0                                           /**< The duration of the slow advertising period (in seconds). */
 //定时器参数
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
@@ -441,6 +441,7 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 
         case BLE_ADV_EVT_WITH_WHITELIST:
 					   advertising_buttons_configure();
+				     LED_timeout_start();
 					   err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);
              APP_ERROR_CHECK(err_code);
              break;
@@ -453,6 +454,7 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 
 				case BLE_ADV_EVT_WITHOUT_WHITELIST:
 					   pairing_buttons_configure();
+				     LED_timeout_start();
 					   err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);  //BLE_INDICATE_WITHOUT_WHITELIST
              APP_ERROR_CHECK(err_code);
              break;
@@ -479,11 +481,13 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 				    ble_is_adv = false;
 					  if(connect_power_check())    //电量低于使用电压返回true
 	          {
+				        LED_timeout_start();
 		            err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
                 APP_ERROR_CHECK(err_code);	
 	          }
             else
 						{
+				        LED_timeout_start();
 							  err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);     //LED状态设置
                 APP_ERROR_CHECK(err_code);	
 						}
@@ -658,8 +662,9 @@ void button_event_handler(button_event_t event)
 				
         case BUTTON_EVENT_WHITELIST_OFF:                                    //ok
              SEGGER_RTT_printf(0," BUTTON_EVENT_WHITELIST_OFF \n");
-						 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);
-             APP_ERROR_CHECK(err_code);
+//				     LED_timeout_start();
+//						 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);
+//             APP_ERROR_CHECK(err_code);
       			 Is_white_adv = false;
 				     if(ble_is_adv)
 						 {
@@ -678,18 +683,21 @@ void button_event_handler(button_event_t event)
 					   SEGGER_RTT_printf(0,"%d \n",Global_connected_state);
 						 if(led_red_timerout == true && bat_vol_pre < bat_vol_pre_work)         //红灯灭&&电量不足
 						 {
+				         LED_timeout_start();
                  err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);           //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
 						 else if(led_blue_timerout == true && Global_connected_state == true)   //蓝灯灭&&已连接&&电量足  && bat_vol_pre > 20  
 						 {
 							   led_blue_timerout = false;
+				         LED_timeout_start();
                  err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);             //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 					 	 }
 						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_vol_pre > 20
 						 {
 							   led_blue_timerout = false;
+				         LED_timeout_start();
                  err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);        //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }

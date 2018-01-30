@@ -179,7 +179,7 @@ void charging_check(void)
 				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGEOVER);
            APP_ERROR_CHECK(err_code);
 			 }
-			 nrf_delay_ms(500);
+			 nrf_delay_ms(1000);
 		}
 		err_code = bsp_led_indication(BSP_INDICATE_IDLE);
     APP_ERROR_CHECK(err_code);

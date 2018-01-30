@@ -10,6 +10,7 @@ APP_TIMER_DEF(m_wdts_timer_id);
 APP_TIMER_DEF(m_buttons_timer_id);
 APP_TIMER_DEF(m_batterys_timer_id); 
 APP_TIMER_DEF(m_connects_timer_id); 
+APP_TIMER_DEF(m_ledFlips_timer_id); 
 
 bool Is_led_timer_start = false;    //LED亮灯时间计时判断，如果亮灯中途切换状态，重新计时
 
@@ -26,10 +27,11 @@ extern void button_event_handler(button_event_t event);
 
 #define wdt_timer_interval           APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
 #define button_timer_interval        APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)       //按键50ms检测一次
-#define led_timer_interval           APP_TIMER_TICKS(119000, APP_TIMER_PRESCALER)     //比广播时间短1s
+#define led_timer_interval           APP_TIMER_TICKS(9000, APP_TIMER_PRESCALER)     //比广播时间短1s
 #define led_test_timer_interval      APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
 #define battery_timer_interval       APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) 
 #define connect_timer_interval       APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
+#define ledFlip_timer_interval       APP_TIMER_TICKS(100, APP_TIMER_PRESCALER)
 
 void timers_init(void)
 {
@@ -43,6 +45,7 @@ void timers_init(void)
 		battery_timer_init();
 	  connects_timer_init();
 	  led_test_timer_init();
+	  ledFlips_timer_init();
 }
 //LED定时器
 void leds_timer_handler(void * p_context)
@@ -66,6 +69,7 @@ void led_timer_start(void)
 	  led_blue_timerout = false;
 	  led_red_timerout = false;
 	  Is_led_timer_start = true;
+	  SEGGER_RTT_printf(0," led_timer_start \n");
 }
 
 void led_timer_stop(void)
@@ -219,5 +223,31 @@ void connects_timer_stop(void)
 {
     uint32_t err_code;
     err_code = app_timer_stop(m_connects_timer_id);
+    APP_ERROR_CHECK(err_code);
+}
+//led翻转定时器
+void ledFlips_timer_handler(void * p_context)
+{
+     UNUSED_PARAMETER(p_context);
+	   UNUSED_VARIABLE(bsp_led_indication(m_stable_state));
+}
+
+void ledFlips_timer_init(void)
+{
+	  uint32_t err_code;
+    err_code = app_timer_create(&m_ledFlips_timer_id,APP_TIMER_MODE_SINGLE_SHOT,ledFlips_timer_handler);
+    APP_ERROR_CHECK(err_code);
+}
+
+void ledFlips_timer_start(uint16_t ms)
+{
+	  uint32_t err_code;
+		err_code = app_timer_start(m_ledFlips_timer_id, APP_TIMER_TICKS(ms, APP_TIMER_PRESCALER), NULL); 
+    APP_ERROR_CHECK(err_code);
+}
+void ledFlips_timer_stop(void)
+{
+    uint32_t err_code;
+    err_code = app_timer_stop(m_ledFlips_timer_id);
     APP_ERROR_CHECK(err_code);
 }
