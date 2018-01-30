@@ -11,9 +11,9 @@ void led_pwm_init(void)
     ret_code_t err_code;
     
     /* 3路PWM */
-    app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L, LED_GPIO_RED);           //红灯PWM初始化1HZ    
-    app_pwm_config_t pwm2_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/2, LED_GPIO_GREEN);     //绿灯PWM初始化250HZ
-    app_pwm_config_t pwm3_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/5, LED_GPIO_BLUE);        //蓝灯PWM初始化5HZ
+    app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/500, LED_GPIO_RED);         //红灯PWM初始化1HZ    
+    app_pwm_config_t pwm2_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/500, LED_GPIO_GREEN);       //绿灯PWM初始化250HZ
+    app_pwm_config_t pwm3_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/500, LED_GPIO_BLUE);        //蓝灯PWM初始化5HZ
 	
 	  pwm1_cfg.pin_polarity[0] = APP_PWM_POLARITY_ACTIVE_HIGH;
 	  pwm2_cfg.pin_polarity[0] = APP_PWM_POLARITY_ACTIVE_HIGH;
@@ -36,27 +36,16 @@ void led_pwm_init(void)
   	LED_OFF();	                                    //灯不打开
 }
 
-void LED_RED(uint8_t fre,uint8_t PWM)
+void LED_ON_duty(uint8_t RED_duty,uint8_t GREEN_duty,uint8_t BLUE_duty)
 {
 	  ret_code_t err_code;
-	  PWM1_fre_changge(fre); 
-	  err_code = app_pwm_channel_duty_set(&PWM1, 0, PWM); //设置占空比，打开红灯
+	  err_code = app_pwm_channel_duty_set(&PWM1, 0, RED_duty);  
 	  APP_ERROR_CHECK(err_code);
-}
-
-void LED_GREEN(uint8_t PWM)
-{
-	  ret_code_t err_code;
-	  err_code = app_pwm_channel_duty_set(&PWM2, 0, PWM); //设置占空比，打开绿灯
+	  err_code = app_pwm_channel_duty_set(&PWM2, 0, GREEN_duty);
+    APP_ERROR_CHECK(err_code);  
+	  err_code = app_pwm_channel_duty_set(&PWM3, 0, BLUE_duty); 
 	  APP_ERROR_CHECK(err_code);
-}
-
-void LED_BLUE(uint8_t fre,uint8_t PWM)
-{
-	  ret_code_t err_code;
-	  PWM3_fre_changge(fre); 		
-	  err_code = app_pwm_channel_duty_set(&PWM3, 0, PWM); //设置占空比，打开蓝灯
-	  APP_ERROR_CHECK(err_code);
+	  
 }
 
 void LED_OFF(void)
@@ -68,19 +57,9 @@ void LED_OFF(void)
     APP_ERROR_CHECK(err_code);  
 	  err_code = app_pwm_channel_duty_set(&PWM3, 0, 0); 
 	  APP_ERROR_CHECK(err_code);
-}
-
-void LED_YELLOW(uint8_t PWM)
-{
-	  ret_code_t err_code;
-	  PWM1_fre_changge(2);
-	  PWM2_fre_changge(2);
-	  err_code = app_pwm_channel_duty_set(&PWM2, 0, PWM);
-    APP_ERROR_CHECK(err_code);  
-	  err_code = app_pwm_channel_duty_set(&PWM1, 0, PWM); 
-	  APP_ERROR_CHECK(err_code);
 	  
 }
+
 
 void PWM_uint(void)
 {
@@ -96,52 +75,6 @@ void PWM_uint(void)
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;               //IO口输出低电平
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
-}
-
-void PWM1_fre_changge(uint8_t fre)  //修改频率
-{
-	  app_pwm_uninit(&PWM1);
-	  ret_code_t err_code;
-    
-    app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/fre, LED_GPIO_RED);
-    
-	  pwm1_cfg.pin_polarity[0] = APP_PWM_POLARITY_ACTIVE_HIGH;
-  	/* 初始化和使能PWM. */
-    err_code = app_pwm_init(&PWM1,&pwm1_cfg,NULL);
-    APP_ERROR_CHECK(err_code);
-	
-    app_pwm_enable(&PWM1);//使能PWM
-}
-
-void PWM2_fre_changge(uint8_t fre)  //修改频率
-{
-	  app_pwm_uninit(&PWM2);
-	  ret_code_t err_code;
-    
-    app_pwm_config_t pwm2_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/fre, LED_GPIO_GREEN);
-    
-	  pwm2_cfg.pin_polarity[0] = APP_PWM_POLARITY_ACTIVE_HIGH;
-  	/* 初始化和使能PWM. */
-    err_code = app_pwm_init(&PWM2,&pwm2_cfg,NULL);
-    APP_ERROR_CHECK(err_code);
-	
-    app_pwm_enable(&PWM2);//使能PWM
-}
-
-
-void PWM3_fre_changge(uint8_t fre)  //修改频率
-{
-	  app_pwm_uninit(&PWM3);
-	  ret_code_t err_code;
-    
-    app_pwm_config_t pwm3_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/fre, LED_GPIO_BLUE);
-    
-	  pwm3_cfg.pin_polarity[0] = APP_PWM_POLARITY_ACTIVE_HIGH;
-  	/* 初始化和使能PWM. */
-    err_code = app_pwm_init(&PWM3,&pwm3_cfg,NULL);
-    APP_ERROR_CHECK(err_code);
-	
-    app_pwm_enable(&PWM3);//使能PWM
 }
 
 
