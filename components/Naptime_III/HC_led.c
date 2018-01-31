@@ -129,7 +129,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						}
 						else
 						{
-			          LED_ON_duty(60,35,0);  
+			          LED_ON_duty(55,20,0);  
 						}
             m_stable_state = indicate;
 				    break;
