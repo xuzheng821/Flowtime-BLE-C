@@ -9,10 +9,10 @@
 #include "HC_data_flash.h"
 
 // Device Information
-#define DEVICE_NAME       "Ò×ÐÝ air"       /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME       "æ˜“ä¼‘ air"            /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME "HZhuiche Inc"        /**< Manufacturer. Will be passed to Device Information Service. */
 #define FW_REV_STR        "1.2.0-test"
-#define HW_REV_STR        "1.0.0"             /**< Hardware Revision String. */
+#define HW_REV_STR        "1.0.0"               /**< Hardware Revision String. */
 
 void mac_get(void);
 void ble_devinfo_serv_init(void);
