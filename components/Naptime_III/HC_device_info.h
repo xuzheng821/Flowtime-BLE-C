@@ -9,9 +9,9 @@
 #include "HC_data_flash.h"
 
 // Device Information
-#define DEVICE_NAME       "Naptime3"       /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME       "взан air"       /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME "HZhuiche Inc"        /**< Manufacturer. Will be passed to Device Information Service. */
-#define FW_REV_STR        "1.1.3"
+#define FW_REV_STR        "1.2.0-test"
 #define HW_REV_STR        "1.0.0"             /**< Hardware Revision String. */
 
 void mac_get(void);

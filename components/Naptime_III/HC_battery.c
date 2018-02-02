@@ -102,7 +102,6 @@ void battery_level_update(void)
 						
 						if(bat_vol_pre > 100)                                 //最大显示电量100%
 							 bat_vol_pre = 100;
-//	          SEGGER_RTT_printf(0,"\r Voltage %d \r\n",bat_vol_pre);
 						
 						do{
 							 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);

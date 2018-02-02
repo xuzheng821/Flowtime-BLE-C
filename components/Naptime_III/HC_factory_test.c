@@ -58,7 +58,6 @@ void led_test(void)
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
     uint32_t err_code;
-//	  SEGGER_RTT_printf(0," %x \r\n",*pdata);
 		switch(*pdata)
 		{
 			 case App_Nap_SystemTest:             

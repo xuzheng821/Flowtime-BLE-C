@@ -3,7 +3,6 @@
 led_indication_t m_stable_state = BSP_INDICATE_IDLE;
 
 extern bool Is_pwm_init;             //打开LED才进行PWM配置，降低功耗
-extern bool Is_device_bond;          //设备是否绑定   
 extern bool Is_led_timer_start;      //LED亮灯时间计时判断，如果亮灯中途切换状态，重新计时
 extern bool Into_factory_test_mode;  //是否进入工厂测试模式
 
@@ -21,7 +20,7 @@ void LED_timeout_start(void)
 		{
 			  led_timer_stop();
 		}
-		led_timer_start();                       //120s超时计时定时器
+		led_timer_start();                //120s超时计时定时器
 }
 
 uint32_t bsp_led_indication(led_indication_t indicate)
@@ -34,7 +33,10 @@ uint32_t bsp_led_indication(led_indication_t indicate)
     switch (indicate)
     {
 			case  BSP_INDICATE_IDLE:                //关闭LED和超时定时器，PWM去初始化，LED口输出低电平
-						led_timer_stop();
+						if(Is_led_timer_start)
+						{
+								led_timer_stop();
+						}
 			      if(Is_pwm_init == true)       
 						{
 								PWM_uint();
@@ -43,7 +45,6 @@ uint32_t bsp_led_indication(led_indication_t indicate)
             break;
 
       case  BSP_INDICATE_POWER_ON:            //蓝灯闪烁频率5HZ，闪烁2次后关闭
-						led_timer_stop();
 						if(Is_pwm_init == true)       
 						{
 								PWM_uint();
@@ -135,7 +136,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 				    break;
 
     	case  BSP_INDICATE_Battery_CHARGEOVER:  //充电完成状态，绿灯常亮，led切换先关闭所有灯
-            LED_ON_duty(0,60,0);
+            LED_ON_duty(0,30,0);
             m_stable_state = indicate;
 				    break;
 

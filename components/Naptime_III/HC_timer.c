@@ -1,7 +1,7 @@
 #include "HC_timer.h"
 
 //定时器参数
-#define APP_TIMER_OP_QUEUE_SIZE          8                                           /**< Size of timer operation queues. */
+#define APP_TIMER_OP_QUEUE_SIZE          9                                           /**< Size of timer operation queues. */
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
 
 APP_TIMER_DEF(m_leds_timer_id);
@@ -31,7 +31,6 @@ extern void button_event_handler(button_event_t event);
 #define led_test_timer_interval      APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
 #define battery_timer_interval       APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) 
 #define connect_timer_interval       APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
-#define ledFlip_timer_interval       APP_TIMER_TICKS(100, APP_TIMER_PRESCALER)
 
 void timers_init(void)
 {
@@ -69,7 +68,6 @@ void led_timer_start(void)
 	  led_blue_timerout = false;
 	  led_red_timerout = false;
 	  Is_led_timer_start = true;
-	  SEGGER_RTT_printf(0," led_timer_start \n");
 }
 
 void led_timer_stop(void)
@@ -202,13 +200,12 @@ void connects_timer_handler(void * p_context)
 					err_code = sd_ble_gap_disconnect(m_conn_handle,BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
 					APP_ERROR_CHECK(err_code);
 		 }
-		 app_timer_stop(m_connects_timer_id);
 }
 
 void connects_timer_init(void)
 {
 	  uint32_t err_code;
-    err_code = app_timer_create(&m_connects_timer_id,APP_TIMER_MODE_REPEATED,connects_timer_handler);
+    err_code = app_timer_create(&m_connects_timer_id,APP_TIMER_MODE_SINGLE_SHOT,connects_timer_handler);
     APP_ERROR_CHECK(err_code);
 }
 

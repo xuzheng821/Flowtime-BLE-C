@@ -14,9 +14,9 @@ void led_pwm_init(void)
     ret_code_t err_code;
     
     /* 3路PWM */
-    app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/500, LED_GPIO_RED);         //红灯PWM初始化1HZ    
-    app_pwm_config_t pwm2_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/500, LED_GPIO_GREEN);       //绿灯PWM初始化250HZ
-    app_pwm_config_t pwm3_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/500, LED_GPIO_BLUE);        //蓝灯PWM初始化5HZ
+    app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/500, LED_GPIO_RED);         //红灯PWM初始化500HZ    
+    app_pwm_config_t pwm2_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/500, LED_GPIO_GREEN);       //绿灯PWM初始化500HZ
+    app_pwm_config_t pwm3_cfg = APP_PWM_DEFAULT_CONFIG_1CH(1000000L/500, LED_GPIO_BLUE);        //蓝灯PWM初始化500HZ
 	
 	  pwm1_cfg.pin_polarity[0] = APP_PWM_POLARITY_ACTIVE_HIGH;
 	  pwm2_cfg.pin_polarity[0] = APP_PWM_POLARITY_ACTIVE_HIGH;

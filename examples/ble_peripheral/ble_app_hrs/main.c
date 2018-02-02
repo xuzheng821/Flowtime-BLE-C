@@ -507,6 +507,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 					  SEGGER_RTT_printf(0,"\r BLE_GAP_EVT_DISCONNECTED \r\n");
             SEGGER_RTT_printf(0,"Disconnected, reason %d\r\n",
                                  p_ble_evt->evt.gap_evt.params.disconnected.reason);
+						Global_connected_state = false;
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
 					  err_code = bsp_led_indication(BSP_INDICATE_IDLE);
             APP_ERROR_CHECK(err_code);
@@ -515,7 +516,6 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 					   	 ADS1291_disable();
 						}
 					  connects_timer_stop();
-						Global_connected_state = false;
             break;
 
         case BLE_GATTS_EVT_TIMEOUT:
