@@ -1,4 +1,4 @@
-#ifndef HC_DEVICE_INFO_H_
+﻿#ifndef HC_DEVICE_INFO_H_
 #define HC_DEVICE_INFO_H_
 
 #include "pstorage.h"
