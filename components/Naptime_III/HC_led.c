@@ -91,7 +91,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						}
 						else
 						{
-			          LED_ON_duty(0,0,40);  
+			          LED_ON_duty(0,0,100);  
 						}
 						ledFlips_timer_start(500);
             m_stable_state = indicate;        //记录当前led状态，便于超时且按键按下后恢复当前状态
@@ -104,7 +104,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						}
 						else
 						{
-			          LED_ON_duty(0,0,40);  
+			          LED_ON_duty(0,0,100);  
 						}
 						ledFlips_timer_start(100);
             m_stable_state = indicate;			      
@@ -130,13 +130,13 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						}
 						else
 						{
-			          LED_ON_duty(55,20,0);  
+			          LED_ON_duty(45,20,0);  
 						}
             m_stable_state = indicate;
 				    break;
 
     	case  BSP_INDICATE_Battery_CHARGEOVER:  //充电完成状态，绿灯常亮，led切换先关闭所有灯
-            LED_ON_duty(0,30,0);
+            LED_ON_duty(0,20,0);
             m_stable_state = indicate;
 				    break;
 
@@ -148,12 +148,14 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 			      led_test_timer_start();	      
 						NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
 						NRF_GPIO->OUTSET = 1<<LED_GPIO_RED;
-						nrf_delay_ms(300);
+						nrf_delay_ms(330);
 						NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
 						NRF_GPIO->OUTSET = 1<<LED_GPIO_GREEN;
-						nrf_delay_ms(300);
+						nrf_delay_ms(330);
 						NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
-						NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;		
+						NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;	
+            nrf_delay_ms(330);
+            NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;						
             m_stable_state = indicate;
 				    break;
 
