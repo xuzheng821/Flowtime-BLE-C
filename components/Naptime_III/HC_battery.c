@@ -95,7 +95,7 @@ void battery_level_update(void)
 								bat_vol += bat_vol_arrary[i];
 						}
 						bat_vol = bat_vol / VOLTAGE_AVG_NUM;
-						bat_vol_pre = (uint8_t)((bat_vol - 3.10 ) * 100);     //电量百分比
+						bat_vol_pre = (uint8_t)((bat_vol - 3.50 ) * 100);     //电量百分比  3.5-4.1
 						
 						bat_vol_pre = min(bat_vol_pre,bat_vol_pre_old);       //取与上次计算数据两者中较小的数，避免手机端数据会增大
 						bat_vol_pre_old = bat_vol_pre;
@@ -107,7 +107,7 @@ void battery_level_update(void)
 							 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
 		          }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 						
-						if(bat_vol_pre < 5)                                //低于3.15V,关机
+						if(bat_vol_pre < 5)                                //低于5%,关机
 						{
 							  Global_connected_state = false;
 								sleep_mode_enter();
@@ -133,7 +133,7 @@ void Power_Check(void)
 
 	  bat_vol = (bat_V[0] + bat_V[1] + bat_V[2]) / 3;
 	
-		if(bat_vol < 3.1)                               //低于3.1V无法开机
+		if(bat_vol < 3.5)                               //低于3.1V无法开机
 		{
 			  Global_connected_state = false;
 			  sleep_mode_enter();
@@ -157,7 +157,7 @@ bool connect_power_check(void)
 
 	  bat_vol = (bat_V[0] + bat_V[1] + bat_V[2]) / 3;
 
-	  return bat_vol > 3.3 ? false : true;            //低于3.3V提示低电量
+	  return bat_vol > 3.7 ? false : true;            //低于3.3V提示低电量
 }
 
 //USB插入且为非工厂测试模式时进入，充电不执行其他操作
