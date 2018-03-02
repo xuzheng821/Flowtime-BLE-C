@@ -7,7 +7,7 @@ ble_bas_t                    m_bas;     /**< Structure used to identify the batt
 //全局变量
 double bat_vol;                         //实测电量
 uint8_t bat_vol_pre;                    //电量百分比
-uint8_t bat_vol_pre_work = 20;          //电量百分比
+uint8_t bat_vol_pre_work = 60;          //电量百分比
 
 extern bool Into_factory_test_mode;     //是否进入工厂测试模式
 extern bool Global_connected_state;     //连接+握手成功标志

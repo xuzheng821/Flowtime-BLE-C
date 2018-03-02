@@ -22,6 +22,7 @@ void ADS1291_disable(void)
 		NRF_GPIO->OUTCLR = 1<<AEF_PM_EN;
 	  nrf_drv_spi_uninit(&spi);
 	  nrf_drv_gpiote_in_uninit(AEF_RDRDY);
+	  m_eeg.last_state = 0x24;
 }
 
 void ads1291_init(void)
