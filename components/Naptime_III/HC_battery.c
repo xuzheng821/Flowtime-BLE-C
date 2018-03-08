@@ -6,7 +6,7 @@ ble_bas_t                    m_bas;     /**< Structure used to identify the batt
 
 //全局变量
 double bat_vol;                         //实测电量
-uint8_t bat_vol_pre;                    //电量百分比
+uint8_t bat_vol_pre;                    //当前电量百分比
 uint8_t bat_vol_pre_work = 60;          //电量百分比
 
 extern bool Into_factory_test_mode;     //是否进入工厂测试模式
@@ -36,7 +36,6 @@ void ble_battory_serv_init(void)
     bas_init.evt_handler          = NULL;
     bas_init.support_notification = false;
     bas_init.p_report_ref         = NULL;
-    bas_init.initial_batt_level   = bat_vol_pre;
 
     err_code = ble_bas_init(&m_bas, &bas_init);
     APP_ERROR_CHECK(err_code);
@@ -68,6 +67,7 @@ void saadc_init(void)
 void battery_level_update(void)                   
 {
     uint32_t err_code;
+	  static uint8_t count = 0;
 	  
     static uint8_t bat_vol_arrary_index = 0;
     static double bat_vol_arrary[VOLTAGE_AVG_NUM] = {0};
@@ -89,6 +89,7 @@ void battery_level_update(void)
 				bat_vol_arrary_index = ( bat_vol_arrary_index + 1 )%VOLTAGE_AVG_NUM;
 				if(bat_vol_arrary_index == 0)                    //5个数据后计算一次平均数
 				{
+					  count ++;
 						bat_vol = 0;
 						for( int i = 0; i < VOLTAGE_AVG_NUM; i++ )
 						{
@@ -102,11 +103,14 @@ void battery_level_update(void)
 						
 						if(bat_vol_pre > 100)                                     //最大显示电量100%
 							 bat_vol_pre = 100;
-											
-						do{
-							 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
-		          }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
-            SEGGER_RTT_printf(0,"battery: %d \r\n",bat_vol_pre);						
+						if (count == 6)                       //30s上传一次电池电量值
+						{			
+								do{
+									 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
+									}while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
+								SEGGER_RTT_printf(0,"battery: %d \r\n",bat_vol_pre);
+                count = 0;
+						}							
 						if(bat_vol_pre < 45)                                //低于3.55V（45%）,关机
 						{
 							  Global_connected_state = false;
@@ -123,7 +127,6 @@ void Power_Check(void)
 	
 	  double bat_V[3] = {0};
 	  nrf_saadc_value_t  ADC_value = 0;	           //ADC读取数据
-		uint8_t bat_vol_pre_power_on = 100;          //上一次电量百分比
 
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
 	  bat_V[0] = ADC_value * 3.6 / 1024.0 * 2;     //电池电压实际电压
@@ -136,9 +139,9 @@ void Power_Check(void)
 
 	  bat_vol = (bat_V[0] + bat_V[1] + bat_V[2]) / 3;
 
-		bat_vol_pre_power_on = (uint8_t)((bat_vol - 3.10 ) * 100);   //得到开机时电量百分比
-		if(bat_vol_pre_power_on > 100)                               //最大显示电量100%
-				bat_vol_pre_power_on = 100;
+		bat_vol_pre = (uint8_t)((bat_vol - 3.10 ) * 100);   //得到开机时电量百分比
+		if(bat_vol_pre > 100)                               //最大显示电量100%
+				bat_vol_pre = 100;
 
     ble_gatts_value_t gatts_value;
 
@@ -146,7 +149,7 @@ void Power_Check(void)
 
 		gatts_value.len     = sizeof(uint8_t);
 		gatts_value.offset  = 0;
-		gatts_value.p_value = &bat_vol_pre_power_on;
+		gatts_value.p_value = &bat_vol_pre;
 
 		// Update database.
 		err_code = sd_ble_gatts_value_set(m_bas.conn_handle,
@@ -156,10 +159,10 @@ void Power_Check(void)
 		if (err_code == NRF_SUCCESS)
 		{
 				// Save new battery value.
-				m_bas.battery_level_last = bat_vol_pre_power_on;     //更新电池电量中上一次的电量百分比
+				m_bas.battery_level_last = bat_vol_pre;     //更新电池电量中上一次的电量百分比
 		}
 
-		if(*gatts_value.p_value < 40)                            //低于3.5V(40%)无法开机
+		if(bat_vol_pre < 40)               //低于3.5V(40%)无法开机
 		{
 			  Global_connected_state = false;
 			  sleep_mode_enter();
@@ -169,8 +172,7 @@ void Power_Check(void)
 //连接时电压Check
 bool connect_power_check(void)
 {
-    ble_gatts_value_t gatts_value;
-	  return m_bas.battery_level_last > 60 ? false : true;            //低于3.7V(60%)提示低电量
+	  return bat_vol_pre > 60 ? false : true;            //低于3.7V(60%)提示低电量
 }
 
 //USB插入且为非工厂测试模式时进入，充电不执行其他操作

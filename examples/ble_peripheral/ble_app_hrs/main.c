@@ -132,8 +132,8 @@ extern bool led_blue_timerout;                //蓝灯亮灯时间超时标志
 extern bool led_red_timerout;                 //红灯亮灯时间超时标志
 extern led_indication_t m_stable_state;
 //电池电量变量
-extern uint8_t bat_vol_pre;                   //电量百分比
-extern uint8_t bat_vol_pre_work;              //低电量提示的电量百分比20% -> 3.3V
+extern uint8_t bat_vol_pre;                   //当前电量百分比
+extern uint8_t bat_vol_pre_work;              //低电量提示的电量百分比60% -> 3.7V
 //工厂测试
 extern bool Into_factory_test_mode;           //是否进入工厂测试模式
 extern bool deleteUserid;                     //是否删除UserID
@@ -442,16 +442,8 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
         case BLE_ADV_EVT_WITH_WHITELIST:
 					   advertising_buttons_configure();
 						 LED_timeout_start();
-				     if(m_bas.battery_level_last < 60)                            //低于3.7V(60%)无法开机
-						 {
-		             err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
-                 APP_ERROR_CHECK(err_code);	
-						 }
-						 else
-						 {
-								 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);
-								 APP_ERROR_CHECK(err_code);
-						 }
+						 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);
+						 APP_ERROR_CHECK(err_code);
              break;
 
         case BLE_ADV_EVT_WITH_WHITELIST_SLOW:
@@ -463,16 +455,8 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 				case BLE_ADV_EVT_WITHOUT_WHITELIST:
 					   pairing_buttons_configure();
 				     LED_timeout_start();
-				     if(m_bas.battery_level_last < 60)                            //低于3.7V(60%)无法开机
-						 {
-		             err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
-                 APP_ERROR_CHECK(err_code);	
-						 }
-						 else
-						 {
-								 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);
-								 APP_ERROR_CHECK(err_code);
-						 }
+						 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);
+						 APP_ERROR_CHECK(err_code);
 
         default:
             break;
@@ -699,14 +683,14 @@ void button_event_handler(button_event_t event)
                  err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);           //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
-						 else if(led_blue_timerout == true && Global_connected_state == true)   //蓝灯灭&&已连接&&电量足  && bat_vol_pre > 20  
+						 else if(led_blue_timerout == true && Global_connected_state == true)   //蓝灯灭&&已连接&&电量足 
 						 {
 							   led_blue_timerout = false;
 				         LED_timeout_start();
                  err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);             //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 					 	 }
-						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足  && bat_vol_pre > 20
+						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足 
 						 {
 							   led_blue_timerout = false;
 				         LED_timeout_start();

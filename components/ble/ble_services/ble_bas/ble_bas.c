@@ -22,7 +22,6 @@
 #include "app_util.h"
 
 extern bool Global_connected_state;
-extern uint8_t bat_vol_pre;                   //电量百分比
 
 /**@brief Function for handling the Connect event.
  *
@@ -113,7 +112,6 @@ static uint32_t battery_level_char_add(ble_bas_t * p_bas, const ble_bas_init_t *
     ble_gatts_attr_t    attr_char_value;
     ble_uuid_t          ble_uuid;
 	
-    uint8_t             initial_battery_level;
     uint8_t             encoded_report_ref[BLE_SRV_ENCODED_REPORT_REF_LEN];
     uint8_t             init_len;
 
@@ -147,8 +145,6 @@ static uint32_t battery_level_char_add(ble_bas_t * p_bas, const ble_bas_init_t *
     attr_md.wr_auth    = 0;
     attr_md.vlen       = 0;
 
-    initial_battery_level = p_bas_init->initial_batt_level;
-
     memset(&attr_char_value, 0, sizeof(attr_char_value));
 
     attr_char_value.p_uuid    = &ble_uuid;
@@ -156,7 +152,6 @@ static uint32_t battery_level_char_add(ble_bas_t * p_bas, const ble_bas_init_t *
     attr_char_value.init_len  = sizeof(uint8_t);
     attr_char_value.init_offs = 0;
     attr_char_value.max_len   = sizeof(uint8_t);
-    attr_char_value.p_value   = &initial_battery_level;
 
     err_code = sd_ble_gatts_characteristic_add(p_bas->service_handle, &char_md,
                                                &attr_char_value,
@@ -223,7 +218,6 @@ uint32_t ble_bas_init(ble_bas_t * p_bas, const ble_bas_init_t * p_bas_init)
     p_bas->evt_handler               = p_bas_init->evt_handler;
     p_bas->conn_handle               = BLE_CONN_HANDLE_INVALID;
     p_bas->is_battery_notification_enabled = p_bas_init->support_notification;
-    p_bas->battery_level_last = bat_vol_pre;
 		
     // Add service
     BLE_UUID_BLE_ASSIGN(ble_uuid, BLE_UUID_BATTERY_SERVICE);
