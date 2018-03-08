@@ -170,7 +170,7 @@ void Power_Check(void)
 bool connect_power_check(void)
 {
     ble_gatts_value_t gatts_value;
-	  return *gatts_value.p_value > 60 ? false : true;            //低于3.7V(60%)提示低电量
+	  return m_bas.battery_level_last > 60 ? false : true;            //低于3.7V(60%)提示低电量
 }
 
 //USB插入且为非工厂测试模式时进入，充电不执行其他操作
