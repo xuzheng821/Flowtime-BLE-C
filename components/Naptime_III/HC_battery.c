@@ -7,7 +7,7 @@ ble_bas_t                    m_bas;     /**< Structure used to identify the batt
 //全局变量
 double bat_vol;                         //实测电量
 uint8_t bat_vol_pre;                    //当前电量百分比
-uint8_t bat_vol_pre_work = 60;          //电量百分比
+uint8_t bat_vol_pre_work = 57;          //电量百分比
 
 extern bool Into_factory_test_mode;     //是否进入工厂测试模式
 extern bool Global_connected_state;     //连接+握手成功标志
@@ -172,7 +172,7 @@ void Power_Check(void)
 //连接时电压Check
 bool connect_power_check(void)
 {
-	  return bat_vol_pre > 60 ? false : true;            //低于3.7V(60%)提示低电量
+	  return bat_vol_pre > bat_vol_pre_work ? false : true;            //低于3.67V(57%)提示低电量
 }
 
 //USB插入且为非工厂测试模式时进入，充电不执行其他操作
