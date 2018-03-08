@@ -68,14 +68,14 @@ void saadc_init(void)
 void battery_level_update(void)                   
 {
     uint32_t err_code;
-	  static uint8_t bat_vol_pre_old = 100;                //上一次电量百分比
+	  
     static uint8_t bat_vol_arrary_index = 0;
     static double bat_vol_arrary[VOLTAGE_AVG_NUM] = {0};
     
 	  nrf_saadc_value_t  ADC_value = 0;	                   //ADC读取数据
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
   	bat_vol = ADC_value * 3.60 / 1024.0 * 2;             //电池测量电压
-		
+
 		if( bat_vol_arrary[0] == 0 )                         //第一次进入，数组为空             
 		{
 				for( int i = 0; i < VOLTAGE_AVG_NUM; i++ )
@@ -95,18 +95,18 @@ void battery_level_update(void)
 								bat_vol += bat_vol_arrary[i];
 						}
 						bat_vol = bat_vol / VOLTAGE_AVG_NUM;
-						bat_vol_pre = (uint8_t)((bat_vol - 3.10 ) * 100);     //电量百分比  3.1-4.1
+						bat_vol_pre = (uint8_t)((bat_vol - 3.10 ) * 100);         //电量百分比  3.1-4.1
 						
-						bat_vol_pre = min(bat_vol_pre,bat_vol_pre_old);       //取与上次计算数据两者中较小的数，避免手机端数据会增大
-						bat_vol_pre_old = bat_vol_pre;
+						bat_vol_pre = min(bat_vol_pre,m_bas.battery_level_last);  //取与上次计算数据两者中较小的数，避免手机端数据会增大
+						m_bas.battery_level_last = bat_vol_pre;
 						
-						if(bat_vol_pre > 100)                                 //最大显示电量100%
+						if(bat_vol_pre > 100)                                     //最大显示电量100%
 							 bat_vol_pre = 100;
-						
+											
 						do{
 							 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
 		          }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
-						
+            SEGGER_RTT_printf(0,"battery: %d \r\n",bat_vol_pre);						
 						if(bat_vol_pre < 45)                                //低于3.55V（45%）,关机
 						{
 							  Global_connected_state = false;
@@ -116,24 +116,50 @@ void battery_level_update(void)
 		}
 }
 
-//开机电池电压Check，低电压不能开机
+//开机电池电压Check，低电压不能开机-----运行一次
 void Power_Check(void)
 {
+    uint32_t err_code = NRF_SUCCESS;
+	
 	  double bat_V[3] = {0};
-	  nrf_saadc_value_t  ADC_value = 0;	               //ADC读取数据
+	  nrf_saadc_value_t  ADC_value = 0;	           //ADC读取数据
+		uint8_t bat_vol_pre_power_on = 100;          //上一次电量百分比
 
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_V[0] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+	  bat_V[0] = ADC_value * 3.6 / 1024.0 * 2;     //电池电压实际电压
   	nrf_delay_ms(10);
 		nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_V[1] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+	  bat_V[1] = ADC_value * 3.6 / 1024.0 * 2;     //电池电压实际电压
   	nrf_delay_ms(10);
   	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_V[2] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
+	  bat_V[2] = ADC_value * 3.6 / 1024.0 * 2;     //电池电压实际电压
 
 	  bat_vol = (bat_V[0] + bat_V[1] + bat_V[2]) / 3;
-	
-		if(bat_vol < 3.5)                               //低于3.5V无法开机
+
+		bat_vol_pre_power_on = (uint8_t)((bat_vol - 3.10 ) * 100);   //得到开机时电量百分比
+		if(bat_vol_pre_power_on > 100)                               //最大显示电量100%
+				bat_vol_pre_power_on = 100;
+
+    ble_gatts_value_t gatts_value;
+
+		memset(&gatts_value, 0, sizeof(gatts_value));
+
+		gatts_value.len     = sizeof(uint8_t);
+		gatts_value.offset  = 0;
+		gatts_value.p_value = &bat_vol_pre_power_on;
+
+		// Update database.
+		err_code = sd_ble_gatts_value_set(m_bas.conn_handle,
+																			m_bas.battery_level_handles.value_handle,
+																			&gatts_value);	      //实际保存到电量服务中
+
+		if (err_code == NRF_SUCCESS)
+		{
+				// Save new battery value.
+				m_bas.battery_level_last = bat_vol_pre_power_on;     //更新电池电量中上一次的电量百分比
+		}
+
+		if(*gatts_value.p_value < 40)                            //低于3.5V(40%)无法开机
 		{
 			  Global_connected_state = false;
 			  sleep_mode_enter();
@@ -143,21 +169,8 @@ void Power_Check(void)
 //连接时电压Check
 bool connect_power_check(void)
 {
-	  double bat_V[3] = {0};
-	  nrf_saadc_value_t  ADC_value = 0;	               //ADC读取数据
-
-  	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_V[0] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
-  	nrf_delay_ms(10);
-		nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_V[1] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
-  	nrf_delay_ms(10);
-  	nrf_drv_saadc_sample_convert(0,&ADC_value);
-	  bat_V[2] = ADC_value * 3.6 / 1024.0 * 2;         //电池电压实际电压
-
-	  bat_vol = (bat_V[0] + bat_V[1] + bat_V[2]) / 3;
-
-	  return bat_vol > 3.7 ? false : true;            //低于3.7V提示低电量
+    ble_gatts_value_t gatts_value;
+	  return *gatts_value.p_value > 60 ? false : true;            //低于3.7V(60%)提示低电量
 }
 
 //USB插入且为非工厂测试模式时进入，充电不执行其他操作

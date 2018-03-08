@@ -9,6 +9,7 @@ uint8_t Send_Flag = 0;   //第一帧数据发送完成
 uint8_t Data_send[17];   //发送数据缓存
 extern uint8_t EEG_DATA_SEND[750];
 extern bool Global_connected_state;
+extern bool ads1291_is_init;                  //1291初始化标志位
 
 //调用该函数发送第一帧数据
 uint32_t ble_send_data(uint8_t *pdata)
@@ -68,5 +69,5 @@ void ble_state_send(uint8_t pdata)
    uint32_t err_code;
 	 do{
 		 err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && ads1291_is_init);
 }

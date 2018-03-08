@@ -429,6 +429,7 @@ void sleep_mode_enter(void)
 static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 {
     uint32_t err_code;
+    ble_gatts_value_t gatts_value;
 
     switch (ble_adv_evt)
     {
@@ -441,9 +442,17 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 
         case BLE_ADV_EVT_WITH_WHITELIST:
 					   advertising_buttons_configure();
-				     LED_timeout_start();
-					   err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);
-             APP_ERROR_CHECK(err_code);
+						 LED_timeout_start();
+				     if(*gatts_value.p_value < 60)                            //低于3.7V(60%)无法开机
+						 {
+		             err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
+                 APP_ERROR_CHECK(err_code);	
+						 }
+						 else
+						 {
+								 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);
+								 APP_ERROR_CHECK(err_code);
+						 }
              break;
 
         case BLE_ADV_EVT_WITH_WHITELIST_SLOW:
@@ -455,9 +464,16 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 				case BLE_ADV_EVT_WITHOUT_WHITELIST:
 					   pairing_buttons_configure();
 				     LED_timeout_start();
-					   err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);  //BLE_INDICATE_WITHOUT_WHITELIST
-             APP_ERROR_CHECK(err_code);
-             break;
+				     if(*gatts_value.p_value < 60)                            //低于3.7V(60%)无法开机
+						 {
+		             err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
+                 APP_ERROR_CHECK(err_code);	
+						 }
+						 else
+						 {
+								 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);
+								 APP_ERROR_CHECK(err_code);
+						 }
 
         default:
             break;
@@ -505,7 +521,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 
         case BLE_GAP_EVT_DISCONNECTED:
 					  SEGGER_RTT_printf(0,"\r BLE_GAP_EVT_DISCONNECTED \r\n");
-            SEGGER_RTT_printf(0,"Disconnected, reason %d\r\n",
+            SEGGER_RTT_printf(0,"Disconnected, reason %x\r\n",
                                  p_ble_evt->evt.gap_evt.params.disconnected.reason);
 						Global_connected_state = false;
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
@@ -543,7 +559,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             // No implementation needed.
             break;
     }
-}
+}  
 
 /**@brief Function for dispatching a BLE stack event to all modules with a BLE stack event handler.
  *
