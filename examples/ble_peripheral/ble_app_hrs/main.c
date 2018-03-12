@@ -140,7 +140,7 @@ extern bool deleteUserid;                     //是否删除UserID
 extern bool StoryDeviceID;                    //是否存储deviceID
 extern bool StorySN;                          //是否存储SN
 //看门狗
-extern nrf_drv_wdt_channel_id      m_channel_id;
+extern nrf_drv_wdt_channel_id            m_channel_id;
 //广播状态
 bool ble_is_adv = false;                      //设备是否开启广播
 //广播UUID
@@ -442,8 +442,16 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
         case BLE_ADV_EVT_WITH_WHITELIST:
 					   advertising_buttons_configure();
 						 LED_timeout_start();
-						 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);
-						 APP_ERROR_CHECK(err_code);
+						 if(bat_vol_pre < bat_vol_pre_work)   //低电量
+						 {
+							 err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
+							 APP_ERROR_CHECK(err_code);
+						 }
+						 else
+						 {
+							 err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);
+							 APP_ERROR_CHECK(err_code);
+						 }
              break;
 
         case BLE_ADV_EVT_WITH_WHITELIST_SLOW:
@@ -478,7 +486,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 					  SEGGER_RTT_printf(0,"\r BLE_GAP_EVT_CONNECTED \r\n");
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 				    ble_is_adv = false;
-					  if(connect_power_check())    //电量低于使用电压返回true
+					  if(bat_vol_pre < bat_vol_pre_work)    //电量低于使用电压
 	          {
 				        LED_timeout_start();
 		            err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
