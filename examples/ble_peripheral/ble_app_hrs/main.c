@@ -81,7 +81,7 @@
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
 //连接参数
 #define MIN_CONN_INTERVAL                MSEC_TO_UNITS(30, UNIT_1_25_MS)             /**< Minimum acceptable connection interval (0.4 seconds). */
-#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(40, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (0.65 second). */
+#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(30, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (0.65 second). */
 #define SLAVE_LATENCY                    0                                           /**< Slave latency. */
 #define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS(2000, UNIT_10_MS)             /**< Connection supervisory timeout (4 seconds). */
 //连接间隔更新参数

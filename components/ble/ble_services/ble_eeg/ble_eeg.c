@@ -300,45 +300,42 @@ uint32_t ble_EEG_ELE_STATE_send(ble_eeg_t *p_eeg, uint8_t state, uint16_t length
     {
         return NRF_ERROR_NULL;
     }
-    
-    if (state != p_eeg->last_state)
-    {
-        // Initialize value struct.
-        memset(&gatts_value, 0, sizeof(gatts_value));
 
-        gatts_value.len     = sizeof(uint8_t);
-        gatts_value.offset  = 0;
-        gatts_value.p_value = &state;
+		// Initialize value struct.
+		memset(&gatts_value, 0, sizeof(gatts_value));
 
-        // Update database.
-        err_code = sd_ble_gatts_value_set(p_eeg->conn_handle,
-                                          p_eeg->ele_state_handles.value_handle,
-                                          &gatts_value);
-        if (err_code == NRF_SUCCESS)
-        {
-            // Save new battery value.
-            p_eeg->last_state = state;
-        }
-        else
-        {
-            return err_code;
-        }
+		gatts_value.len     = sizeof(uint8_t);
+		gatts_value.offset  = 0;
+		gatts_value.p_value = &state;
 
-        // Send value if connected and notifying.
-        if ((p_eeg->conn_handle != BLE_CONN_HANDLE_INVALID) && p_eeg->is_state_notification_enabled)
-        {
-            ble_gatts_hvx_params_t hvx_params;
-
-            memset(&hvx_params, 0, sizeof(hvx_params));
-
-            hvx_params.handle = p_eeg->ele_state_handles.value_handle;
-            hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
-            hvx_params.offset = gatts_value.offset;
-            hvx_params.p_len  = &gatts_value.len;
-            hvx_params.p_data = gatts_value.p_value;
-
-            return sd_ble_gatts_hvx(p_eeg->conn_handle, &hvx_params);
-				}
+		// Update database.
+		err_code = sd_ble_gatts_value_set(p_eeg->conn_handle,
+																			p_eeg->ele_state_handles.value_handle,
+																			&gatts_value);
+		if (err_code == NRF_SUCCESS)
+		{
+				// Save new battery value.
+				p_eeg->last_state = state;
 		}
-    return err_code;
+		else
+		{
+				return err_code;
+		}
+
+		// Send value if connected and notifying.
+		if ((p_eeg->conn_handle != BLE_CONN_HANDLE_INVALID) && p_eeg->is_state_notification_enabled)
+		{
+				ble_gatts_hvx_params_t hvx_params;
+
+				memset(&hvx_params, 0, sizeof(hvx_params));
+
+				hvx_params.handle = p_eeg->ele_state_handles.value_handle;
+				hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+				hvx_params.offset = gatts_value.offset;
+				hvx_params.p_len  = &gatts_value.len;
+				hvx_params.p_data = gatts_value.p_value;
+
+				return sd_ble_gatts_hvx(p_eeg->conn_handle, &hvx_params);
+		}
+		return err_code;
 }

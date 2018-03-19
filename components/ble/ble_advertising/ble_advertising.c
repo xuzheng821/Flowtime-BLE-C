@@ -23,7 +23,6 @@
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
 
-extern void sleep_mode_enter(void);
 extern bool Is_device_bond;
 extern bool Is_white_adv;
 extern bool ble_is_adv;
