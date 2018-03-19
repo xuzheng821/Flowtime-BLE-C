@@ -38,7 +38,6 @@ uint32_t ble_send_data(uint8_t *pdata)
 void ble_send_more_data(uint8_t *pdata)
 {
 	uint32_t err_code;
-	static uint8_t sendcut = 0;
 
 	do{
 			 if (send_num > 49)  //一秒数据全部发送完成,相关标志位复位
@@ -60,14 +59,8 @@ void ble_send_more_data(uint8_t *pdata)
 			 if (NRF_SUCCESS == err_code)
 			 {
 					send_num++;	
-					Num_Time++;	
-					sendcut++;
-	     }
-			 if(sendcut == 4)
-			 {
-				 sendcut = 0;
-				 break;
-			 }
+					Num_Time++;		
+	   }
 	 }while(err_code != BLE_ERROR_NO_TX_PACKETS);
 }
 
