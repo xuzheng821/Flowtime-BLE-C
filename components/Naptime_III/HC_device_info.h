@@ -11,7 +11,7 @@
 // Device Information
 #define DEVICE_NAME       "易休 air"            /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME "HZhuiche Inc."        /**< Manufacturer. Will be passed to Device Information Service. */
-#define FW_REV_STR        "1.0.2"
+#define FW_REV_STR        "1.0.3"
 #define HW_REV_STR        "1.0.0"               /**< Hardware Revision String. */
 
 void mac_get(void);
