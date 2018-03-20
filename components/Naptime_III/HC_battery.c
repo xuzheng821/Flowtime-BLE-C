@@ -111,8 +111,9 @@ void battery_level_update(void)
 						{		
 								do{
 									 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
+									 SEGGER_RTT_printf(0,"\r bas_state_send:%x bat_vol_pre:%x \r\n",err_code,bat_vol_pre);
 									}while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
-								SEGGER_RTT_printf(0,"battery: %d \r\n",bat_vol_pre);
+								
                 count = 0;
 						}		
 						

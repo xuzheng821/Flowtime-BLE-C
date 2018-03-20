@@ -269,7 +269,7 @@ uint32_t update_database(ble_bas_t * p_bas, uint8_t value)
 																			p_bas->battery_level_handles.value_handle,
 																			&gatts_value);	      //实际保存到电量服务中
 
-		if (err_code == NRF_SUCCESS)
+	  if (err_code == NRF_SUCCESS)
 		{
 				// Save new battery value.
 				p_bas->battery_level_last = value;                  //更新电池电量中上一次的电量百分比
