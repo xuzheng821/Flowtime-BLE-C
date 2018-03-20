@@ -69,5 +69,6 @@ void ble_state_send(uint8_t pdata)
    uint32_t err_code;
 	 do{
 		 err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && ads1291_is_init);
+		 SEGGER_RTT_printf(0,"\r eeg_state_send:%x pdata:%x \r\n",err_code,pdata);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 }

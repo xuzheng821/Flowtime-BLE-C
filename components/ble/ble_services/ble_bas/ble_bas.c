@@ -20,6 +20,8 @@
 #include "nordic_common.h"
 #include "ble_srv_common.h"
 #include "app_util.h"
+#include "ble_l2cap.h"
+#include "sdk_common.h"
 
 extern bool Global_connected_state;
 
@@ -233,42 +235,44 @@ uint32_t ble_bas_init(ble_bas_t * p_bas, const ble_bas_init_t * p_bas_init)
 }
 
 
-uint32_t ble_bas_battery_level_update(ble_bas_t * p_bas, uint8_t battery_level)
+uint32_t ble_bas_battery_level_update(ble_bas_t * p_bas, uint8_t battery_level,uint16_t length)
 {
-    if(p_bas == NULL)
-    {
-        return NRF_ERROR_NULL;
-    }
-    
-    uint32_t err_code = NRF_SUCCESS;
+		ble_gatts_hvx_params_t hvx_params;
+		// Send value if connected and notifying.
+		if ((p_bas->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_bas->is_battery_notification_enabled))
+		{
+			 return NRF_ERROR_INVALID_STATE;
+		}
+		memset(&hvx_params, 0, sizeof(hvx_params));
+
+		hvx_params.handle = p_bas->battery_level_handles.value_handle;
+		hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+		hvx_params.p_len  = &length;
+		hvx_params.p_data = &battery_level;
+		
+		return sd_ble_gatts_hvx(p_bas->conn_handle, &hvx_params);
+}
+
+uint32_t update_database(ble_bas_t * p_bas, uint8_t value)
+{
+    uint32_t   err_code;
     ble_gatts_value_t gatts_value;
 
 		memset(&gatts_value, 0, sizeof(gatts_value));
 
 		gatts_value.len     = sizeof(uint8_t);
 		gatts_value.offset  = 0;
-		gatts_value.p_value = &battery_level;
+		gatts_value.p_value = &value;
 
 		// Update database.
 		err_code = sd_ble_gatts_value_set(p_bas->conn_handle,
-																		  p_bas->battery_level_handles.value_handle,
-																		  &gatts_value);	  //保存当前电量百分比
-		
-		// Send value if connected and notifying.
-		if ((p_bas->conn_handle != BLE_CONN_HANDLE_INVALID) && p_bas->is_battery_notification_enabled)
+																			p_bas->battery_level_handles.value_handle,
+																			&gatts_value);	      //实际保存到电量服务中
+
+		if (err_code == NRF_SUCCESS)
 		{
-				ble_gatts_hvx_params_t hvx_params;
-
-				memset(&hvx_params, 0, sizeof(hvx_params));
-
-				hvx_params.handle = p_bas->battery_level_handles.value_handle;
-				hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
-				hvx_params.offset = gatts_value.offset;
-				hvx_params.p_len  = &gatts_value.len;
-				hvx_params.p_data = gatts_value.p_value;
-				
-				return sd_ble_gatts_hvx(p_bas->conn_handle, &hvx_params);
+				// Save new battery value.
+				p_bas->battery_level_last = value;                  //更新电池电量中上一次的电量百分比
 		}
-
-    return err_code;
+	  return err_code;
 }

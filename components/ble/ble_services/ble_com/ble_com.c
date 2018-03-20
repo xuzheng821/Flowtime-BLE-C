@@ -257,20 +257,19 @@ uint32_t ble_com_init(ble_com_t * p_com, const ble_com_init_t * p_com_init)
 
 uint32_t ble_com_string_send(ble_com_t * p_com, uint8_t * p_string, uint16_t length)
 {
-	  uint32_t err_code = NRF_SUCCESS;
     ble_gatts_hvx_params_t hvx_params;
     VERIFY_PARAM_NOT_NULL(p_com);
 		
-    if ((p_com->conn_handle != BLE_CONN_HANDLE_INVALID) && (p_com->is_com_notification_enabled))
+    if ((p_com->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_com->is_com_notification_enabled))
     {
-				memset(&hvx_params, 0, sizeof(hvx_params));
+			return NRF_ERROR_INVALID_STATE;
+		}
+		memset(&hvx_params, 0, sizeof(hvx_params));
 
-				hvx_params.handle = p_com->Up_handles.value_handle;
-				hvx_params.p_data = p_string;
-				hvx_params.p_len  = &length;
-				hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+		hvx_params.handle = p_com->Up_handles.value_handle;
+		hvx_params.p_data = p_string;
+		hvx_params.p_len  = &length;
+		hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
 
-				return sd_ble_gatts_hvx(p_com->conn_handle, &hvx_params);
-    }	
-		return err_code;
+		return sd_ble_gatts_hvx(p_com->conn_handle, &hvx_params);
 }

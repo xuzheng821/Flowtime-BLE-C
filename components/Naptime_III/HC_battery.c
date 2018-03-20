@@ -103,14 +103,19 @@ void battery_level_update(void)
 						
 						if(bat_vol_pre > 100)                                     //最大显示电量100%
 							 bat_vol_pre = 100;
-						if (count == 6)                       //30s上传一次电池电量值
-						{			
+						
+						err_code = update_database(&m_bas,bat_vol_pre);
+						APP_ERROR_CHECK(err_code);
+						
+						if (count == 6 && m_bas.is_battery_notification_enabled)  //30s上传一次电池电量值
+						{		
 								do{
-									 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre);
+									 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
 									}while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 								SEGGER_RTT_printf(0,"battery: %d \r\n",bat_vol_pre);
                 count = 0;
-						}							
+						}		
+						
 						if(bat_vol_pre < 45)                                //低于3.55V（45%）,关机
 						{
 							  Global_connected_state = false;
@@ -123,7 +128,7 @@ void battery_level_update(void)
 //开机电池电压Check，低电压不能开机-----运行一次
 void Power_Check(void)
 {
-    uint32_t err_code = NRF_SUCCESS;
+    uint32_t err_code;
 	
 	  double bat_V[3] = {0};
 	  nrf_saadc_value_t  ADC_value = 0;	           //ADC读取数据
@@ -143,25 +148,9 @@ void Power_Check(void)
 		if(bat_vol_pre > 100)                               //最大显示电量100%
 				bat_vol_pre = 100;
 
-    ble_gatts_value_t gatts_value;
-
-		memset(&gatts_value, 0, sizeof(gatts_value));
-
-		gatts_value.len     = sizeof(uint8_t);
-		gatts_value.offset  = 0;
-		gatts_value.p_value = &bat_vol_pre;
-
-		// Update database.
-		err_code = sd_ble_gatts_value_set(m_bas.conn_handle,
-																			m_bas.battery_level_handles.value_handle,
-																			&gatts_value);	      //实际保存到电量服务中
-
-		if (err_code == NRF_SUCCESS)
-		{
-				// Save new battery value.
-				m_bas.battery_level_last = bat_vol_pre;     //更新电池电量中上一次的电量百分比
-		}
-
+    err_code = update_database(&m_bas,bat_vol_pre);
+		APP_ERROR_CHECK(err_code);
+		
 		if(bat_vol_pre < 40)               //低于3.5V(40%)无法开机
 		{
 			  Global_connected_state = false;

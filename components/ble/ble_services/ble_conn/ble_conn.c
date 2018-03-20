@@ -360,41 +360,39 @@ uint32_t ble_conn_init(ble_conn_t * p_conn, const ble_conn_init_t * p_conn_init)
 
 uint32_t ble_Shakehands_string_send(ble_conn_t * p_conn, uint8_t * p_string, uint16_t length)
 {
-	  uint32_t err_code = NRF_SUCCESS;
     ble_gatts_hvx_params_t hvx_params;
     VERIFY_PARAM_NOT_NULL(p_conn);
 
-    if ((p_conn->conn_handle != BLE_CONN_HANDLE_INVALID) && (p_conn->is_Shakehands_notification_enabled))
+    if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_Shakehands_notification_enabled))
     {
-				memset(&hvx_params, 0, sizeof(hvx_params));
-
-				hvx_params.handle = p_conn->Shakehands_handles.value_handle;
-				hvx_params.p_data = p_string;
-				hvx_params.p_len  = &length;
-				hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
-
-				return sd_ble_gatts_hvx(p_conn->conn_handle, &hvx_params);
+			return NRF_ERROR_INVALID_STATE;
 		}
-		return err_code;
+		memset(&hvx_params, 0, sizeof(hvx_params));
+
+		hvx_params.handle = p_conn->Shakehands_handles.value_handle;
+		hvx_params.p_data = p_string;
+		hvx_params.p_len  = &length;
+		hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+
+		return sd_ble_gatts_hvx(p_conn->conn_handle, &hvx_params);
 }
 
 uint32_t ble_State_string_send(ble_conn_t * p_conn, uint8_t * p_string, uint16_t length)
 {
-	  uint32_t err_code = NRF_SUCCESS;
     ble_gatts_hvx_params_t hvx_params;
     VERIFY_PARAM_NOT_NULL(p_conn);
 
-    if ((p_conn->conn_handle != BLE_CONN_HANDLE_INVALID) && (p_conn->is_state_notification_enabled))
+    if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_state_notification_enabled))
     {
-				memset(&hvx_params, 0, sizeof(hvx_params));
-
-				hvx_params.handle = p_conn->State_up_handles.value_handle;
-				hvx_params.p_data = p_string;
-				hvx_params.p_len  = &length;
-				hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
-
-				return sd_ble_gatts_hvx(p_conn->conn_handle, &hvx_params);
+			return NRF_ERROR_INVALID_STATE;
 		}
-		return err_code;
+		memset(&hvx_params, 0, sizeof(hvx_params));
+
+		hvx_params.handle = p_conn->State_up_handles.value_handle;
+		hvx_params.p_data = p_string;
+		hvx_params.p_len  = &length;
+		hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+
+		return sd_ble_gatts_hvx(p_conn->conn_handle, &hvx_params);
 }
 
