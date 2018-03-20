@@ -43,7 +43,7 @@ void ads1291_init(void)
 	  ADS_PIN_Mainclksel_H();
 	  nrf_delay_ms(100);
   	ADS_PIN_Reset_H();
-  	nrf_delay_ms(1000);
+  	nrf_delay_ms(100);
 	  ADS_PIN_Reset_L();
 	  nrf_delay_ms(10);
 	  ADS_PIN_Reset_H();
@@ -148,7 +148,9 @@ void ADS_ReadStatue(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size)
 
 void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
-    if(m_eeg.is_eeg_notification_enabled && ads1291_is_init)
+    if(ads1291_is_init
+			&& m_eeg.is_state_notification_enabled
+			&& m_eeg.is_eeg_notification_enabled)
     {		 
 	     uint8_t Rx[6] = {0};
   	   uint32_t ADCData;

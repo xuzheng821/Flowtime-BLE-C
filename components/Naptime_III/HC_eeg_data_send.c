@@ -60,14 +60,16 @@ void ble_send_more_data(uint8_t *pdata)
 			 {
 					send_num++;	
 					Num_Time++;		
-	   }
+	     }
 	 }while(err_code != BLE_ERROR_NO_TX_PACKETS);
 }
 
 void ble_state_send(uint8_t pdata)
 {
    uint32_t err_code;
-	 do{
-		 err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && ads1291_is_init);
+   do{
+	    err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
+	    SEGGER_RTT_printf(0," eeg_send_error:%x  pdata:%x\r\n",err_code,pdata);
+	 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
+	 APP_ERROR_CHECK(err_code);
 }

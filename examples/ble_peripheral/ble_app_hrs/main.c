@@ -81,7 +81,7 @@
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
 //连接参数
 #define MIN_CONN_INTERVAL                MSEC_TO_UNITS(30, UNIT_1_25_MS)             /**< Minimum acceptable connection interval (0.4 seconds). */
-#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(30, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (0.65 second). */
+#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(50, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (0.65 second). */
 #define SLAVE_LATENCY                    0                                           /**< Slave latency. */
 #define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS(2000, UNIT_10_MS)             /**< Connection supervisory timeout (4 seconds). */
 //连接间隔更新参数
@@ -518,6 +518,12 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
 					  err_code = bsp_led_indication(BSP_INDICATE_IDLE);
             APP_ERROR_CHECK(err_code);
+				    m_bas.is_battery_notification_enabled = false;
+				    m_eeg.is_eeg_notification_enabled = false;
+				    m_eeg.is_state_notification_enabled = false;
+				    m_com.is_com_notification_enabled = false;
+				    m_conn.is_Shakehands_notification_enabled = false;
+				    m_conn.is_state_notification_enabled = false;
             if(ads1291_is_init == true)
 						{
 					   	 ADS1291_disable();
