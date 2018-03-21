@@ -281,12 +281,14 @@ uint32_t ble_EEG_DATA_send(ble_eeg_t * p_eeg, uint8_t * p_string, uint16_t lengt
     {
 			return NRF_ERROR_INVALID_STATE;
 		}
-		 memset(&hvx_params, 0, sizeof(hvx_params));
-		 hvx_params.handle = p_eeg->eeg_handles.value_handle;
-		 hvx_params.p_data = p_string;
-		 hvx_params.p_len  = &length;
-		 hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
-		 return sd_ble_gatts_hvx(p_eeg->conn_handle, &hvx_params);
+		memset(&hvx_params, 0, sizeof(hvx_params));
+		
+		hvx_params.handle = p_eeg->eeg_handles.value_handle;
+		hvx_params.p_data = p_string;
+		hvx_params.p_len  = &length;
+		hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+		
+		return sd_ble_gatts_hvx(p_eeg->conn_handle, &hvx_params);
 }
 
 uint32_t ble_EEG_ELE_STATE_send(ble_eeg_t *p_eeg, uint8_t state, uint16_t length)
@@ -299,7 +301,6 @@ uint32_t ble_EEG_ELE_STATE_send(ble_eeg_t *p_eeg, uint8_t state, uint16_t length
 		{
 			return NRF_ERROR_INVALID_STATE;
 		}
-
 		memset(&hvx_params, 0, sizeof(hvx_params));
 
 		hvx_params.handle = p_eeg->ele_state_handles.value_handle;
