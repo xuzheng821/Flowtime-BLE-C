@@ -80,9 +80,9 @@
 //定时器参数
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
 //连接参数
-#define MIN_CONN_INTERVAL                MSEC_TO_UNITS(20, UNIT_1_25_MS)             /**< Minimum acceptable connection interval (0.4 seconds). */
-#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(25, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (0.65 second). */
-#define SLAVE_LATENCY                    10                                           /**< Slave latency. */
+#define MIN_CONN_INTERVAL                MSEC_TO_UNITS(15, UNIT_1_25_MS)             /**< Minimum acceptable connection interval (0.4 seconds). */
+#define MAX_CONN_INTERVAL                MSEC_TO_UNITS(30, UNIT_1_25_MS)             /**< Maximum acceptable connection interval (0.65 second). */
+#define SLAVE_LATENCY                    0                                           /**< Slave latency. */
 #define CONN_SUP_TIMEOUT                 MSEC_TO_UNITS(2000, UNIT_10_MS)             /**< Connection supervisory timeout (4 seconds). */
 //连接间隔更新参数
 #define FIRST_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(100, APP_TIMER_PRESCALER)   /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (5 seconds). */
@@ -486,28 +486,31 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 					  SEGGER_RTT_printf(0,"\r BLE_GAP_EVT_CONNECTED \r\n");
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 				    ble_is_adv = false;
-					  if(bat_vol_pre < bat_vol_pre_work)    //电量低于使用电压
-	          {
-				        LED_timeout_start();
-		            err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
-                APP_ERROR_CHECK(err_code);	
-	          }
-            else
-						{
-				        LED_timeout_start();
-							  err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);     //LED状态设置
-                APP_ERROR_CHECK(err_code);	
-						}
-						if(Into_factory_test_mode)
+						if(Into_factory_test_mode)    //工厂测试模式
 						{
 							  Global_connected_state = true;
 						    app_uart_put(Nap_Tool_appconnectnap);
+		            err_code = bsp_led_indication(BSP_INDICATE_factory_led_test);   //工厂测试下LED状态设置
+                APP_ERROR_CHECK(err_code);	
 						}
-						else
+						else                         //正常工作模式
 						{
 				        connection_buttons_configure();	  
 				        connects_timer_start();
+								if(bat_vol_pre < bat_vol_pre_work)    //电量低于使用电压
+								{
+										LED_timeout_start();
+										err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
+										APP_ERROR_CHECK(err_code);	
+								}
+								else
+								{
+										LED_timeout_start();
+										err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);     //LED状态设置
+										APP_ERROR_CHECK(err_code);	
+								}
 						}
+
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
