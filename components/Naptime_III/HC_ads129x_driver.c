@@ -1,7 +1,7 @@
 #include "HC_ads129x_driver.h"
 
-uint8_t ADCData1[750];
-uint8_t EEG_DATA_SEND[750];
+uint8_t ADCData1[75];
+uint8_t EEG_DATA_SEND[75];
 uint8_t Data_Num;             //采集数据到250个触发发送函数
 bool ads1291_is_init = false; //1291是否初始化完成标志位
 
@@ -148,6 +148,7 @@ void ADS_ReadStatue(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size)
 
 void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
+	  static uint8_t count = 0;
     if(ads1291_is_init && 
 			 m_eeg.is_eeg_notification_enabled &&
 		   m_eeg.is_state_notification_enabled )
@@ -165,21 +166,22 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 			 
 		   memcpy((ADCData1 + Data_Num * 3),Data,3);
 		   Data_Num ++;
-			 
-			 if(Data_Num % 225 == 0)
-			 {
-					 LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
-					 ble_state_send(LOFF_State);
-			 }
 
-       if(Data_Num == 250)  
+       if(Data_Num == 25)  
 	     {
 			    Data_Num = 0;
-			    memcpy(EEG_DATA_SEND,ADCData1,750);			
+				  count++;
+			    memcpy(EEG_DATA_SEND,ADCData1,75);			
 				  memset(ADCData1,0,sizeof(ADCData1));
 			    ble_send_data(EEG_DATA_SEND);
 		   }
-	 }
+			 if(count == 5)
+			 {
+				   count = 0;
+					 LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
+					 ble_state_send(LOFF_State);
+			 }	 
+		}
 	 else
 	 {
 		  Data_Num = 0;
