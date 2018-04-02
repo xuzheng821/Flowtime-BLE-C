@@ -30,13 +30,17 @@ void bootup_check(void)
 		
     if(nrf_gpio_pin_read(FACTORY_TEST) == 0)        //判断是否进入工厂测试模式
 		{
-			  if(RTT_PRINT)
-				{
-						SEGGER_RTT_printf(0,"\r Into_factory_test_mode \r\n");
+			  nrf_delay_ms(20);
+			  if(nrf_gpio_pin_read(FACTORY_TEST) == 0)        //判断是否进入工厂测试模式
+		    {
+						if(RTT_PRINT)
+						{
+								SEGGER_RTT_printf(0,"\r Into_factory_test_mode \r\n");
+						}
+						Into_factory_test_mode = true;
+						Uart_init();
+						app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--单板成功进入工厂测试
 				}
-			  Into_factory_test_mode = true;
-        Uart_init();
-        app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--单板成功进入工厂测试
 		}
 		else
 		{

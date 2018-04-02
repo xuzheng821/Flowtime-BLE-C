@@ -29,7 +29,6 @@ void ads1291_init(void)
 {
 	  nrf_gpio_cfg_output(AEF_PM_EN);
 	  NRF_GPIO->OUTSET = 1<<AEF_PM_EN;
-	  nrf_delay_ms(50);
 	
     nrf_gpio_cfg_output(AEF_START);
     nrf_gpio_cfg_output(AEF_RESET);
@@ -41,9 +40,9 @@ void ads1291_init(void)
     APP_ERROR_CHECK(nrf_drv_spi_init(&spi, &spi_config, NULL));
 
 	  ADS_PIN_Mainclksel_H();
-	  nrf_delay_ms(100);
+	  nrf_delay_ms(10);
   	ADS_PIN_Reset_H();
-  	nrf_delay_ms(1000);
+  	nrf_delay_ms(100);
 	  ADS_PIN_Reset_L();
 	  nrf_delay_ms(10);
 	  ADS_PIN_Reset_H();

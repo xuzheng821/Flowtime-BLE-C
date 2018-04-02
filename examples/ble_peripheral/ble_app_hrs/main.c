@@ -118,7 +118,7 @@ extern ble_eeg_t                         m_eeg;                                 
 extern uint16_t                          m_conn_handle;                              /**< Handle of the current connection. */
 static dm_application_instance_t         m_app_handle;                               /**< Application identifier allocated by device manager. */
 //eeg数据传输变量与标志位
-extern uint8_t EEG_DATA_SEND[75];       //需要发送的脑电数据
+extern uint8_t EEG_DATA_SEND[75];        //需要发送的脑电数据
 extern uint8_t Send_Flag;                //脑电数据是否发送完成标志
 extern bool ads1291_is_init;             //1291初始化标志位
 //连接状态标志位
@@ -385,7 +385,6 @@ static void gpio_reset(void)
     while(nrf_gpio_pin_read(BUTTON) == 0)   //按键松开才进入休眠
     {
 			 nrf_drv_wdt_channel_feed(m_channel_id);
-			 nrf_delay_ms(200);
 		}
 		
   	nrf_gpio_cfg_output(LED_GPIO_BLUE);
@@ -546,7 +545,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             break;
 
 				  case BLE_EVT_TX_COMPLETE:				//启动后发送20字节，当20字节发送完成后收到BLE_EVT_TX_comPLETE，然后发送剩余数据
-				     if (Send_Flag == 1)
+				     if(Send_Flag == 1)
 	           { 
 	    	         ble_send_more_data(EEG_DATA_SEND); 
 	           }
@@ -809,9 +808,7 @@ static void advertising_init(void)
 	
     if(Into_factory_test_mode)
 		{
-				nrf_delay_ms(200);
 				data[0] = get_random_number();
-				nrf_delay_ms(200);
 				data[1] = get_random_number();
 				app_uart_put(Tool_App_advdata);			
 				app_uart_put(data[0]);
@@ -854,7 +851,6 @@ static void gpio_init(void)
 		nrf_gpio_cfg_input(BQ_PG ,NRF_GPIO_PIN_PULLUP);
 	  nrf_gpio_cfg_input(BQ_CHG,NRF_GPIO_PIN_PULLUP);
 	  nrf_gpio_cfg_input(FACTORY_TEST,NRF_GPIO_PIN_PULLUP);
-    nrf_delay_ms(100);
 }
 
 /**@brief Function for application main entry.
