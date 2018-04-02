@@ -10,6 +10,8 @@
 #include "softdevice_handler.h"
 #include "HC_ads129x_driver.h"
 #include "sdk_errors.h"
+#include "SEGGER_RTT_Conf.h"
+#include "SEGGER_RTT.h"
 
 uint32_t ble_send_data(uint8_t *pdata);
 void ble_send_more_data(uint8_t *pdata);

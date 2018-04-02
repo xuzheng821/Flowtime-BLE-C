@@ -18,7 +18,10 @@ extern void sleep_mode_enter(void);
 //启动Check，判断是否为软复位启动，是否进入工厂测试模式
 void bootup_check(void)
 {	  
-	  SEGGER_RTT_printf(0," NRF_POWER->GPREGRET:%x\r\n\n",NRF_POWER->GPREGRET);
+	  if(RTT_PRINT)
+		{
+				SEGGER_RTT_printf(0," NRF_POWER->GPREGRET:%x\r\n\n",NRF_POWER->GPREGRET);
+		}
 		APP_restart = (NRF_POWER->GPREGRET == 0x55);    //如果软件复位，复位前会将寄存器NRF_POWER->GPREGRET设置为0x55
 		if(APP_restart)                                
 		{
@@ -27,7 +30,10 @@ void bootup_check(void)
 		
     if(nrf_gpio_pin_read(FACTORY_TEST) == 0)        //判断是否进入工厂测试模式
 		{
-			  SEGGER_RTT_printf(0,"\r Into_factory_test_mode \r\n");
+			  if(RTT_PRINT)
+				{
+						SEGGER_RTT_printf(0,"\r Into_factory_test_mode \r\n");
+				}
 			  Into_factory_test_mode = true;
         Uart_init();
         app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--单板成功进入工厂测试
@@ -58,7 +64,10 @@ void led_test(void)
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
     uint32_t err_code;
-	  SEGGER_RTT_printf(0,"commmand: %x \r\n",*pdata);
+	  if(RTT_PRINT)
+		{
+				SEGGER_RTT_printf(0,"commmand: %x \r\n",*pdata);
+		}
 		switch(*pdata)
 		{
 			 case App_Nap_SystemTest:             

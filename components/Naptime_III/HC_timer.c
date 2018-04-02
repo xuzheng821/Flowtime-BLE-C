@@ -30,7 +30,7 @@ extern void button_event_handler(button_event_t event);
 #define led_timer_interval           APP_TIMER_TICKS(119000, APP_TIMER_PRESCALER)     //比广播时间短1s
 #define led_test_timer_interval      APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)
 #define battery_timer_interval       APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) 
-#define connect_timer_interval       APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
+#define connect_timer_interval       APP_TIMER_TICKS(8000, APP_TIMER_PRESCALER)
 
 void timers_init(void)
 {

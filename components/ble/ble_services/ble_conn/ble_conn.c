@@ -106,7 +106,10 @@ static void on_write(ble_conn_t * p_conn, ble_evt_t * p_ble_evt)
       }
 			else
 			{
-				 SEGGER_RTT_printf(0,"0x04 \r\n");		
+				 if(RTT_PRINT)
+				 {
+							SEGGER_RTT_printf(0,"0x04 \r\n");
+				 }					 
 		     communocate_state[4] = 0x04;                           //Êý¾Ý´íÎó
 		     ble_State_string_send(&m_conn,communocate_state,5);
 				 nrf_delay_ms(500);		 
