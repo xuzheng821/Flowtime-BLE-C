@@ -174,10 +174,9 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 				  memset(ADCData1,0,sizeof(ADCData1));
 			    ble_send_data(EEG_DATA_SEND);
 		   }
-			 if(count == 100)
+			 if(count == 3)
 			 {
 				   count = 0;
-				   ads1291_is_init = false;
 					 LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
 					 ble_state_send(LOFF_State);
 			 }	 
