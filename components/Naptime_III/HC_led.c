@@ -178,4 +178,10 @@ void leds_state_update(void)                             //LED超时定时器回调函数
 				led_red_timerout = true;	
 		}
 		PWM_uint();                                          //LED已经熄灭，将PWM去初始化
+		nrf_gpio_cfg_output(LED_GPIO_BLUE);
+		nrf_gpio_cfg_output(LED_GPIO_RED);
+		nrf_gpio_cfg_output(LED_GPIO_GREEN);
+		NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
+		NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
+		NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
 }

@@ -26,11 +26,11 @@ extern bsp_button_event_cfg_t      m_buttin_events;
 extern void button_event_handler(button_event_t event);
 
 #define wdt_timer_interval           APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
-#define button_timer_interval        APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)         //按键50ms检测一次
 #define led_timer_interval           APP_TIMER_TICKS(119000, APP_TIMER_PRESCALER)     //比广播时间短1s
-#define led_test_timer_interval      APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)
+#define button_timer_interval        APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)         //按键50ms检测一次
 #define battery_timer_interval       APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) 
-#define connect_timer_interval       APP_TIMER_TICKS(10000, APP_TIMER_PRESCALER)
+#define led_test_timer_interval      APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)
+#define connect_timer_interval       APP_TIMER_TICKS(10000, APP_TIMER_PRESCALER)      //时间10s待定
 
 void timers_init(void)
 {
