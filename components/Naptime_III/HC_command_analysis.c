@@ -1,7 +1,7 @@
 #include "HC_command_analysis.h"
 
 ble_conn_t                         m_conn;
-uint16_t                           m_conn_handle = BLE_CONN_HANDLE_INVALID;   /**< Handle of the current connection. */
+extern uint16_t                    m_conn_handle;   /**< Handle of the current connection. */
 
 bool ID_is_change  = false;        //接收到的ID与原先ID不同，可能需要更新绑定ID
 bool ID_is_receive = false;        //ID接收到

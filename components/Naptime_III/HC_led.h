@@ -27,7 +27,7 @@ typedef enum
 	  BSP_INDICATE_factory_led_test,
 } led_indication_t;
 
-void LED_timeout_start(void);
+void LED_timeout_restart(void);
 uint32_t bsp_led_indication(led_indication_t indicate);
 void leds_state_update(void);
 

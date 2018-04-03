@@ -7,7 +7,7 @@ uint32_t Num_Time;       //每一帧数据包头2个字节，不断累加
 uint8_t send_num = 0;    //一秒发送50帧数据，记录发送到第几帧数据
 uint8_t Send_Flag = 0;   //第一帧数据发送完成
 uint8_t Data_send[17];   //发送数据缓存
-extern uint8_t EEG_DATA_SEND[75];
+extern uint8_t EEG_DATA_SEND[135];
 extern bool Global_connected_state;
 extern bool ads1291_is_init;                  //1291初始化标志位
 
@@ -41,7 +41,7 @@ void ble_send_more_data(uint8_t *pdata)
 	uint32_t err_code;
 
 	do{
-			 if (send_num > 4)  //一秒数据全部发送完成,相关标志位复位
+			 if (send_num > 8)  //一秒数据全部发送完成,相关标志位复位
 			 {
 					send_num = 0x00;
 					Send_Flag = 0;

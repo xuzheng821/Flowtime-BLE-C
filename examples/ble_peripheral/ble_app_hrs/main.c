@@ -115,16 +115,17 @@ extern ble_bas_t                         m_bas;                                 
 extern ble_com_t                         m_com;                                      /**< Structure to identify the Nordic UART Service. */
 extern ble_conn_t                        m_conn;                                     /**< Structure to identify the Nordic UART Service. */
 extern ble_eeg_t                         m_eeg;                                      /**< Structure used to identify the heart rate service. */
-extern uint16_t                          m_conn_handle;                              /**< Handle of the current connection. */
+uint16_t                                 m_conn_handle;                              /**< Handle of the current connection. */
 static dm_application_instance_t         m_app_handle;                               /**< Application identifier allocated by device manager. */
 //eeg数据传输变量与标志位
-extern uint8_t EEG_DATA_SEND[75];        //需要发送的脑电数据
+extern uint8_t EEG_DATA_SEND[135];        //需要发送的脑电数据
 extern uint8_t Send_Flag;                //脑电数据是否发送完成标志
 extern bool ads1291_is_init;             //1291初始化标志位
 //连接状态标志位
 extern bool Is_white_adv;                //是否白名单广播
 extern bool ID_is_change;                //接收到的ID与原先ID不同，可能需要更新绑定ID
 extern bool Is_device_bond;              //设备是否绑定
+extern bool Into_Disconnect;
 extern uint8_t communocate_state[5];     //握手状态返回
 bool Global_connected_state = false;     //连接+握手成功标志
 //LED状态控制与标志位
@@ -438,7 +439,7 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 
         case BLE_ADV_EVT_WITH_WHITELIST:        //普通广播
 					   advertising_buttons_configure();
-						 LED_timeout_start();
+						 LED_timeout_restart();
 						 if(bat_vol_pre < bat_vol_pre_work) //低电量
 						 {
 							 err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);     //红灯闪烁
@@ -459,7 +460,7 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 
 				case BLE_ADV_EVT_WITHOUT_WHITELIST:     //快速广播
 					   pairing_buttons_configure();
-				     LED_timeout_start();
+				     LED_timeout_restart();
 						 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST); //蓝灯快闪
 						 APP_ERROR_CHECK(err_code);
 
@@ -499,13 +500,13 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 				        connects_timer_start();
 								if(bat_vol_pre < bat_vol_pre_work)    //电量低于使用电压
 								{
-										LED_timeout_start();
+										LED_timeout_restart();
 										err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);   //LED状态设置
 										APP_ERROR_CHECK(err_code);	
 								}
 								else
 								{
-										LED_timeout_start();
+										LED_timeout_restart();
 										err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);     //LED状态设置
 										APP_ERROR_CHECK(err_code);	
 								}
@@ -720,21 +721,21 @@ void button_event_handler(button_event_t event)
 						 }
 						 if((led_red_timerout == true || led_blue_timerout == true )&& bat_vol_pre < bat_vol_pre_work)         //红灯灭&&电量不足
 						 {
-				         LED_timeout_start();
+				         LED_timeout_restart();
                  err_code = bsp_led_indication(BSP_INDICATE_Battery_LOW);           //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
 						 else if(led_blue_timerout == true && Global_connected_state == true)   //蓝灯灭&&已连接&&电量足 
 						 {
 							   led_blue_timerout = false;
-				         LED_timeout_start();
+				         LED_timeout_restart();
                  err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);             //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 					 	 }
 						 else if(led_blue_timerout == true && Global_connected_state == false)  //蓝灯灭&&未连接&&电量足 
 						 {
 							   led_blue_timerout = false;
-				         LED_timeout_start();
+				         LED_timeout_restart();
                  err_code = bsp_led_indication(BSP_INDICATE_WITH_WHITELIST);        //LED状态设置
                  APP_ERROR_CHECK(err_code);	
 						 }
@@ -931,6 +932,21 @@ int main(void)
 			{
 				  StorySN = false;
 				  Story_SN();
+			}
+			if(Into_Disconnect && Global_connected_state)
+			{
+				 SEGGER_RTT_printf(0,"before \n");
+				 Into_Disconnect = false;
+				 Global_connected_state = false;
+				 nrf_delay_ms(1000);
+				 if(m_conn_handle != BLE_CONN_HANDLE_INVALID)
+				 {
+						 err_code = sd_ble_gap_disconnect(m_conn_handle,
+																							BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+						 APP_ERROR_CHECK(err_code);
+						 SEGGER_RTT_printf(0,"err_code: %x \n",err_code);
+				 }
+				 SEGGER_RTT_printf(0,"after \n");
 			}
 		  power_manage();
     }

@@ -1,7 +1,7 @@
 #include "HC_ads129x_driver.h"
 
-uint8_t ADCData1[75];
-uint8_t EEG_DATA_SEND[75];
+uint8_t ADCData1[135];
+uint8_t EEG_DATA_SEND[135];
 uint8_t Data_Num;             //采集数据到250个触发发送函数
 bool ads1291_is_init = false; //1291是否初始化完成标志位
 
@@ -166,17 +166,18 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 		   memcpy((ADCData1 + Data_Num * 3),Data,3);
 		   Data_Num ++;
 
-       if(Data_Num == 25)  
+       if(Data_Num == 45)  
 	     {
 			    Data_Num = 0;
 				  count++;
-			    memcpy(EEG_DATA_SEND,ADCData1,75);			
+			    memcpy(EEG_DATA_SEND,ADCData1,135);			
 				  memset(ADCData1,0,sizeof(ADCData1));
 			    ble_send_data(EEG_DATA_SEND);
 		   }
-			 if(count == 5)
+			 if(count == 100)
 			 {
 				   count = 0;
+				   ads1291_is_init = false;
 					 LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
 					 ble_state_send(LOFF_State);
 			 }	 
