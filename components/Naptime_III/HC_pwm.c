@@ -84,6 +84,9 @@ void PWM_uint(void)
 	  app_pwm_uninit(&PWM3);
 	
 	  Is_pwm_init = false;                               //PWM初始化标志位置0
+	  Is_red_on = false;
+    Is_green_on = false;
+    Is_blue_on = false; 
 	  nrf_gpio_cfg_output(LED_GPIO_BLUE);                //设置LED的IO口为普通输出模式
     nrf_gpio_cfg_output(LED_GPIO_RED);
 	  nrf_gpio_cfg_output(LED_GPIO_GREEN);
@@ -91,10 +94,6 @@ void PWM_uint(void)
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;               //IO口输出低电平
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
-	
-	  Is_red_on = false;
-    Is_green_on = false;
-    Is_blue_on = false; 
 }
 
 

@@ -116,17 +116,17 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						break;
 			 
 			 case App_Nap_useriddelete: 
-					  deleteUserid = true;                    //flash操作在main函数进入                   
+					  deleteUserid = true;                        //flash操作在main函数进入                   
 						break;
 			 
-			 case App_Nap_Gotoledtest:
-           if(Into_factory_test_mode)               //进入工厂测试模式
+			 case App_Nap_Gotoledtest: 
+           if(Into_factory_test_mode)                   //进入工厂测试模式
 	         {						 
 							led_test(); 
 					 }						 
 					 break;
 					 
-				case App_Nap_Poweroff:                      //关机指令  
+				case App_Nap_Poweroff:                          //关机指令  
 					  if(ads1291_is_init == true)
 						{			
 					   	 ADS1291_disable();
