@@ -110,9 +110,12 @@ void app_error_save_and_stop(uint32_t id, uint32_t pc, uint32_t info)
             m_error_data.err_code     = m_error_data.p_error_info->err_code;
             m_error_data.line_num     = m_error_data.p_error_info->line_num;
             m_error_data.p_file_name  = m_error_data.p_error_info->p_file_name;
-						SEGGER_RTT_printf(0," err_code:%x\r\n",m_error_data.err_code);
-						SEGGER_RTT_printf(0," line_num:%d\r\n",m_error_data.line_num);
-			    	SEGGER_RTT_printf(0," p_file_name:%s\r\n",m_error_data.p_file_name);
+				    if(RTT_PRINT)
+						{
+								SEGGER_RTT_printf(0," err_code:%x\r\n",m_error_data.err_code);
+								SEGGER_RTT_printf(0," line_num:%d\r\n",m_error_data.line_num);
+								SEGGER_RTT_printf(0," p_file_name:%s\r\n",m_error_data.p_file_name);
+						}
     				break;
     }
 

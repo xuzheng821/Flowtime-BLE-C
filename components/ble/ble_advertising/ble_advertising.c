@@ -193,7 +193,10 @@ static bool flash_access_in_progress()
     err_code = pstorage_access_status_get(&count);
     if ((err_code != NRF_ERROR_INVALID_STATE) && (err_code != NRF_SUCCESS))
     {
-        SEGGER_RTT_printf(0,"[ADV]: pstorage_access_status_get returned %d.\r\n", err_code);
+			  if(RTT_PRINT)
+				{
+						SEGGER_RTT_printf(0,"[ADV]: pstorage_access_status_get returned %d.\r\n", err_code);
+				}
         return true;
     }
 
@@ -204,7 +207,10 @@ static bool flash_access_in_progress()
         {
             return false;
         }
-        SEGGER_RTT_printf(0,"[ADV]: fs_queued_op_count_get gives count %d.\r\n", count);
+				if(RTT_PRINT)
+				{
+						SEGGER_RTT_printf(0,"[ADV]: fs_queued_op_count_get gives count %d.\r\n", count);
+				}
     }
 
     if(count != 0)
@@ -231,8 +237,10 @@ uint32_t ble_advertising_start(ble_adv_mode_t advertising_mode)
         m_advertising_start_pending = true;
         return NRF_SUCCESS;
     }
-
-    SEGGER_RTT_printf(0,"[ADV]: no flash operations in progress, prepare advertising.\r\n");
+    if(RTT_PRINT)
+		{
+				SEGGER_RTT_printf(0,"[ADV]: no flash operations in progress, prepare advertising.\r\n");
+		}
     // Fetch the peer address.
     ble_advertising_peer_address_clear();
 
@@ -299,7 +307,10 @@ uint32_t ble_advertising_start(ble_adv_mode_t advertising_mode)
     switch (m_adv_mode_current)
     {
         case BLE_ADV_MODE_DIRECTED:
-            SEGGER_RTT_printf(0,"[ADV]: Starting direct advertisement.\r\n");
+					  if(RTT_PRINT)
+						{
+								SEGGER_RTT_printf(0,"[ADV]: Starting direct advertisement.\r\n");
+						}
             adv_params.p_peer_addr = &m_peer_address; // Directed advertising.
             adv_params.type        = BLE_GAP_ADV_TYPE_ADV_DIRECT_IND;
             adv_params.timeout     = 0;
@@ -308,7 +319,10 @@ uint32_t ble_advertising_start(ble_adv_mode_t advertising_mode)
             break;
 
         case BLE_ADV_MODE_DIRECTED_SLOW:
-            SEGGER_RTT_printf(0,"[ADV]: Starting direct advertisement.\r\n");
+					  if(RTT_PRINT)
+						{
+								SEGGER_RTT_printf(0,"[ADV]: Starting direct advertisement.\r\n");
+						}
             adv_params.p_peer_addr = &m_peer_address; // Directed advertising.
             adv_params.type        = BLE_GAP_ADV_TYPE_ADV_DIRECT_IND;
             adv_params.timeout     = m_adv_modes_config.ble_adv_directed_slow_timeout;
@@ -323,12 +337,18 @@ uint32_t ble_advertising_start(ble_adv_mode_t advertising_mode)
             if ( Is_white_adv ) //被绑定
             {
                 m_adv_evt = BLE_ADV_EVT_WITH_WHITELIST;
-                SEGGER_RTT_printf(0,"[ADV]: Starting fast advertisement with whitelist.\r\n");
+							  if(RTT_PRINT)
+								{
+										SEGGER_RTT_printf(0,"[ADV]: Starting fast advertisement with whitelist.\r\n");
+								}
             }
             else
             {
                 m_adv_evt = BLE_ADV_EVT_WITHOUT_WHITELIST;
-                SEGGER_RTT_printf(0,"[ADV]: Starting fast advertisement.\r\n");
+							  if(RTT_PRINT)
+								{
+										SEGGER_RTT_printf(0,"[ADV]: Starting fast advertisement.\r\n");
+								}
             }
             break;
 
@@ -339,12 +359,18 @@ uint32_t ble_advertising_start(ble_adv_mode_t advertising_mode)
             if ( Is_device_bond ) //被绑定
             {
                 m_adv_evt = BLE_ADV_EVT_WITH_WHITELIST_SLOW;
-                SEGGER_RTT_printf(0,"[ADV]: Starting slow advertisement with whitelist.\r\n");
+							  if(RTT_PRINT)
+								{
+										SEGGER_RTT_printf(0,"[ADV]: Starting slow advertisement with whitelist.\r\n");
+								}
             }
             else
             {
                 m_adv_evt = BLE_ADV_EVT_IDLE;
-							  SEGGER_RTT_printf(0,"[ADV]: stop advertisement.\r\n");
+							  if(RTT_PRINT)
+								{
+										SEGGER_RTT_printf(0,"[ADV]: stop advertisement.\r\n");
+								}
             }
             break;
 
@@ -402,7 +428,10 @@ void ble_advertising_on_ble_evt(ble_evt_t const * p_ble_evt)
                 switch (m_adv_mode_current)
                 {
                     case BLE_ADV_MODE_DIRECTED:
-                        SEGGER_RTT_printf(0,"[ADV]: Timed out from directed advertising.\r\n");
+											  if(RTT_PRINT)
+												{
+														SEGGER_RTT_printf(0,"[ADV]: Timed out from directed advertising.\r\n");
+												}
                         {
                             uint32_t err_code;
                             err_code = ble_advertising_start(BLE_ADV_MODE_DIRECTED_SLOW);
@@ -413,7 +442,10 @@ void ble_advertising_on_ble_evt(ble_evt_t const * p_ble_evt)
                         }
                         break;
                     case BLE_ADV_MODE_DIRECTED_SLOW:
-                        SEGGER_RTT_printf(0,"[ADV]: Timed out from directed slow advertising.\r\n");
+											  if(RTT_PRINT)
+												{
+														SEGGER_RTT_printf(0,"[ADV]: Timed out from directed slow advertising.\r\n");
+												}
                         {
                             uint32_t err_code;
                             err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
@@ -426,7 +458,10 @@ void ble_advertising_on_ble_evt(ble_evt_t const * p_ble_evt)
                     case BLE_ADV_MODE_FAST:
                     {
                         uint32_t err_code;
-                        SEGGER_RTT_printf(0,"[ADV]: Timed out from fast advertising, starting slow advertising.\r\n");
+											  if(RTT_PRINT)
+												{
+														SEGGER_RTT_printf(0,"[ADV]: Timed out from fast advertising, starting slow advertising.\r\n");
+												}
                         err_code = ble_advertising_start(BLE_ADV_MODE_SLOW);
                         if ((err_code != NRF_SUCCESS) && (m_error_handler != NULL))
                         {
@@ -436,7 +471,10 @@ void ble_advertising_on_ble_evt(ble_evt_t const * p_ble_evt)
                     }
                     case BLE_ADV_MODE_SLOW:
                         m_adv_evt = BLE_ADV_EVT_IDLE;
-                        SEGGER_RTT_printf(0,"[ADV]: Timed out from slow advertising, stopping advertising.\r\n");
+										    if(RTT_PRINT)
+												{
+														SEGGER_RTT_printf(0,"[ADV]: Timed out from slow advertising, stopping advertising.\r\n");
+												}
                         if (m_evt_handler != NULL)
                         {
                             m_evt_handler(m_adv_evt);

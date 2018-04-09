@@ -15,8 +15,7 @@ APP_TIMER_DEF(m_ledFlips_timer_id);
 bool Is_led_timer_start = false;    //LED亮灯时间计时判断，如果亮灯中途切换状态，重新计时
 
 extern uint8_t key_tigger_num;      //按键按下超时计数
-extern uint8_t led_red_timerout;    //红灯亮灯时间超时标志
-extern uint8_t led_blue_timerout;   //蓝灯亮灯时间超时标志
+extern uint8_t led_timerout;        //led亮灯时间超时标志    
 
 extern uint16_t                    m_conn_handle;  
 extern led_indication_t            m_stable_state;
@@ -26,11 +25,11 @@ extern bsp_button_event_cfg_t      m_buttin_events;
 extern void button_event_handler(button_event_t event);
 
 #define wdt_timer_interval           APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
+#define led_timer_interval           APP_TIMER_TICKS(120000, APP_TIMER_PRESCALER)     
 #define button_timer_interval        APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)         //按键50ms检测一次
-#define led_timer_interval           APP_TIMER_TICKS(119000, APP_TIMER_PRESCALER)     //比广播时间短1s
-#define led_test_timer_interval      APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)
 #define battery_timer_interval       APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) 
-#define connect_timer_interval       APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
+#define led_test_timer_interval      APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
+#define connect_timer_interval       APP_TIMER_TICKS(10000, APP_TIMER_PRESCALER)      //时间10s待定
 
 void timers_init(void)
 {
@@ -65,8 +64,7 @@ void led_timer_start(void)
     uint32_t err_code;
     err_code = app_timer_start(m_leds_timer_id,led_timer_interval, NULL); 
 	  APP_ERROR_CHECK(err_code);
-	  led_blue_timerout = false;
-	  led_red_timerout = false;
+	  led_timerout = false;
 	  Is_led_timer_start = true;
 }
 

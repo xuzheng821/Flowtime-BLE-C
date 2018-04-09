@@ -5,6 +5,7 @@ APP_PWM_INSTANCE(PWM2,2);                   // ´´½¨Ò»¸öÊ¹ÓÃ¶¨Ê±Æ÷2²úÉúPWM²¨µÄÊµÀ
 APP_PWM_INSTANCE(PWM3,3);                   // ´´½¨Ò»¸öÊ¹ÓÃ¶¨Ê±Æ÷3²úÉúPWM²¨µÄÊµÀý
 
 bool Is_pwm_init = false;
+
 bool Is_red_on = false;
 bool Is_green_on = false;
 bool Is_blue_on = false;
@@ -83,6 +84,9 @@ void PWM_uint(void)
 	  app_pwm_uninit(&PWM3);
 	
 	  Is_pwm_init = false;                               //PWM³õÊ¼»¯±êÖ¾Î»ÖÃ0
+	  Is_red_on = false;
+    Is_green_on = false;
+    Is_blue_on = false; 
 	  nrf_gpio_cfg_output(LED_GPIO_BLUE);                //ÉèÖÃLEDµÄIO¿ÚÎªÆÕÍ¨Êä³öÄ£Ê½
     nrf_gpio_cfg_output(LED_GPIO_RED);
 	  nrf_gpio_cfg_output(LED_GPIO_GREEN);
@@ -90,10 +94,6 @@ void PWM_uint(void)
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;               //IO¿ÚÊä³öµÍµçÆ½
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
-	
-	  Is_red_on = false;
-    Is_green_on = false;
-    Is_blue_on = false; 
 }
 
 

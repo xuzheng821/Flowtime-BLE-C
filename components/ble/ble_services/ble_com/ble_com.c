@@ -261,10 +261,9 @@ uint32_t ble_com_string_send(ble_com_t * p_com, uint8_t * p_string, uint16_t len
 
     if ((p_com->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_com->is_com_notification_enabled))
     {
-        return NRF_ERROR_INVALID_STATE;
-    }
-
-    memset(&hvx_params, 0, sizeof(hvx_params));
+			return NRF_ERROR_INVALID_STATE;
+		}
+		memset(&hvx_params, 0, sizeof(hvx_params));
 
 		hvx_params.handle = p_com->Up_handles.value_handle;
 		hvx_params.p_data = p_string;

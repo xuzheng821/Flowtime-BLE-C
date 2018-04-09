@@ -21,13 +21,14 @@ typedef enum
 	  BSP_INDICATE_CONNECTED,
 	  BSP_INDICATE_WITH_WHITELIST,
 	  BSP_INDICATE_WITHOUT_WHITELIST,
-	  BSP_INDICATE_Battery_LOW,
+	  BSP_INDICATE_Battery_LOW_ADV,
+	  BSP_INDICATE_Battery_LOW_CONN,
 	  BSP_INDICATE_Battery_CHARGING,
 	  BSP_INDICATE_Battery_CHARGEOVER,
 	  BSP_INDICATE_factory_led_test,
 } led_indication_t;
 
-void LED_timeout_start(void);
+void LED_timeout_restart(void);
 uint32_t bsp_led_indication(led_indication_t indicate);
 void leds_state_update(void);
 

@@ -106,7 +106,10 @@ static void on_write(ble_conn_t * p_conn, ble_evt_t * p_ble_evt)
       }
 			else
 			{
-				 SEGGER_RTT_printf(0,"0x04 \r\n");		
+				 if(RTT_PRINT)
+				 {
+							SEGGER_RTT_printf(0,"0x04 \r\n");
+				 }					 
 		     communocate_state[4] = 0x04;                           //Êı¾İ´íÎó
 		     ble_State_string_send(&m_conn,communocate_state,5);
 				 nrf_delay_ms(500);		 
@@ -364,9 +367,8 @@ uint32_t ble_Shakehands_string_send(ble_conn_t * p_conn, uint8_t * p_string, uin
 
     if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_Shakehands_notification_enabled))
     {
-        return NRF_ERROR_INVALID_STATE;
-    }
-
+			return NRF_ERROR_INVALID_STATE;
+		}
 		memset(&hvx_params, 0, sizeof(hvx_params));
 
 		hvx_params.handle = p_conn->Shakehands_handles.value_handle;
@@ -384,9 +386,8 @@ uint32_t ble_State_string_send(ble_conn_t * p_conn, uint8_t * p_string, uint16_t
 
     if ((p_conn->conn_handle == BLE_CONN_HANDLE_INVALID) || (!p_conn->is_state_notification_enabled))
     {
-        return NRF_ERROR_INVALID_STATE;
-    }
-
+			return NRF_ERROR_INVALID_STATE;
+		}
 		memset(&hvx_params, 0, sizeof(hvx_params));
 
 		hvx_params.handle = p_conn->State_up_handles.value_handle;

@@ -21,7 +21,7 @@ void button_power_on(void)
 			 key_tigger_num = 0;
 	     button_timer_start();
        while(nrf_gpio_pin_read(BUTTON) == 0);			
-       nrf_delay_ms(Key_detection_interval * 10);	       //如果进入休眠，500ms内完成关机操作	
+       nrf_delay_ms(500);	                               //如果进入休眠，500ms内完成关机操作	
 		}
 }
 
@@ -61,17 +61,26 @@ void buttons_state_update(void)
 	  if(nrf_gpio_pin_read(BUTTON) == 0)     
 		{
 			   key_tigger_num ++;
-			   SEGGER_RTT_printf(0," %d \r\n",key_tigger_num);
+			   if(RTT_PRINT)
+				 {
+						SEGGER_RTT_printf(0," %d \r\n",key_tigger_num);
+				 }
          if(key_tigger_num == 2000/Key_detection_interval)
 				 {
-		        SEGGER_RTT_printf(0," push_event \r\n");
+					  if(RTT_PRINT)
+						{
+								SEGGER_RTT_printf(0," push_event \r\n");
+						}
 					  button_event = m_buttin_events.push_event;
 						button_event_handler(button_event);
 						return;
 				 }
          else if(key_tigger_num == 4000/Key_detection_interval)	
 				 {
-		        SEGGER_RTT_printf(0," long_push_event \r\n");
+					  if(RTT_PRINT)
+						{
+								SEGGER_RTT_printf(0," long_push_event \r\n");
+						}
 	          button_timer_stop();
 					  button_event = m_buttin_events.long_push_event;
 						button_event_handler(button_event);
@@ -83,7 +92,10 @@ void buttons_state_update(void)
 	       button_timer_stop();
 			   if( key_tigger_num < 2000/Key_detection_interval )
 				 {
-		        SEGGER_RTT_printf(0," tigger_event \r\n");
+					  if(RTT_PRINT)
+						{
+								SEGGER_RTT_printf(0," tigger_event \r\n");
+						}
 					  button_event = m_buttin_events.tigger_event;
 						button_event_handler(button_event);
 						return;
@@ -117,7 +129,10 @@ void bsp_event_to_button_action_assign(bsp_button_action_t action, button_event_
 
 void buttons_configure_init(void)      //按键初始化后按键功能       
 {
-		SEGGER_RTT_printf(0,"\rbuttons_configure_init \r\n");
+	  if(RTT_PRINT)
+		{
+				SEGGER_RTT_printf(0,"\rbuttons_configure_init \r\n");
+		}
 	  button_state = init_buttons;
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
                                       BUTTON_EVENT_SLEEP);
@@ -131,7 +146,10 @@ void buttons_configure_init(void)      //按键初始化后按键功能
 
 void pairing_buttons_configure(void)     //快速广播下按键功能
 {
-		SEGGER_RTT_printf(0,"\rpairing_buttons_configure \r\n");
+	  if(RTT_PRINT)
+		{
+				SEGGER_RTT_printf(0,"\rpairing_buttons_configure \r\n");
+		}
 	  button_state = pairing_buttons;
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
                                       BUTTON_EVENT_IDLE);
@@ -145,7 +163,10 @@ void pairing_buttons_configure(void)     //快速广播下按键功能
 
 void advertising_buttons_configure(void)  //白名单广播下按键功能
 {
-		SEGGER_RTT_printf(0,"\radvertising_buttons_configure \r\n");
+	  if(RTT_PRINT)
+		{
+				SEGGER_RTT_printf(0,"\radvertising_buttons_configure \r\n");
+		}
 	  button_state = advertising_buttons;
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
                                       BUTTON_EVENT_LEDSTATE);  
@@ -159,7 +180,10 @@ void advertising_buttons_configure(void)  //白名单广播下按键功能
 
 void connection_buttons_configure(void)   //已连接状态按键功能
 {
-		SEGGER_RTT_printf(0,"\rconnection_buttons_configure \r\n");
+	  if(RTT_PRINT)
+		{
+				SEGGER_RTT_printf(0,"\rconnection_buttons_configure \r\n");
+		}
 	  button_state = connection_buttons;
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
                                       BUTTON_EVENT_LEDSTATE);

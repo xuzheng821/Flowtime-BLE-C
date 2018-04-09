@@ -1,4 +1,4 @@
-/* Copyright (c) 2012 Nordic Semiconductor. All Rights Reserved.
+﻿/* Copyright (c) 2012 Nordic Semiconductor. All Rights Reserved.
  *
  * The information contained herein is property of Nordic Semiconductor ASA.
  * Terms and conditions of usage are described in detail in NORDIC
@@ -126,8 +126,10 @@ void ble_bas_on_ble_evt(ble_bas_t * p_bas, ble_evt_t * p_ble_evt);
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_bas_battery_level_update(ble_bas_t * p_bas, uint8_t battery_level, uint16_t length);
-uint32_t update_datbase(ble_bas_t * p_bas, uint8_t value);
+
+uint32_t ble_bas_battery_level_update(ble_bas_t * p_bas, uint8_t battery_level,uint16_t length);
+uint32_t update_database(ble_bas_t * p_bas, uint8_t value);
+
 #endif // BLE_BAS_H__
 
 /** @} */

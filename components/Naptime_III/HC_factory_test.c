@@ -1,6 +1,6 @@
 #include "HC_factory_test.h"
 
-ble_com_t                   m_com;                      /**< Structure to identify the Nordic UART Service. */
+ble_com_t                      m_com;                   /**< Structure to identify the Nordic UART Service. */
 
 bool APP_restart = false;                               //APP软复位标志
 bool Into_factory_test_mode = false;                    //是否进入工厂测试模式
@@ -8,6 +8,7 @@ bool Into_System_test_mode = false;                     //是否进入系统测试模式
 bool StoryDeviceID =false;                              //是否存储deviceID
 bool StorySN =false;                                    //是否存储SN
 bool deleteUserid =false;                               //是否删除UserID
+bool Into_Disconnect = false;
 
 extern bool ads1291_is_init;                            //ADS1291是否初始化
 extern uint8_t device_id_receive[16];                   //缓存主机端发送过来的deviceID-16位
@@ -18,7 +19,10 @@ extern void sleep_mode_enter(void);
 //启动Check，判断是否为软复位启动，是否进入工厂测试模式
 void bootup_check(void)
 {	  
-	  SEGGER_RTT_printf(0," NRF_POWER->GPREGRET:%x\r\n\n",NRF_POWER->GPREGRET);
+	  if(RTT_PRINT)
+		{
+				SEGGER_RTT_printf(0," NRF_POWER->GPREGRET:%x\r\n\n",NRF_POWER->GPREGRET);
+		}
 		APP_restart = (NRF_POWER->GPREGRET == 0x55);    //如果软件复位，复位前会将寄存器NRF_POWER->GPREGRET设置为0x55
 		if(APP_restart)                                
 		{
@@ -27,10 +31,17 @@ void bootup_check(void)
 		
     if(nrf_gpio_pin_read(FACTORY_TEST) == 0)        //判断是否进入工厂测试模式
 		{
-			  SEGGER_RTT_printf(0,"\r Into_factory_test_mode \r\n");
-			  Into_factory_test_mode = true;
-        Uart_init();
-        app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--单板成功进入工厂测试
+			  nrf_delay_ms(20);
+			  if(nrf_gpio_pin_read(FACTORY_TEST) == 0)        //判断是否进入工厂测试模式
+		    {
+						if(RTT_PRINT)
+						{
+								SEGGER_RTT_printf(0,"\r Into_factory_test_mode \r\n");
+						}
+						Into_factory_test_mode = true;
+						Uart_init();
+						app_uart_put(Nap_Tool_Gotofactorytest);	    //Nap通知Tool--单板成功进入工厂测试
+				}
 		}
 		else
 		{
@@ -58,11 +69,20 @@ void led_test(void)
 void App_Nap_data_Analysis(uint8_t *pdata)
 {
     uint32_t err_code;
-	  SEGGER_RTT_printf(0,"commmand: %x \r\n",*pdata);
+	  if(RTT_PRINT)
+		{
+				SEGGER_RTT_printf(0,"commmand: %x \r\n",*pdata);
+		}
 		switch(*pdata)
 		{
 			 case App_Nap_SystemTest:             
 				    Into_System_test_mode = true;							 
+						break;
+			 
+			 case App_Nap_Disconnect:             
+				    {
+							 Into_Disconnect = true;
+					  }							 
 						break;
 
 			 case App_Nap_Start1291:             
@@ -96,17 +116,17 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						break;
 			 
 			 case App_Nap_useriddelete: 
-					  deleteUserid = true;                    //flash操作在main函数进入                   
+					  deleteUserid = true;                        //flash操作在main函数进入                   
 						break;
 			 
-			 case App_Nap_Gotoledtest:
-           if(Into_factory_test_mode)               //进入工厂测试模式
+			 case App_Nap_Gotoledtest: 
+           if(Into_factory_test_mode)                   //进入工厂测试模式
 	         {						 
 							led_test(); 
 					 }						 
 					 break;
 					 
-				case App_Nap_Poweroff:                      //关机指令  
+				case App_Nap_Poweroff:                          //关机指令  
 					  if(ads1291_is_init == true)
 						{			
 					   	 ADS1291_disable();

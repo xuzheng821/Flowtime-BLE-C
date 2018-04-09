@@ -106,18 +106,23 @@ void battery_level_update(void)
 						if(bat_vol_pre > 100)                                     //最大显示电量100%
 							 bat_vol_pre = 100;
 						
-						err_code = update_datbase(&m_bas, bat_vol_pre);
+
+						err_code = update_database(&m_bas,bat_vol_pre);
 						APP_ERROR_CHECK(err_code);
 						
-						if (count == 6 && m_bas.is_battery_notification_enabled)   //30s上传一次电池电量值
-						{	  
+						if (count == 6 && m_bas.is_battery_notification_enabled)  //30s上传一次电池电量值
+						{		
 								do{
-								    err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
-	                  SEGGER_RTT_printf(0," bas_send_error:%x bat_vol_pre:%d\r\n",err_code,bat_vol_pre);
-							  }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
-								APP_ERROR_CHECK(err_code);
+									 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
+									 if(RTT_PRINT)
+									 {
+												SEGGER_RTT_printf(0,"\r bas_state_send:%x bat_vol_pre:%x \r\n",err_code,bat_vol_pre);
+									 }
+									}while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
+								
                 count = 0;
-						}							
+						}		
+						
 						if(bat_vol_pre < 45)                                //低于3.55V（45%）,关机
 						{
 							  Global_connected_state = false;
@@ -150,7 +155,7 @@ void Power_Check(void)
 		if(bat_vol_pre > 100)                               //最大显示电量100%
 				bat_vol_pre = 100;
 
-    err_code = update_datbase(&m_bas, bat_vol_pre);
+    err_code = update_database(&m_bas,bat_vol_pre);
 		APP_ERROR_CHECK(err_code);
 		
 		if(bat_vol_pre < 40)               //低于3.5V(40%)无法开机
@@ -168,13 +173,19 @@ void charging_check(void)
 		{
 			 if(nrf_gpio_pin_read(BQ_CHG) == 0 && nrf_gpio_pin_read(BQ_PG) == 0)   //charging
 			 {
-			     SEGGER_RTT_printf(0,"\r charging \r\n");
+				   if(RTT_PRINT)
+					 {
+							SEGGER_RTT_printf(0,"\r charging \r\n");
+					 }
 				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGING);
            APP_ERROR_CHECK(err_code);
 			 }
 			 if(nrf_gpio_pin_read(BQ_CHG) == 1 && nrf_gpio_pin_read(BQ_PG) == 0)     //charging_over
 			 {
-			     SEGGER_RTT_printf(0,"\r charging over \r\n");
+				   if(RTT_PRINT)
+					 {
+							SEGGER_RTT_printf(0,"\r charging over \r\n");
+					 }
 				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGEOVER);
            APP_ERROR_CHECK(err_code);
 			 }

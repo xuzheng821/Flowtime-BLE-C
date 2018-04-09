@@ -1,7 +1,7 @@
 #include "HC_ads129x_driver.h"
 
-uint8_t ADCData1[750];
-uint8_t EEG_DATA_SEND[750];
+uint8_t ADCData1[150];
+uint8_t EEG_DATA_SEND[150];
 uint8_t Data_Num;             //采集数据到250个触发发送函数
 bool ads1291_is_init = false; //1291是否初始化完成标志位
 
@@ -29,7 +29,6 @@ void ads1291_init(void)
 {
 	  nrf_gpio_cfg_output(AEF_PM_EN);
 	  NRF_GPIO->OUTSET = 1<<AEF_PM_EN;
-	  nrf_delay_ms(50);
 	
     nrf_gpio_cfg_output(AEF_START);
     nrf_gpio_cfg_output(AEF_RESET);
@@ -43,12 +42,12 @@ void ads1291_init(void)
 	  ADS_PIN_Mainclksel_H();
 	  nrf_delay_ms(100);
   	ADS_PIN_Reset_H();
-  	nrf_delay_ms(100);
+  	nrf_delay_ms(700);
 	  ADS_PIN_Reset_L();
-	  nrf_delay_ms(10);
+	  nrf_delay_ms(100);
 	  ADS_PIN_Reset_H();
 	  ADS_PIN_Start_L();
-    nrf_delay_ms(10);
+    nrf_delay_ms(100);
   	ADS_Command(ADS_SDATAC);
   	ADS_init();
 		ADS_PIN_Start_H();	
@@ -148,9 +147,9 @@ void ADS_ReadStatue(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size)
 
 void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
-    if(ads1291_is_init
-			&& m_eeg.is_state_notification_enabled
-			&& m_eeg.is_eeg_notification_enabled)
+    if(ads1291_is_init && 
+			 m_eeg.is_eeg_notification_enabled &&
+		   m_eeg.is_state_notification_enabled )
     {		 
 	     uint8_t Rx[6] = {0};
   	   uint32_t ADCData;
@@ -165,21 +164,18 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 			 
 		   memcpy((ADCData1 + Data_Num * 3),Data,3);
 		   Data_Num ++;
-			 
-			 if(Data_Num % 125 == 0)
-			 {
-					 LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
-					 ble_state_send(LOFF_State);
-			 }
 
-       if(Data_Num == 250)  
+       if(Data_Num == 50)  
 	     {
+					LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
+					ble_state_send(LOFF_State);	
+				 
 			    Data_Num = 0;
-			    memcpy(EEG_DATA_SEND,ADCData1,750);			
+			    memcpy(EEG_DATA_SEND,ADCData1,150);			
 				  memset(ADCData1,0,sizeof(ADCData1));
 			    ble_send_data(EEG_DATA_SEND);
-		   }
-	 }
+			 } 
+		}
 	 else
 	 {
 		  Data_Num = 0;

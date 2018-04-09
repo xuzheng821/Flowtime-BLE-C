@@ -75,8 +75,11 @@ void flash_init(void)
 void Read_User_ID(void)
 {
 		 pstorage_handle_t Flash_User_ID;
-     uint8_t User[4] = {0};                 
-		 SEGGER_RTT_printf(0,">>[FLASH]: Read_User_ID \r\n");
+     uint8_t User[4] = {0}; 
+		 if(RTT_PRINT)
+		 {
+				SEGGER_RTT_printf(0,">>[FLASH]: Read_User_ID \r\n");
+		 }
 
      pstorage_block_identifier_get(&block_flash, 0, &Flash_User_ID);
 		  
@@ -84,30 +87,45 @@ void Read_User_ID(void)
      pstorage_load(User, &Flash_User_ID, 4, 0);         //¶ÁÈ¡¿éÄÚÊý¾Ý
 		 while(pstorage_wait_flag) { power_manage(); }      //Sleep until load operation is finished.
 		 
-		 SEGGER_RTT_printf(0,"User_ID:%x",User[0]);
-		 SEGGER_RTT_printf(0,"%x",User[1]);
-		 SEGGER_RTT_printf(0,"%x",User[2]);
-		 SEGGER_RTT_printf(0,"%x\r\n",User[3]);	
+		 if(RTT_PRINT)
+		 {
+				SEGGER_RTT_printf(0,"User_ID:%x",User[0]);
+				SEGGER_RTT_printf(0,"%x",User[1]);
+				SEGGER_RTT_printf(0,"%x",User[2]);
+				SEGGER_RTT_printf(0,"%x\r\n",User[3]);
+		 }			 
      memcpy(User_ID,User, 4);
 		 
 		 if(User_ID[0] == 0xff && User_ID[1] == 0xff && User_ID[2] == 0xff && User_ID[3] == 0xff)  //flashÄÚÎÞÓÃ»§ID
 		 {
 		  	Is_device_bond = false;
 			  Is_white_adv = false;
-			  SEGGER_RTT_printf(0,"device_Is_no_bond\r\n");
+				if(RTT_PRINT)
+				{
+						SEGGER_RTT_printf(0,"device_Is_no_bond\r\n");
+				}
 		 }
 	 	 else
 		 {
 			  Is_device_bond = true;
 			  Is_white_adv = true;
-			 	SEGGER_RTT_printf(0,"device_Is_bond\r\n");
+				if(RTT_PRINT)
+				{
+						SEGGER_RTT_printf(0,"device_Is_bond\r\n");
+				}
 		 }
-		 SEGGER_RTT_printf(0,"<<[FLASH]: Read_User_ID \r\n\n");
+		 if(RTT_PRINT)
+		 {
+				SEGGER_RTT_printf(0,"<<[FLASH]: Read_User_ID \r\n\n");
+		 }
 }
 
 void Story_User_ID(void) 
 {
-		 SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_User_ID \r\n");
+		 if(RTT_PRINT)
+		 {
+				SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_User_ID \r\n");
+		 }
 
      uint8_t ID_buff[4] = {0};
 	   pstorage_handle_t Flash_User_ID;
@@ -129,11 +147,14 @@ void Story_User_ID(void)
      pstorage_load(ID_buff, &Flash_User_ID, 4, 0);              //¶ÁÈ¡¿éÄÚÊý¾Ý	 
 		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until load operation is finished.
 
-		 SEGGER_RTT_printf(0,"New_User_ID:%x",ID_buff[0]);
-		 SEGGER_RTT_printf(0,"%x",ID_buff[1]);
-		 SEGGER_RTT_printf(0,"%x",ID_buff[2]);
-		 SEGGER_RTT_printf(0,"%x\r\n",ID_buff[3]);		
-		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_User_ID \r\n\n");
+		 if(RTT_PRINT)
+		 {
+				SEGGER_RTT_printf(0,"New_User_ID:%x",ID_buff[0]);
+				SEGGER_RTT_printf(0,"%x",ID_buff[1]);
+				SEGGER_RTT_printf(0,"%x",ID_buff[2]);
+				SEGGER_RTT_printf(0,"%x\r\n",ID_buff[3]);		
+				SEGGER_RTT_printf(0,"<<[FLASH]: Story_User_ID \r\n\n");
+		 }
 }
 
 void Story_Device_ID(void)
@@ -141,7 +162,10 @@ void Story_Device_ID(void)
 	   uint32_t err_code;
 	   uint8_t senddata[17] = {0};
 		 
-	   SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_Device_ID \r\n");
+		 if(RTT_PRINT)
+		 {
+				SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_Device_ID \r\n");
+		 }
 
 	   pstorage_handle_t device_ID;
 	   uint8_t device_id[16] = {0};
@@ -168,17 +192,21 @@ void Story_Device_ID(void)
 
 	   err_code = ble_com_string_send(&m_com, senddata , 17);
 		 APP_ERROR_CHECK(err_code);
-		 
-		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_Device_ID \r\n\n");
+
+		 if(RTT_PRINT)
+		 {		 
+		     SEGGER_RTT_printf(0,"<<[FLASH]: Story_Device_ID \r\n\n");
+		 }
 }
 
 void Story_SN(void)
 {
 	   uint32_t err_code;
 	   uint8_t senddata[17] = {0};
-		 
-	   SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_SN \r\n");
-	
+		 if(RTT_PRINT)
+		 {		 		 
+				 SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_SN \r\n");
+		 }
 	   pstorage_handle_t Flash_SN;
 	   uint8_t SN_buff[16] = {0};
      memcpy(SN_buff,device_sn_receive, 16);
@@ -204,13 +232,19 @@ void Story_SN(void)
 
 	   err_code = ble_com_string_send(&m_com, senddata , 17);
 		 APP_ERROR_CHECK(err_code);
-		 
-		 SEGGER_RTT_printf(0,"<<[FLASH]: Story_SN \r\n\n");
+
+		 if(RTT_PRINT)
+		 {		 		 		 
+				SEGGER_RTT_printf(0,"<<[FLASH]: Story_SN \r\n\n");
+		 }
 }
 
 void Read_device_id_sn(void)                                     //Éè±¸ÐÅÏ¢·þÎñ³õÊ¼»¯Ê±ÏÈ¶ÁÈ¡FlashÖÐµÄdevice_idºÍSN
 {
-		 SEGGER_RTT_printf(0,">>[FLASH]: Read_device_id_sn \r\n");
+		 if(RTT_PRINT)
+		 {		 		 		 
+					SEGGER_RTT_printf(0,">>[FLASH]: Read_device_id_sn \r\n");
+		 }
 		 pstorage_handle_t device_ID;
 		 pstorage_handle_t SN;
      uint8_t device_id_info[16] = {0};             
@@ -229,13 +263,19 @@ void Read_device_id_sn(void)                                     //Éè±¸ÐÅÏ¢·þÎñ³
 		 
      memcpy(device_id_sn,device_id_info, 16);
 		 memcpy(device_id_sn+16,device_sn_info, 16);
-		 SEGGER_RTT_printf(0,"<<[FLASH]: Read_device_id_sn \r\n\n");
+		 if(RTT_PRINT)
+		 {		 		 		 
+					SEGGER_RTT_printf(0,"<<[FLASH]: Read_device_id_sn \r\n\n");
+		 }
 }
 
 void delete_User_id(void)
 {
 	   uint32_t err_code;
-	   SEGGER_RTT_printf(0,"\n>>[FLASH]: delete_User_id \r\n");
+		 if(RTT_PRINT)
+		 {		 		 		 
+					SEGGER_RTT_printf(0,"\n>>[FLASH]: delete_User_id \r\n");
+		 }
 
 	   uint8_t senddata[5] = {0};
 	   uint8_t userid_buff[4] = {0};
@@ -257,5 +297,8 @@ void delete_User_id(void)
 	   err_code = ble_com_string_send(&m_com, senddata , 5);
 		 APP_ERROR_CHECK(err_code);
 		 
-		 SEGGER_RTT_printf(0,"<<[FLASH]: delete_User_id \r\n\n"); 
+		 if(RTT_PRINT)
+		 {		 		 		 
+					SEGGER_RTT_printf(0,"<<[FLASH]: delete_User_id \r\n\n"); 
+		 }
 }

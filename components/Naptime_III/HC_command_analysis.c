@@ -1,7 +1,7 @@
 #include "HC_command_analysis.h"
 
 ble_conn_t                         m_conn;
-uint16_t                           m_conn_handle = BLE_CONN_HANDLE_INVALID;   /**< Handle of the current connection. */
+extern uint16_t                    m_conn_handle;   /**< Handle of the current connection. */
 
 bool ID_is_change  = false;        //接收到的ID与原先ID不同，可能需要更新绑定ID
 bool ID_is_receive = false;        //ID接收到
@@ -36,7 +36,10 @@ void ble_Com_ID_Analysis(uint8_t * p_data, uint16_t length)
 			 {
 					if((memcmp(ID_receive_buff, User_ID, sizeof(User_ID)) == 0))  //if相等,=0
 					{
-							SEGGER_RTT_printf(0,"ID_is_receive \r\n");		
+						  if(RTT_PRINT)
+							{		 		 		 
+									SEGGER_RTT_printf(0,"ID_is_receive \r\n");	
+							}								
 							ID_is_receive = true;          //ID_is_receive置1才能接收到握手数据
 							ID_is_change	= false;		     //ID_is_change置0则不会进行flash操作			 
 					}
@@ -58,7 +61,10 @@ void ble_Com_ID_Analysis(uint8_t * p_data, uint16_t length)
 			 {
 					if((memcmp(ID_receive_buff, User_ID, sizeof(User_ID)) == 0))  //if相等,=0
 					{
-							SEGGER_RTT_printf(0,"ID_is_receive \r\n");		
+						  if(RTT_PRINT)
+							{
+									SEGGER_RTT_printf(0,"ID_is_receive \r\n");		
+							}
 							ID_is_receive = true;          //ID_is_receive置1才能接收到握手数据
 							ID_is_change	= false;         //ID_is_change置0则不会进行flash操作		     					 
 					}
@@ -142,7 +148,10 @@ void Handshake_agreement_third(uint8_t * p_data)
 			  Is_white_adv  = true;
 			  connects_timer_stop();
 			  Global_connected_state = true;
-			  SEGGER_RTT_printf(0,"\r Handshake Success \r\n");
+			  if(RTT_PRINT)
+				{
+						SEGGER_RTT_printf(0,"\r Handshake Success \r\n");
+				}
 		 }
 		 else
 		 {
