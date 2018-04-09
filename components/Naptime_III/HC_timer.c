@@ -29,7 +29,7 @@ extern void button_event_handler(button_event_t event);
 #define button_timer_interval        APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)         //按键50ms检测一次
 #define battery_timer_interval       APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) 
 #define led_test_timer_interval      APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)
-#define connect_timer_interval       APP_TIMER_TICKS(10000, APP_TIMER_PRESCALER)      //时间10s待定
+#define connect_timer_interval       APP_TIMER_TICKS(30000, APP_TIMER_PRESCALER)      //时间30s待定
 
 void timers_init(void)
 {
@@ -80,7 +80,7 @@ void led_timer_stop(void)
 void leds_test_timer_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);
-    UNUSED_VARIABLE(bsp_led_indication(BSP_INDICATE_factory_led_test));
+    UNUSED_VARIABLE(bsp_led_indication(BSP_INDICATE_FACTORY_LED_TEST));
 }
 
 void led_test_timer_init(void)

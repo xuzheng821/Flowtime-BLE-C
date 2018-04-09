@@ -62,7 +62,7 @@ void led_test(void)
 	    NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
 	    NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
       
-	 		err_code = bsp_led_indication(BSP_INDICATE_factory_led_test);   //LED状态设置
+	 		err_code = bsp_led_indication(BSP_INDICATE_FACTORY_LED_TEST);   //LED状态设置
       APP_ERROR_CHECK(err_code);
 }
 //手机端数据解析，com服务接收到的数据

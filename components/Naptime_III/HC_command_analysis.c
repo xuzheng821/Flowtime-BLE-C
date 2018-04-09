@@ -32,7 +32,7 @@ void ble_Com_ID_Analysis(uint8_t * p_data, uint16_t length)
  
 		 if(Is_device_bond)                      //如果设备绑定过，将接收到ID进行判断       
      {	
-			 if(Is_white_adv)                      //绑定且进行白名单广播，对比ID不符合则需要断开连接
+			 if(Is_white_adv)                      //绑定且进行白名单广播，对比ID不符合则需要断开连接，慢闪
 			 {
 					if((memcmp(ID_receive_buff, User_ID, sizeof(User_ID)) == 0))  //if相等,=0
 					{
@@ -57,7 +57,7 @@ void ble_Com_ID_Analysis(uint8_t * p_data, uint16_t length)
 					    }
 					}
 			 }
-			 else                                  //绑定且进行普通广播
+			 else                                  //绑定且进行普通广播，快闪
 			 {
 					if((memcmp(ID_receive_buff, User_ID, sizeof(User_ID)) == 0))  //if相等,=0
 					{

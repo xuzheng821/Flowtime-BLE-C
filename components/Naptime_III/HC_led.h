@@ -25,7 +25,7 @@ typedef enum
 	  BSP_INDICATE_Battery_LOW_CONN,
 	  BSP_INDICATE_Battery_CHARGING,
 	  BSP_INDICATE_Battery_CHARGEOVER,
-	  BSP_INDICATE_factory_led_test,
+	  BSP_INDICATE_FACTORY_LED_TEST,
 } led_indication_t;
 
 void LED_timeout_restart(void);

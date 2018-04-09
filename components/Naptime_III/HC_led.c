@@ -38,7 +38,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 			(indicate == BSP_INDICATE_IDLE ||
 		   indicate == BSP_INDICATE_POWER_ON ||
 		   indicate == BSP_INDICATE_POWER_OFF ||
-		   indicate == BSP_INDICATE_factory_led_test))       
+		   indicate == BSP_INDICATE_FACTORY_LED_TEST))       
 		{
 				PWM_uint();
 		}
@@ -151,7 +151,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
             m_stable_state = BSP_INDICATE_IDLE;
 				    break;
 
-    	case  BSP_INDICATE_factory_led_test:    //LED工厂测试状态，定时器1s进入一次，蓝红绿灯依次点亮,然后灭0.25s
+    	case  BSP_INDICATE_FACTORY_LED_TEST:    //LED工厂测试状态，定时器1s进入一次，蓝红绿灯依次点亮,然后灭0.25s
 			      led_test_timer_start();	      
 						NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
 						NRF_GPIO->OUTSET = 1<<LED_GPIO_RED;

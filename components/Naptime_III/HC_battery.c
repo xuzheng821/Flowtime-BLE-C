@@ -106,7 +106,6 @@ void battery_level_update(void)
 						if(bat_vol_pre > 100)                                     //最大显示电量100%
 							 bat_vol_pre = 100;
 						
-
 						err_code = update_database(&m_bas,bat_vol_pre);
 						APP_ERROR_CHECK(err_code);
 						
@@ -119,7 +118,6 @@ void battery_level_update(void)
 												SEGGER_RTT_printf(0,"\r bas_state_send:%x bat_vol_pre:%x \r\n",err_code,bat_vol_pre);
 									 }
 									}while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
-								
                 count = 0;
 						}		
 						

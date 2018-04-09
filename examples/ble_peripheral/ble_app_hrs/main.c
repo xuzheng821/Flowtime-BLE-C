@@ -492,7 +492,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						{
 							  Global_connected_state = true;
 						    app_uart_put(Nap_Tool_appconnectnap);
-		            err_code = bsp_led_indication(BSP_INDICATE_factory_led_test);   //工厂测试下LED状态设置
+		            err_code = bsp_led_indication(BSP_INDICATE_FACTORY_LED_TEST);   //工厂测试下LED状态设置
                 APP_ERROR_CHECK(err_code);	
 						}
 						else                         //正常工作模式
@@ -511,7 +511,6 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 										APP_ERROR_CHECK(err_code);	
 								}
 						}
-
             break;
 
           case BLE_GAP_EVT_DISCONNECTED:
@@ -535,13 +534,6 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 					   	 ADS1291_disable();
 						}
 					  connects_timer_stop();
-						Global_connected_state = false;
-						m_bas.is_battery_notification_enabled = false;
-						m_eeg.is_eeg_notification_enabled = false;
-						m_eeg.is_state_notification_enabled = false;
-						m_com.is_com_notification_enabled = false;
-						m_conn.is_Shakehands_notification_enabled = false;
-						m_conn.is_state_notification_enabled = false;
             break;
 
           case BLE_GATTS_EVT_TIMEOUT:
@@ -951,12 +943,11 @@ int main(void)
 				  StorySN = false;
 				  Story_SN();
 			}
-			if(Into_Disconnect && Global_connected_state)
+			if(Into_Disconnect)
 			{
-				 SEGGER_RTT_printf(0,"before \n");
 				 Into_Disconnect = false;
 				 Global_connected_state = false;
-				 nrf_delay_ms(1000);
+				 nrf_delay_ms(2000);
 				 if(m_conn_handle != BLE_CONN_HANDLE_INVALID)
 				 {
 						 err_code = sd_ble_gap_disconnect(m_conn_handle,
@@ -964,7 +955,6 @@ int main(void)
 						 APP_ERROR_CHECK(err_code);
 						 SEGGER_RTT_printf(0,"err_code: %x \n",err_code);
 				 }
-				 SEGGER_RTT_printf(0,"after \n");
 			}
 		  power_manage();
     }
