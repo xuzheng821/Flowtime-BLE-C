@@ -152,6 +152,11 @@ void Power_Check(void)
 		bat_vol_pre = (uint8_t)((bat_vol - 3.10 ) * 100);   //得到开机时电量百分比
 		if(bat_vol_pre > 100)                               //最大显示电量100%
 				bat_vol_pre = 100;
+		
+		if(RTT_PRINT)
+	  {
+			SEGGER_RTT_printf(0," bat_vol_pre:%d \n",bat_vol_pre);
+	  }
 
     err_code = update_database(&m_bas,bat_vol_pre);
 		APP_ERROR_CHECK(err_code);

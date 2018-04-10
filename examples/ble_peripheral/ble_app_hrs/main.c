@@ -75,7 +75,7 @@
 //广播参数
 #define APP_ADV_FAST_INTERVAL            0x00a0       //100ms                        /**< Fast advertising interval (in units of 0.625 ms. This value corresponds to 25 ms.). */
 #define APP_ADV_SLOW_INTERVAL            0x0320       //500ms                        /**< Slow advertising interval (in units of 0.625 ms. This value corrsponds to 2 seconds). */
-#define APP_ADV_FAST_TIMEOUT             10                                         /**< The duration of the fast advertising period (in seconds). */
+#define APP_ADV_FAST_TIMEOUT             120                                         /**< The duration of the fast advertising period (in seconds). */
 #define APP_ADV_SLOW_TIMEOUT             0                                           /**< The duration of the slow advertising period (in seconds). */
 //定时器参数
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
@@ -862,6 +862,7 @@ static void gpio_init(void)
 {
 		nrf_gpio_cfg_input(BQ_PG ,NRF_GPIO_PIN_PULLUP);
 	  nrf_gpio_cfg_input(BQ_CHG,NRF_GPIO_PIN_PULLUP);
+	  nrf_gpio_cfg_input(BUTTON,NRF_GPIO_PIN_PULLUP);
 	  nrf_gpio_cfg_input(FACTORY_TEST,NRF_GPIO_PIN_PULLUP);
 	  nrf_delay_ms(100);
 }
@@ -884,19 +885,17 @@ int main(void)
 	  bootup_check();
  	  timers_init(); 
   	button_gpiote_init();
-	
 	  wdt_Init();
   	saadc_init();
   	flash_init();
     Read_User_ID();	
-    		
+
   	ble_stack_init();
     device_manager_init(erase_bonds);
     gap_params_init();
     services_init();
 	  advertising_init();
     conn_params_init();
-	  
     charging_check();	
     Power_Check();
 		button_power_on();
