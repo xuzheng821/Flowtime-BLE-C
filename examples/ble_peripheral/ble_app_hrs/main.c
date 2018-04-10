@@ -523,6 +523,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
 					  err_code = bsp_led_indication(BSP_INDICATE_IDLE);
             APP_ERROR_CHECK(err_code);
+						Global_connected_state = false;
 				    m_bas.is_battery_notification_enabled = false;
 				    m_eeg.is_eeg_notification_enabled = false;
 				    m_eeg.is_state_notification_enabled = false;
@@ -862,6 +863,7 @@ static void gpio_init(void)
 		nrf_gpio_cfg_input(BQ_PG ,NRF_GPIO_PIN_PULLUP);
 	  nrf_gpio_cfg_input(BQ_CHG,NRF_GPIO_PIN_PULLUP);
 	  nrf_gpio_cfg_input(FACTORY_TEST,NRF_GPIO_PIN_PULLUP);
+	  nrf_delay_ms(100);
 }
 
 /**@brief Function for application main entry.
