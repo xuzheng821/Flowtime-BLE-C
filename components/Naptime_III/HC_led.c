@@ -27,8 +27,8 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 			(indicate == BSP_INDICATE_CONNECTED ||
 		   indicate == BSP_INDICATE_WITH_WHITELIST ||
 		   indicate == BSP_INDICATE_WITHOUT_WHITELIST ||
-		   indicate == BSP_INDICATE_Battery_LOW_ADV ||
-		   indicate == BSP_INDICATE_Battery_LOW_CONN ||
+		   indicate == BSP_INDICATE_WITH_WHITELIST_BAT_LOW ||
+		   indicate == BSP_INDICATE_CONNECTED_BAT_LOW ||
 		   indicate == BSP_INDICATE_Battery_CHARGING ||
 		   indicate == BSP_INDICATE_Battery_CHARGEOVER))       
 		{
@@ -116,7 +116,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
             m_stable_state = indicate;		    //记录当前led状态	      
 				    break;
 
-	    case  BSP_INDICATE_Battery_LOW_ADV:     //红灯慢速闪烁，频率1HZ
+	    case  BSP_INDICATE_WITH_WHITELIST_BAT_LOW:     //红灯慢速闪烁，频率1HZ
 			      if(Is_red_on)
 						{
 			          LED_ON_duty(0,0,0);
@@ -129,7 +129,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
             m_stable_state = indicate;        //记录当前led状态
 				    break;
 			
-			case  BSP_INDICATE_Battery_LOW_CONN:    //红灯长亮
+			case  BSP_INDICATE_CONNECTED_BAT_LOW:    //红灯长亮
 			      LED_ON_duty(40,0,0);  
             m_stable_state = indicate;        //记录当前led状态
 				    break;
@@ -180,8 +180,8 @@ void leds_state_update(void)                             //LED超时定时器回调函数
 	  if(m_stable_state == BSP_INDICATE_CONNECTED ||       //超时后标志位置1，关闭led灯，如果按键按下，LED恢复状态。
 			 m_stable_state == BSP_INDICATE_WITH_WHITELIST || 
 		   m_stable_state == BSP_INDICATE_WITHOUT_WHITELIST ||
-		   m_stable_state == BSP_INDICATE_Battery_LOW_ADV ||
-			 m_stable_state == BSP_INDICATE_Battery_LOW_CONN)
+		   m_stable_state == BSP_INDICATE_WITH_WHITELIST_BAT_LOW ||
+			 m_stable_state == BSP_INDICATE_CONNECTED_BAT_LOW)
 		{
 				led_timerout = true;	
 		}
