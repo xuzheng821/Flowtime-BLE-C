@@ -118,7 +118,7 @@ extern ble_eeg_t                         m_eeg;                                 
 uint16_t                                 m_conn_handle;                              /**< Handle of the current connection. */
 static dm_application_instance_t         m_app_handle;                               /**< Application identifier allocated by device manager. */
 //eeg数据传输变量与标志位
-extern uint8_t EEG_DATA_SEND[750];        //需要发送的脑电数据
+extern uint8_t EEG_DATA_SEND[750];       //需要发送的脑电数据
 extern uint8_t Send_Flag;                //脑电数据是否发送完成标志
 extern bool ads1291_is_init;             //1291初始化标志位
 //连接状态标志位
@@ -943,19 +943,6 @@ int main(void)
 			{
 				  StorySN = false;
 				  Story_SN();
-			}
-			if(Into_Disconnect)
-			{
-				 Into_Disconnect = false;
-				 Global_connected_state = false;
-				 nrf_delay_ms(2000);
-				 if(m_conn_handle != BLE_CONN_HANDLE_INVALID)
-				 {
-						 err_code = sd_ble_gap_disconnect(m_conn_handle,
-																							BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-						 APP_ERROR_CHECK(err_code);
-						 SEGGER_RTT_printf(0,"err_code: %x \n",err_code);
-				 }
 			}
 		  power_manage();
     }
