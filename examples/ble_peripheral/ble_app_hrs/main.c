@@ -816,12 +816,10 @@ static void advertising_init(void)
     ble_advdata_t scanrsp;
 		ble_advdata_manuf_data_t            manuf_data;	
     memset(&advdata, 0, sizeof(advdata));
-    uint8_t data[2] = {0};	
+    uint8_t data[2] = {0x55,0xAA};	
 	
     if(Into_factory_test_mode)
 		{
-				data[0] = get_random_number();
-				data[1] = get_random_number();
 				app_uart_put(Tool_App_advdata);			
 				app_uart_put(data[0]);
 				app_uart_put(data[1]);
