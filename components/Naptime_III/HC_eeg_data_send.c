@@ -41,7 +41,7 @@ void ble_send_more_data(uint8_t *pdata)
 	uint32_t err_code;
 
 	do{
-			 if (send_num > 49)  //一秒数据全部发送完成,相关标志位复位
+			 if (send_num > 9)  //一秒数据全部发送完成,相关标志位复位
 			 {
 					send_num = 0x00;
 					Send_Flag = 0;

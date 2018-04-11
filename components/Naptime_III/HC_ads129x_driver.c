@@ -147,10 +147,9 @@ void ADS_ReadStatue(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size)
 
 void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
-//    if(ads1291_is_init && 
-//			 m_eeg.is_eeg_notification_enabled &&
-//		   m_eeg.is_state_notification_enabled )
-    if(ads1291_is_init) 
+    if(ads1291_is_init && 
+			 m_eeg.is_eeg_notification_enabled &&
+		   m_eeg.is_state_notification_enabled )
     {		 
 	     uint8_t Rx[6] = {0};
   	   uint32_t ADCData;
@@ -166,7 +165,7 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 		   memcpy((ADCData1 + Data_Num * 3),Data,3);
 		   Data_Num ++;
 
-       if(Data_Num == 250)  
+       if(Data_Num == 50)  
 	     {
 					LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
 					ble_state_send(LOFF_State);	

@@ -492,7 +492,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						{
 							  Global_connected_state = true;
 						    app_uart_put(Nap_Tool_appconnectnap);
-		            err_code = bsp_led_indication(BSP_INDICATE_FACTORY_LED_TEST);   //工厂测试下LED状态设置
+		            err_code = bsp_led_indication(BSP_INDICATE_CONNECTED);   //工厂测试下LED状态设置
                 APP_ERROR_CHECK(err_code);	
 						}
 						else                         //正常工作模式
