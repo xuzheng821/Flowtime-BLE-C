@@ -18,4 +18,3 @@ void mac_get(void);
 void ble_devinfo_serv_init(void);
 
 #endif
-
