@@ -194,7 +194,7 @@ void Story_Device_ID(void)
 		 do{
 		   err_code = ble_com_string_send(&m_com, senddata , 17);
 			 send_fail_count++;
-			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 3);
+			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 2);
 
 		 if(RTT_PRINT)
 		 {		 
@@ -237,7 +237,7 @@ void Story_SN(void)
 		 do{
 			 err_code = ble_com_string_send(&m_com, senddata , 17);
 			 send_fail_count++;
-			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 3);
+			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 2);
 	 
 		 if(RTT_PRINT)
 		 {		 		 		 
@@ -304,7 +304,7 @@ void delete_User_id(void)
 	 do{
 	   err_code = ble_com_string_send(&m_com, senddata , 5);
 		 send_fail_count++;
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 3);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 2);
 
 		 if(RTT_PRINT)
 		 {		 		 		 

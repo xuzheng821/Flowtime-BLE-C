@@ -119,7 +119,7 @@ void battery_level_update(void)
 												SEGGER_RTT_printf(0,"\r bas_state_send:%x bat_vol_pre:%x \r\n",err_code,bat_vol_pre);
 									   }
 									   send_fail_count++;
-			            }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 3);
+			            }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 2);
                 count = 0;
 						}		
 						
