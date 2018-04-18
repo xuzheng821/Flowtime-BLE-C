@@ -161,6 +161,7 @@ void Story_Device_ID(void)
 {
 	   uint32_t err_code;
 	   uint8_t senddata[17] = {0};
+		 uint8_t send_fail_count = 0;
 		 
 		 if(RTT_PRINT)
 		 {
@@ -192,7 +193,8 @@ void Story_Device_ID(void)
 
 		 do{
 		   err_code = ble_com_string_send(&m_com, senddata , 17);
-			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
+			 send_fail_count++;
+			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 3);
 
 		 if(RTT_PRINT)
 		 {		 
@@ -204,6 +206,7 @@ void Story_SN(void)
 {
 	   uint32_t err_code;
 	   uint8_t senddata[17] = {0};
+		 uint8_t send_fail_count = 0;
 		 if(RTT_PRINT)
 		 {		 		 
 				 SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_SN \r\n");
@@ -233,7 +236,8 @@ void Story_SN(void)
 
 		 do{
 			 err_code = ble_com_string_send(&m_com, senddata , 17);
-			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
+			 send_fail_count++;
+			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 3);
 	 
 		 if(RTT_PRINT)
 		 {		 		 		 
@@ -274,6 +278,7 @@ void Read_device_id_sn(void)                                     //Éè±¸ÐÅÏ¢·þÎñ³
 void delete_User_id(void)
 {
 	   uint32_t err_code;
+	   uint8_t send_fail_count = 0;
 		 if(RTT_PRINT)
 		 {		 		 		 
 					SEGGER_RTT_printf(0,"\n>>[FLASH]: delete_User_id \r\n");
@@ -298,7 +303,8 @@ void delete_User_id(void)
 
 	 do{
 	   err_code = ble_com_string_send(&m_com, senddata , 5);
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
+		 send_fail_count++;
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 3);
 
 		 if(RTT_PRINT)
 		 {		 		 		 

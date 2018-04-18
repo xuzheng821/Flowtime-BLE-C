@@ -26,6 +26,10 @@ uint32_t ble_send_data(uint8_t *pdata)
 		}
 			 
 		err_code = ble_EEG_DATA_send(&m_eeg, Data_send, 17);   //数据发送，长度17字节
+		if(RTT_PRINT)
+	  {
+			 SEGGER_RTT_printf(0,"\r eeg_sdate_send:%x \r\n",err_code);
+	  }
 		if (NRF_SUCCESS == err_code)
 		{
 			 send_num++;	
@@ -58,6 +62,10 @@ void ble_send_more_data(uint8_t *pdata)
 			 }
 			 
 			 err_code = ble_EEG_DATA_send(&m_eeg,Data_send, 17 );
+			 if(RTT_PRINT)
+		   {
+				  SEGGER_RTT_printf(0,"\r eeg_sdate_send:%x \r\n",err_code);
+		   }
 			 if (NRF_SUCCESS == err_code)
 			 {
 					send_num++;	
@@ -69,11 +77,13 @@ void ble_send_more_data(uint8_t *pdata)
 void ble_state_send(uint8_t pdata)
 {
    uint32_t err_code;
+	 uint8_t send_fail_count = 0;
 	 do{
 		 err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
+		 send_fail_count++;
 		 if(RTT_PRINT)
 		 {
 				SEGGER_RTT_printf(0,"\r eeg_state_send:%x pdata:%x \r\n",err_code,pdata);
 		 }
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && ads1291_is_init);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && ads1291_is_init && send_fail_count < 3);
 }

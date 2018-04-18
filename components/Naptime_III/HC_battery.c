@@ -70,6 +70,7 @@ void battery_level_update(void)
 {
     uint32_t err_code;
 	  static uint8_t count = 0;
+	  uint8_t send_fail_count = 0;
 	  
     static uint8_t bat_vol_arrary_index = 0;
     static double bat_vol_arrary[VOLTAGE_AVG_NUM] = {0};
@@ -112,12 +113,13 @@ void battery_level_update(void)
 						if (count == 6 && m_bas.is_battery_notification_enabled)  //30s上传一次电池电量值
 						{		
 								do{
-									 err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
-									 if(RTT_PRINT)
-									 {
+									   err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
+									   if(RTT_PRINT)
+									   {
 												SEGGER_RTT_printf(0,"\r bas_state_send:%x bat_vol_pre:%x \r\n",err_code,bat_vol_pre);
-									 }
-									}while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
+									   }
+									   send_fail_count++;
+			            }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 3);
                 count = 0;
 						}		
 						
