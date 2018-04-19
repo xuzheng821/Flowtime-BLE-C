@@ -453,18 +453,28 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 						 }
              break;
 
-        case BLE_ADV_EVT_WITH_WHITELIST_SLOW:   //Âý¹ã²¥
-						 advertising_buttons_configure();
-					   err_code = bsp_led_indication(BSP_INDICATE_IDLE);              //ledÈ«Ãð
-             APP_ERROR_CHECK(err_code);
-             break;
-
 				case BLE_ADV_EVT_WITHOUT_WHITELIST:     //¿ìËÙ¹ã²¥
 					   pairing_buttons_configure();
 				     LED_timeout_restart();
-						 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST); //À¶µÆ¿ìÉÁ
-						 APP_ERROR_CHECK(err_code);
+						 if(bat_vol_pre < bat_vol_pre_work) //µÍµçÁ¿
+						 {
+							 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST_BAT_LOW);     //ºìµÆÉÁË¸
+							 APP_ERROR_CHECK(err_code);
+						 }
+						 else
+						 {
+							 err_code = bsp_led_indication(BSP_INDICATE_WITHOUT_WHITELIST);  //À¶µÆÉÁË¸
+							 APP_ERROR_CHECK(err_code);
+						 }
+						 break;
 
+        case BLE_ADV_EVT_WITH_WHITELIST_SLOW:   //Âý¹ã²¥
+						 advertising_buttons_configure();
+				     SEGGER_RTT_printf(0," 555555555\r\n");
+					   err_code = bsp_led_indication(BSP_INDICATE_IDLE);              //ledÈ«Ãð
+             APP_ERROR_CHECK(err_code);
+             break;
+				
         default:
             break;
     }
@@ -671,6 +681,7 @@ void button_event_handler(button_event_t event)
 						 }
 						 err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
              APP_ERROR_CHECK(err_code);
+						 sleep_mode_enter();
 				     break;
 				
 				case BUTTON_EVENT_SLEEP:                                         
@@ -894,6 +905,7 @@ int main(void)
     services_init();
 	  advertising_init();
     conn_params_init();
+		
     charging_check();	
     Power_Check();
 		button_power_on();
