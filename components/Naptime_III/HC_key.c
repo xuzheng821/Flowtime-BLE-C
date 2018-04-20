@@ -166,7 +166,7 @@ void advertising_buttons_configure(void)  //白名单广播下按键功能
                                       BUTTON_EVENT_LEDSTATE);  
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_PUSH,
-                                      BUTTON_EVENT_IDLE);
+                                      BUTTON_EVENT_WHITELIST_OFF);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
                                       BUTTON_EVENT_POWER_OFF_LED);

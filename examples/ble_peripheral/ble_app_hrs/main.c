@@ -433,7 +433,7 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
     {
         case BLE_ADV_EVT_IDLE:                  //快速广播结束,关机
 					   Global_connected_state = false;
-             err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);        //关机闪烁
+             err_code = bsp_led_indication(BSP_INDICATE_IDLE);        //关机闪烁
              APP_ERROR_CHECK(err_code);
 					   sleep_mode_enter();
              break;
@@ -670,7 +670,7 @@ void button_event_handler(button_event_t event)
 						 {
 								SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_ON \n");
 						 }
-						 err_code = bsp_led_indication(BSP_INDICATE_POWER_ON);
+						 err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
              APP_ERROR_CHECK(err_code);
              break;
 				
@@ -679,7 +679,7 @@ void button_event_handler(button_event_t event)
 						 {
 								SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_OFF_LED \n");
 						 }
-						 err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
+						 err_code = bsp_led_indication(BSP_INDICATE_IDLE);
              APP_ERROR_CHECK(err_code);
 						 sleep_mode_enter();
 				     break;
