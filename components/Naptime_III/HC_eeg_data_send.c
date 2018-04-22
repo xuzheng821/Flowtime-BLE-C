@@ -43,10 +43,9 @@ uint32_t ble_send_data(uint8_t *pdata)
 void ble_send_more_data(uint8_t *pdata)
 {
 	uint32_t err_code;
-	uint8_t send_fail_count = 0;
 	
 	do{
-			 if (send_num > 9)  //一秒数据全部发送完成,相关标志位复位
+			 if (send_num > 49)  //一秒数据全部发送完成,相关标志位复位
 			 {
 					send_num = 0x00;
 					Send_Flag = 0;
@@ -63,7 +62,6 @@ void ble_send_more_data(uint8_t *pdata)
 			 }
 			 
 			 err_code = ble_EEG_DATA_send(&m_eeg,Data_send, 17 );
-			 send_fail_count++;
 			 if(RTT_PRINT)
 		   {
 				 SEGGER_RTT_printf(0,"\r eeg_sdate_send2:%x  send_num:%d\r\n",err_code,send_num);
@@ -73,19 +71,17 @@ void ble_send_more_data(uint8_t *pdata)
 					send_num++;	
 					Num_Time++;		
 	   }
-	 }while(err_code != BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 20);
+	 }while(err_code != BLE_ERROR_NO_TX_PACKETS && Global_connected_state);
 }
 
 void ble_state_send(uint8_t pdata)
 {
    uint32_t err_code;
-	 uint8_t send_fail_count = 0;
 	 do{
 		 err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
-		 send_fail_count++;
 		 if(RTT_PRINT)
 		 {
 				SEGGER_RTT_printf(0,"\r eeg_state_send:%x pdata:%x \r\n",err_code,pdata);
 		 }
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && ads1291_is_init && send_fail_count < 2);
+		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && ads1291_is_init);
 }
