@@ -28,7 +28,7 @@ uint32_t ble_send_data(uint8_t *pdata)
 		err_code = ble_EEG_DATA_send(&m_eeg, Data_send, 17);   //数据发送，长度17字节
 		if(RTT_PRINT)
 	  {
-			 SEGGER_RTT_printf(0,"\r eeg_sdate_send:%x \r\n",err_code);
+			 SEGGER_RTT_printf(0,"\r eeg_sdate_send1:%x \r\n",err_code);
 	  }
 		if (NRF_SUCCESS == err_code)
 		{
@@ -66,7 +66,7 @@ void ble_send_more_data(uint8_t *pdata)
 			 send_fail_count++;
 			 if(RTT_PRINT)
 		   {
-				  SEGGER_RTT_printf(0,"\r eeg_sdate_send:%x \r\n",err_code);
+				 SEGGER_RTT_printf(0,"\r eeg_sdate_send2:%x  send_num:%d\r\n",err_code,send_num);
 		   }
 			 if (NRF_SUCCESS == err_code)
 			 {
