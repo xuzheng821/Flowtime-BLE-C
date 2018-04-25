@@ -664,7 +664,8 @@ void button_event_handler(button_event_t event)
 			  case BUTTON_EVENT_IDLE:
 				     break;
 						 
-				case BUTTON_EVENT_POWER_ON:                                         
+				case BUTTON_EVENT_POWER_ON:
+             button_timer_stop();					
 						 if(RTT_PRINT)
 						 {
 								SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_ON \n");
@@ -908,12 +909,6 @@ int main(void)
     charging_check();	
     Power_Check();
 		button_power_on();
-		
-  	if(!ble_is_adv)
-		{
-        err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
-        APP_ERROR_CHECK(err_code);
-		}
 		
 		while(1)
     {
