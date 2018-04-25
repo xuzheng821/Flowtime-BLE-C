@@ -128,7 +128,7 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 					   	 ADS1291_disable();
 						}
 						Global_connected_state = false;
-					  err_code = bsp_led_indication(BSP_INDICATE_POWER_OFF);
+					  err_code = bsp_led_indication(BSP_INDICATE_IDLE);
 					  APP_ERROR_CHECK(err_code);
 					  sleep_mode_enter();
 					  break;

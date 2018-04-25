@@ -108,7 +108,7 @@ void Read_User_ID(void)
 	 	 else
 		 {
 			  Is_device_bond = true;
-			  Is_white_adv = true;
+			  Is_white_adv = false;
 				if(RTT_PRINT)
 				{
 						SEGGER_RTT_printf(0,"device_Is_bond\r\n");

@@ -100,12 +100,6 @@ void buttons_state_update(void)
 						button_event_handler(button_event);
 						return;
 				 }
-				 if( 2000/Key_detection_interval < key_tigger_num < 4000/Key_detection_interval 
-					   && ( button_state == advertising_buttons || button_state == pairing_buttons || button_state == connection_buttons))  //伪关机
-				 {
-					   Global_connected_state = false;
-					   sleep_mode_enter();
-				 }
 		}
 }
 
@@ -141,7 +135,7 @@ void buttons_configure_init(void)      //按键初始化后按键功能
                                       BUTTON_EVENT_POWER_ON);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
-                                      BUTTON_EVENT_WHITELIST_OFF);
+                                      BUTTON_EVENT_IDLE);
 }
 
 void pairing_buttons_configure(void)     //快速广播下按键功能
@@ -155,10 +149,10 @@ void pairing_buttons_configure(void)     //快速广播下按键功能
                                       BUTTON_EVENT_IDLE);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_PUSH,
-                                      BUTTON_EVENT_POWER_OFF_LED);
+                                      BUTTON_EVENT_IDLE);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
-                                      BUTTON_EVENT_WHITELIST_OFF);
+                                      BUTTON_EVENT_POWER_OFF_LED);
 }
 
 void advertising_buttons_configure(void)  //白名单广播下按键功能
@@ -172,10 +166,10 @@ void advertising_buttons_configure(void)  //白名单广播下按键功能
                                       BUTTON_EVENT_LEDSTATE);  
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_PUSH,
-                                      BUTTON_EVENT_POWER_OFF_LED);
+                                      BUTTON_EVENT_WHITELIST_OFF);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
-                                      BUTTON_EVENT_WHITELIST_OFF);
+                                      BUTTON_EVENT_POWER_OFF_LED);
 }
 
 void connection_buttons_configure(void)   //已连接状态按键功能
@@ -189,10 +183,10 @@ void connection_buttons_configure(void)   //已连接状态按键功能
                                       BUTTON_EVENT_LEDSTATE);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_PUSH,
-                                      BUTTON_EVENT_POWER_OFF_LED);
+                                      BUTTON_EVENT_DISCONNECT);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
-                                      BUTTON_EVENT_DISCONNECT);
+                                      BUTTON_EVENT_POWER_OFF_LED);
 }
 
 uint32_t bsp_wakeup_buttons_set(void)        //休眠唤醒按键配置

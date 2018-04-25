@@ -172,13 +172,18 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 					 ble_state_send(LOFF_State);
 			 }
 
-       if(Data_Num == 250)  
+       if(Data_Num == 50 && Send_Flag == 0)  
 	     {
 			    Data_Num = 0;
 			    memcpy(EEG_DATA_SEND,ADCData1,750);			
 				  memset(ADCData1,0,sizeof(ADCData1));
 			    ble_send_data(EEG_DATA_SEND);
 		   }
+
+			 if(Data_Num == 50 && Send_Flag == 1) 
+			 {
+				  Data_Num = 0;
+			 }
 	 }
 	 else
 	 {
