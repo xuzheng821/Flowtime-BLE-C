@@ -37,8 +37,6 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 		}
 		if(Is_pwm_init == true &&
 			(indicate == BSP_INDICATE_IDLE ||
-		   indicate == BSP_INDICATE_POWER_ON ||
-		   indicate == BSP_INDICATE_POWER_OFF ||
 		   indicate == BSP_INDICATE_FACTORY_LED_TEST))       
 		{
 				PWM_uint();
@@ -58,33 +56,6 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;	
 						m_stable_state = BSP_INDICATE_IDLE;  
             break;
-
-      case  BSP_INDICATE_POWER_ON:            //蓝灯闪烁频率5HZ，闪烁2次后关闭
-	          nrf_gpio_cfg_output(LED_GPIO_BLUE);
-	          NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
-						nrf_delay_ms(100);	  
-	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
-						nrf_delay_ms(100);	  
-	          NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
-						nrf_delay_ms(100);	  
-	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
-						nrf_delay_ms(500);	  
-            m_stable_state = BSP_INDICATE_IDLE;
-				    break;
-
-      case  BSP_INDICATE_POWER_OFF:           //蓝灯闪烁频率5HZ，闪烁2次后关闭	
-	          nrf_gpio_cfg_output(LED_GPIO_BLUE);
-	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
-						nrf_delay_ms(500);	  
-	          NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
-						nrf_delay_ms(100);	  
-	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
-						nrf_delay_ms(100);	  
-	          NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
-						nrf_delay_ms(100);	  
-	          NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
-            m_stable_state = BSP_INDICATE_IDLE;
-				    break;
 
     	case  BSP_INDICATE_CONNECTED:           //待机状态，蓝灯长亮
       			LED_ON_duty(0,0,70);
@@ -192,10 +163,12 @@ void leds_state_update(void)                             //LED超时定时器回调函数
     ledFlips_timer_stop();
 	
 	  if(m_stable_state == BSP_INDICATE_CONNECTED ||       //超时后标志位置1，关闭led灯，如果按键按下，LED恢复状态。
+			 m_stable_state == BSP_INDICATE_CONNECTED_BAT_LOW ||
 			 m_stable_state == BSP_INDICATE_WITH_WHITELIST || 
-		   m_stable_state == BSP_INDICATE_WITHOUT_WHITELIST ||
 		   m_stable_state == BSP_INDICATE_WITH_WHITELIST_BAT_LOW ||
-			 m_stable_state == BSP_INDICATE_CONNECTED_BAT_LOW)
+			 m_stable_state == BSP_INDICATE_WITHOUT_WHITELIST ||
+		   m_stable_state == BSP_INDICATE_WITHOUT_WHITELIST_BAT_LOW
+		)
 		{
 				led_timerout = true;	
 		}

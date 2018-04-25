@@ -24,7 +24,6 @@ typedef enum
     BUTTON_EVENT_LEDSTATE,         //LED×´Ì¬             
     BUTTON_EVENT_SLEEP,            //Ë¯Ãß×´Ì¬  
     BUTTON_EVENT_WHITELIST_OFF,    //Åä¶Ô×´Ì¬ 
-	  BUTTON_EVENT_POWER_OFF_LED,
 	  BUTTON_EVENT_DISCONNECT
 } button_event_t;
 

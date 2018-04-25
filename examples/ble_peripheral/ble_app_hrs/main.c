@@ -470,7 +470,6 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 
         case BLE_ADV_EVT_WITH_WHITELIST_SLOW:   //Âý¹ã²¥
 						 advertising_buttons_configure();
-				     SEGGER_RTT_printf(0," 555555555\r\n");
 					   err_code = bsp_led_indication(BSP_INDICATE_IDLE);              //ledÈ«Ãð
              APP_ERROR_CHECK(err_code);
              break;
@@ -674,10 +673,10 @@ void button_event_handler(button_event_t event)
              APP_ERROR_CHECK(err_code);
              break;
 				
-        case BUTTON_EVENT_POWER_OFF_LED:
+        case BUTTON_EVENT_POWER_OFF:
 						 if(RTT_PRINT)
 						 {
-								SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_OFF_LED \n");
+								SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_OFF \n");
 						 }
 						 err_code = bsp_led_indication(BSP_INDICATE_IDLE);
              APP_ERROR_CHECK(err_code);
