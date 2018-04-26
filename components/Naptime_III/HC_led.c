@@ -107,7 +107,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 				    break;
 						
 			case  BSP_INDICATE_WITHOUT_WHITELIST_BAT_LOW:   //∫Ïµ∆øÏÀŸ…¡À∏£¨∆µ¬ 5HZ
-			      if(Is_blue_on)
+			      if(Is_red_on)
 						{
 			          LED_ON_duty(0,0,0);
 						}
