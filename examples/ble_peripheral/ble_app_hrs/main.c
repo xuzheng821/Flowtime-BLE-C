@@ -554,6 +554,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             break;
 
 				  case BLE_EVT_TX_COMPLETE:				//启动后发送20字节，当20字节发送完成后收到BLE_EVT_TX_comPLETE，然后发送剩余数据
+						 SEGGER_RTT_printf(0,"\r BLE_EVT_TX_COMPLETE \r\n");
 				     if(Send_Flag == 1)
 	           { 
 	    	         ble_send_more_data(EEG_DATA_SEND); 
