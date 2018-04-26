@@ -910,6 +910,12 @@ int main(void)
     Power_Check();
 		button_power_on();
 		
+		if(!ble_is_adv)
+		{
+			  err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
+			  APP_ERROR_CHECK(err_code);
+		}
+		
 		while(1)
     {
 		  if(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)     //input vol is above battery vol
