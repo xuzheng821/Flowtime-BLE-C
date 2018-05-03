@@ -1,91 +1,179 @@
 #include "HC_eeg_data_send.h"
 
 ble_eeg_t               m_eeg;                                     /**< Structure used to identify the heart rate service. */
+ble_bas_t               m_bas;                                     /**< Structure used to identify the battery service. */
+ble_com_t               m_com;                                     /**< Structure to identify the Nordic UART Service. */
 
 /*******************数据吞吐量测试*********************/
-uint32_t Num_Time;       //每一帧数据包头2个字节，不断累加
-uint8_t send_num = 0;    //记录发送到第几帧数据
-uint8_t Send_Flag = 0;   //第一帧数据发送完成
-uint8_t Data_send[17];   //发送数据缓存
-extern uint8_t EEG_DATA_SEND[750];            //180ms发送一次数据
+uint8_t Data_send[17];               //发送数据缓存
+uint16_t data_len = 150;             //发送数据总长度
+uint16_t m_data_left_to_send = 0;    //剩余需要发送的数据长度
+uint8_t m_ble_pl_len = 15;           //每一次发送数据长度
+uint8_t Num_Time = 0;                //帧头
+//static bool m_data_q;                //发送成功True
+extern uint8_t EEG_DATA_SEND[750];   //需要发送的数据
 extern bool Global_connected_state;
-extern bool ads1291_is_init;                  //1291初始化标志位
+extern bool ads1291_is_init;         //1291初始化标志位
+extern uint8_t send_bat_data;
+extern uint8_t bat_vol_pre;          //当前电量百分比
+
+extern uint8_t device_id_send[17];     //发送的device_id
+extern uint8_t device_sn_send[17];     //发送的SN
+extern uint8_t user_id_send[5];        //发送的SN
 
 //调用该函数发送第一帧数据
-uint32_t ble_send_data(uint8_t *pdata)
+void ble_send_data(void)
 {
-		uint32_t err_code;
-    send_num = 0;
-	
-		Data_send[0] = Num_Time >> 8;    //添加包头--2个字节
+    uint32_t err_code;  
+    m_data_left_to_send = data_len;
+	  
+		Data_send[0] = Num_Time >> 8;    //添加帧头--2个字节
 		Data_send[1] = Num_Time & 0xFF;
 
-	  for(uint8_t i = 0; i < 15 ; i++)
+	  for(uint8_t i = 0; i < m_ble_pl_len ; i++)
 		{
-			Data_send[i+2] = *(pdata+i);
+			Data_send[i+2] = *(EEG_DATA_SEND + data_len - m_data_left_to_send + i);
 		}
+		m_data_left_to_send -= m_ble_pl_len;
 			 
-		err_code = ble_EEG_DATA_send(&m_eeg, Data_send, 17);   //数据发送，长度17字节
-		if(RTT_PRINT)
-	  {
-			 SEGGER_RTT_printf(0,"\r eeg_sdate_send1:%x \r",err_code);
-	  }
-		if (NRF_SUCCESS == err_code)
+		err_code = ble_EEG_DATA_send(&m_eeg, Data_send, m_ble_pl_len + 2);   //数据发送，长度17字节
+		SEGGER_RTT_printf(0,"err_code1:%x\r",err_code);
+		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+			err_code == NRF_ERROR_INVALID_STATE || 
+			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+			{ 
+				 return;
+			}
+		else if (err_code != NRF_SUCCESS) 
 		{
-			 send_num++;	
-			 Num_Time++;		
-			 Send_Flag = 1;  //该帧数据发送完成会触发BLE_EVT_TX_comPLETE,在main函数中通过该标志位判断是否继续发送剩余数据
+			APP_ERROR_HANDLER(err_code);
 		}
-		return err_code;
+		if (err_code == NRF_SUCCESS)
+    {  
+			  Num_Time ++;
+    }
 }
 
 //这个函数完成后续数据发送,放在BLE_EVT_TX_comPLETE时间处理函数中
-void ble_send_more_data(uint8_t *pdata)
+void ble_send_more_data(void)
 {
 	uint32_t err_code;
-	uint8_t send_fail_count = 0;
-	
-	do{
-			 if (send_num > 9)  //一秒数据全部发送完成,相关标志位复位
-			 {
-					send_num = 0x00;
-					Send_Flag = 0;
-					memset(&EEG_DATA_SEND,0,sizeof(EEG_DATA_SEND));
-					return; 
-			 }
+	while(m_data_left_to_send != 0 && Global_connected_state)
+	{
+		Data_send[0] = Num_Time >> 8;
+		Data_send[1] = Num_Time & 0xFF;
 
-			 Data_send[0] = Num_Time >> 8;
-			 Data_send[1] = Num_Time & 0xFF;
+		for(uint8_t i = 0; i < m_ble_pl_len ;i++)
+		{
+			Data_send[i+2]= *(EEG_DATA_SEND + data_len - m_data_left_to_send + i);
+		}
+		m_data_left_to_send -= m_ble_pl_len;
 
-			 for(uint8_t i = 0; i < 15 ;i++)
-			 {
-					Data_send[i+2]=*(pdata + send_num * 15 + i);
-			 }
-			 
-			 err_code = ble_EEG_DATA_send(&m_eeg,Data_send, 17 );
-			 send_fail_count++;
-			 if(RTT_PRINT)
-		   {
-				  SEGGER_RTT_printf(0,"\r eeg_sdate_send2:%x \r",err_code);
-		   }
-			 if (NRF_SUCCESS == err_code)
-			 {
-					send_num++;	
-					Num_Time++;		
-	   }
-	 }while(err_code != BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 20);
+		err_code = ble_EEG_DATA_send(&m_eeg,Data_send, m_ble_pl_len + 2 );
+    SEGGER_RTT_printf(0,"err_code2:%x\r",err_code);		
+		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+			err_code == NRF_ERROR_INVALID_STATE || 
+			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+			{
+				 m_data_left_to_send += m_ble_pl_len; 
+				 break;
+			}
+		else if (err_code != NRF_SUCCESS) 
+		{
+			APP_ERROR_CHECK(err_code);
+		}
+	}
+	while(send_bat_data == 1 && Global_connected_state)
+	{
+		err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
+    SEGGER_RTT_printf(0,"err_code4:%x\r",err_code);		
+		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+			err_code == NRF_ERROR_INVALID_STATE || 
+			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+			{
+				 break;
+			}
+		else if (err_code != NRF_SUCCESS) 
+		{
+			APP_ERROR_CHECK(err_code);
+		}
+		else if (err_code == NRF_SUCCESS) 
+		{
+			send_bat_data = 0;
+		}
+	}
+	while(device_id_send[0] != 0 && Global_connected_state)
+	{
+		err_code = ble_com_string_send(&m_com, device_id_send , 17);
+    SEGGER_RTT_printf(0,"err_code6:%x\r",err_code);		
+		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+			err_code == NRF_ERROR_INVALID_STATE || 
+			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+			{
+				 break;
+			}
+		else if (err_code != NRF_SUCCESS) 
+		{
+			APP_ERROR_CHECK(err_code);
+		}
+		else if (err_code == NRF_SUCCESS) 
+		{
+			device_id_send[0] = 0;
+		}
+	}
+	while(device_sn_send[0] != 0 && Global_connected_state)
+	{
+		err_code = ble_com_string_send(&m_com, device_sn_send , 17);
+    SEGGER_RTT_printf(0,"err_code7:%x\r",err_code);		
+		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+			err_code == NRF_ERROR_INVALID_STATE || 
+			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+			{
+				 break;
+			}
+		else if (err_code != NRF_SUCCESS) 
+		{
+			APP_ERROR_CHECK(err_code);
+		}
+		else if (err_code == NRF_SUCCESS) 
+		{
+			device_sn_send[0] = 0;
+		}
+	}
+	while(user_id_send[0] != 0 && Global_connected_state)
+	{
+		err_code = ble_com_string_send(&m_com, user_id_send , 5);
+    SEGGER_RTT_printf(0,"err_code8:%x\r",err_code);		
+		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+			err_code == NRF_ERROR_INVALID_STATE || 
+			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+			{
+				 break;
+			}
+		else if (err_code != NRF_SUCCESS) 
+		{
+			APP_ERROR_CHECK(err_code);
+		}
+		else if (err_code == NRF_SUCCESS) 
+		{
+			user_id_send[0] = 0;
+		}
+	}
 }
 
 void ble_state_send(uint8_t pdata)
 {
    uint32_t err_code;
-	 uint8_t send_fail_count = 0;
-	 do{
-		 err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
-		 send_fail_count++;
-		 if(RTT_PRINT)
-		 {
-				SEGGER_RTT_printf(0,"\r eeg_state_send:%x pdata:%x \r\n",err_code,pdata);
-		 }
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && ads1291_is_init && send_fail_count < 2);
+	 err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
+	 SEGGER_RTT_printf(0,"err_code3:%x\r\n",err_code);
+	 if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+	 err_code == NRF_ERROR_INVALID_STATE || 
+	 err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+	 {
+		 return;
+	 }
+	 else if (err_code != NRF_SUCCESS) 
+	 {
+		 APP_ERROR_CHECK(err_code);
+	 }
 }

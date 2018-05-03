@@ -1,20 +1,20 @@
 #include "HC_battery.h"
 
-ble_bas_t                    m_bas;     /**< Structure used to identify the battery service. */
+extern ble_bas_t                         m_bas;                                      /**< Structure used to identify the battery service. */
 
 #define VOLTAGE_AVG_NUM  5              //电池电压滤波数组大小
 
+
+static double bat_vol;                  //实测电量
 //全局变量
-double bat_vol;                         //实测电量
 uint8_t bat_vol_pre;                    //当前电量百分比
 uint8_t bat_vol_pre_work = 57;          //低于3.67V(57%)提示低电量
+uint8_t send_bat_data = 0;              //有数据发送置1
 
 extern bool Into_factory_test_mode;     //是否进入工厂测试模式
 extern bool Global_connected_state;     //连接+握手成功标志
-extern uint8_t Send_Flag;               //脑电数据是否发送完成标志
-
-
 extern void sleep_mode_enter(void);
+
 //取两个数中较小的数
 uint8_t min(uint8_t a, uint8_t b)
 {
@@ -70,7 +70,6 @@ void battery_level_update(void)
 {
     uint32_t err_code;
 	  static uint8_t count = 0;
-	  uint8_t send_fail_count = 0;
 	  
     static uint8_t bat_vol_arrary_index = 0;
     static double bat_vol_arrary[VOLTAGE_AVG_NUM] = {0};
@@ -111,16 +110,9 @@ void battery_level_update(void)
 						APP_ERROR_CHECK(err_code);
 						
 						if (count == 6 && m_bas.is_battery_notification_enabled)  //30s上传一次电池电量值
-						{		
-								do{
-									   err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
-									   if(RTT_PRINT)
-									   {
-												SEGGER_RTT_printf(0,"\r bas_state_send:%x bat_vol_pre:%x \r\n",err_code,bat_vol_pre);
-									   }
-									   send_fail_count++;
-			            }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 2);
+						{	
                 count = 0;
+								send_bat_data = 1;
 						}		
 						
 						if(bat_vol_pre < 45)                                //低于3.55V（45%）,关机

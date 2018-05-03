@@ -10,7 +10,7 @@ extern bool Is_red_on;
 extern bool Is_green_on;
 extern bool Is_blue_on;
 
-bool led_timerout = false;            //led亮灯时间超时标志    
+extern uint8_t led_timerout;        //led亮灯时间超时标志    
 
 void LED_timeout_restart(void)        //如果亮灯中途切换状态，重新计时
 {

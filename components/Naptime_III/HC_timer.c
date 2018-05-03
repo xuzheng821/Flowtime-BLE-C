@@ -12,10 +12,9 @@ APP_TIMER_DEF(m_batterys_timer_id);
 APP_TIMER_DEF(m_connects_timer_id); 
 APP_TIMER_DEF(m_ledFlips_timer_id); 
 
+//全局变量
 bool Is_led_timer_start = false;    //LED亮灯时间计时判断，如果亮灯中途切换状态，重新计时
-
-extern uint8_t key_tigger_num;      //按键按下超时计数
-extern uint8_t led_timerout;        //led亮灯时间超时标志    
+bool led_timerout = false;          //led亮灯时间超时标志    
 
 extern uint16_t                    m_conn_handle;  
 extern led_indication_t            m_stable_state;

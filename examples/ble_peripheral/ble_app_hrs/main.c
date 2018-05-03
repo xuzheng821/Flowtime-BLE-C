@@ -118,14 +118,11 @@ extern ble_eeg_t                         m_eeg;                                 
 uint16_t                                 m_conn_handle;                              /**< Handle of the current connection. */
 static dm_application_instance_t         m_app_handle;                               /**< Application identifier allocated by device manager. */
 //eeg数据传输变量与标志位
-extern uint8_t EEG_DATA_SEND[750];       //需要发送的脑电数据
-extern uint8_t Send_Flag;                //脑电数据是否发送完成标志
 extern bool ads1291_is_init;             //1291初始化标志位
 //连接状态标志位
 extern bool Is_white_adv;                //是否白名单广播
 extern bool ID_is_change;                //接收到的ID与原先ID不同，可能需要更新绑定ID
 extern bool Is_device_bond;              //设备是否绑定
-extern bool Into_Disconnect;
 extern uint8_t communocate_state[5];     //握手状态返回
 bool Global_connected_state = false;     //连接+握手成功标志
 //LED状态控制与标志位
@@ -491,7 +488,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
     switch (p_ble_evt->header.evt_id)
          {
          case BLE_GAP_EVT_CONNECTED:
-						if(RTT_PRINT)
+				 	if(RTT_PRINT)
 						{
 							SEGGER_RTT_printf(0,"\r BLE_GAP_EVT_CONNECTED \r\n");
 						}
@@ -554,11 +551,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             break;
 
 				  case BLE_EVT_TX_COMPLETE:				//启动后发送20字节，当20字节发送完成后收到BLE_EVT_TX_comPLETE，然后发送剩余数据
-						 SEGGER_RTT_printf(0,"\r BLE_EVT_TX_COMPLETE \r\n");
-				     if(Send_Flag == 1)
-	           { 
-	    	         ble_send_more_data(EEG_DATA_SEND); 
-	           }
+	    	     ble_send_more_data(); 
 				     break;
 
           case BLE_GATTS_EVT_SYS_ATTR_MISSING:

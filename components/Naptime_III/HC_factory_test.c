@@ -1,14 +1,12 @@
 #include "HC_factory_test.h"
 
-ble_com_t                      m_com;                   /**< Structure to identify the Nordic UART Service. */
+static bool Into_System_test_mode = false;              //是否进入系统测试模式
 
 bool APP_restart = false;                               //APP软复位标志
 bool Into_factory_test_mode = false;                    //是否进入工厂测试模式
-bool Into_System_test_mode = false;                     //是否进入系统测试模式
 bool StoryDeviceID =false;                              //是否存储deviceID
 bool StorySN =false;                                    //是否存储SN
 bool deleteUserid =false;                               //是否删除UserID
-bool Into_Disconnect = false;
 
 extern bool ads1291_is_init;                            //ADS1291是否初始化
 extern uint8_t device_id_receive[16];                   //缓存主机端发送过来的deviceID-16位
@@ -75,12 +73,6 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 				    Into_System_test_mode = true;							 
 						break;
 			 
-			 case App_Nap_Disconnect:             
-				    {
-							 Into_Disconnect = true;
-					  }							 
-						break;
-
 			 case App_Nap_Start1291:             
 				    if(ads1291_is_init == false) 
 						{

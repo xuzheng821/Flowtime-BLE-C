@@ -2,9 +2,8 @@
 
 bsp_button_event_cfg_t m_buttin_events;
 
-uint8_t button_state = 0xff;
-uint16_t key_tigger_num = 0;          //按键按下超时计数
-uint8_t Key_detection_interval = 50;  //定时器50ms检测一次
+static uint16_t key_tigger_num = 0;          //按键按下超时计数
+static uint8_t Key_detection_interval = 50;  //定时器50ms检测一次
 
 extern bool APP_restart;              //软复位判断
 extern bool Into_factory_test_mode;   //是否进入工厂测试模式
@@ -127,7 +126,6 @@ void buttons_configure_init(void)      //按键初始化后按键功能
 		{
 				SEGGER_RTT_printf(0,"\rbuttons_configure_init \r\n");
 		}
-	  button_state = init_buttons;
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
                                       BUTTON_EVENT_SLEEP);
 
@@ -144,7 +142,6 @@ void pairing_buttons_configure(void)     //快速广播下按键功能
 		{
 				SEGGER_RTT_printf(0,"\rpairing_buttons_configure \r\n");
 		}
-	  button_state = pairing_buttons;
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
                                       BUTTON_EVENT_IDLE);
 
@@ -161,7 +158,6 @@ void advertising_buttons_configure(void)  //白名单广播下按键功能
 		{
 				SEGGER_RTT_printf(0,"\radvertising_buttons_configure \r\n");
 		}
-	  button_state = advertising_buttons;
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
                                       BUTTON_EVENT_LEDSTATE);  
 
@@ -178,7 +174,6 @@ void connection_buttons_configure(void)   //已连接状态按键功能
 		{
 				SEGGER_RTT_printf(0,"\rconnection_buttons_configure \r\n");
 		}
-	  button_state = connection_buttons;
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
                                       BUTTON_EVENT_LEDSTATE);
 

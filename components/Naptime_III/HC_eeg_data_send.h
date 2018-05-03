@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdint.h>
 #include "ble_eeg.h"
+#include "ble_bas.h"
+#include "ble_com.h"
 #include "ble_gatt.h"
 #include "app_error.h"
 #include "app_timer.h"
@@ -13,8 +15,8 @@
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
 
-uint32_t ble_send_data(uint8_t *pdata);
-void ble_send_more_data(uint8_t *pdata);
+void ble_send_data(void);
+void ble_send_more_data(void);
 void ble_state_send(uint8_t pdata);
 
 #endif

@@ -1,15 +1,18 @@
 #include "HC_ads129x_driver.h"
 
-uint8_t ADCData1[750];
+extern ble_eeg_t                   m_eeg;                                      /**< Structure used to identify the heart rate service. */
+
+static uint8_t ADCData1[750];
+static uint8_t Data_Num;             //采集数据到250个触发发送函数
+static ADS_ConfigDef ADS_Config1;
+
 uint8_t EEG_DATA_SEND[750];
-uint8_t Data_Num;             //采集数据到250个触发发送函数
 bool ads1291_is_init = false; //1291是否初始化完成标志位
 
-ADS_ConfigDef ADS_Config1;
+extern uint16_t data_len;     //发送数据长度
+extern uint16_t m_data_left_to_send;
 
-extern uint8_t Send_Flag;
 
-extern ble_eeg_t                   m_eeg;                                      /**< Structure used to identify the heart rate service. */
 
 #define SPI_INSTANCE  1   /**< SPI instance index. */
 nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */
@@ -17,11 +20,11 @@ nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */
 void ADS1291_disable(void)
 {
 	  ads1291_is_init = false;
-		Send_Flag = 0;
 		nrf_gpio_cfg_output(AEF_PM_EN);  //关闭1291供电
 		NRF_GPIO->OUTCLR = 1<<AEF_PM_EN;
 	  nrf_drv_spi_uninit(&spi);
 	  nrf_drv_gpiote_in_uninit(AEF_RDRDY);
+	  m_data_left_to_send = 0;
 	  m_eeg.last_state = 0x24;
 }
 
@@ -56,6 +59,7 @@ void ads1291_init(void)
 		
 		gpiote_init();
 		Data_Num = 0;
+		m_data_left_to_send = 0;
 		ads1291_is_init = true;
 }
 
@@ -165,21 +169,21 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 			 
 		   memcpy((ADCData1 + Data_Num * 3),Data,3);
 		   Data_Num ++;
-			 SEGGER_RTT_printf(0,"%d ",Data_Num);
-       if(Data_Num == 50 && Send_Flag == 0)  
+			 
+       if(Data_Num == data_len / 3 && m_data_left_to_send == 0)  
 	     {
 					LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
 					ble_state_send(LOFF_State);	
 				  
 			    Data_Num = 0;
-			    memcpy(EEG_DATA_SEND,ADCData1,750);			
+			    memcpy(EEG_DATA_SEND,ADCData1,data_len);			
 				  memset(ADCData1,0,sizeof(ADCData1));
-			    ble_send_data(EEG_DATA_SEND);
-			 } 
-			 if(Data_Num == 50 && Send_Flag == 1) 
-			 {
-				  Data_Num = 0;
+			    ble_send_data();
 			 }
+       if(Data_Num == data_len / 3 && m_data_left_to_send != 0)  
+	     {
+			    Data_Num = 0;
+			 }			 
 	 }
 	 else
 	 {

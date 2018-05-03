@@ -3,19 +3,20 @@
 ble_conn_t                         m_conn;
 extern uint16_t                    m_conn_handle;   /**< Handle of the current connection. */
 
+static uint8_t ID_receive_buff[4] = {0};  //存储接收到的ID数据
+static uint8_t Handshark_buff1[3];        //握手数据存储
+static uint8_t Handshark_buff2[5];
+static uint8_t Handshark_buff3[3];
+
 bool ID_is_change  = false;        //接收到的ID与原先ID不同，可能需要更新绑定ID
 bool ID_is_receive = false;        //ID接收到
 bool Is_white_adv  = false;        //是否白名单广播
 bool Is_device_bond = false;       //设备是否绑定
+uint8_t communocate_state[5] = {0x04,0x00,0x00,0x00,0xFF}; //握手状态返回
 
-uint8_t ID_receive_buff[4] = {0};  //存储接收到的ID数据
 extern uint8_t User_ID[4];         //存储实际用户ID，如果更改ID，在握手成功后更新该数组并将该数组写入flash  
 extern bool Global_connected_state;//连接+握手成功标志
 
-uint8_t Handshark_buff1[3];        //握手数据存储
-uint8_t Handshark_buff2[5];
-uint8_t Handshark_buff3[3];
-uint8_t communocate_state[5] = {0x04,0x00,0x00,0x00,0xFF}; //握手状态返回
 //接收ID并进行解析
 void ble_Com_ID_Analysis(uint8_t * p_data, uint16_t length)
 {

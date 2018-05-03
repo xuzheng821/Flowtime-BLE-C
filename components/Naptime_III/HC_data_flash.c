@@ -1,21 +1,25 @@
 #include "HC_data_flash.h"
 
+
+static pstorage_handle_t block_flash;
+static uint8_t pstorage_wait_flag = 0; //flash²Ù×÷Íê³É±êÖ¾
+
 //È«¾Ö±äÁ¿
 uint8_t User_ID[4]={0};               //ÓÃ»§ID
+//½ÓÊÕappÏÂ·¢ĞèÒª´æ´¢µÄÊı¾İ
 uint8_t device_id_receive[16] = {0};  //½ÓÊÕµ½µÄdevice_id
 uint8_t device_sn_receive[16] = {0};  //½ÓÊÕµ½µÄSN
 uint8_t device_id_sn[32] = {0};       //´Óflash¶ÁÈ¡µÄ device_idºÍSN
-
-pstorage_handle_t block_flash;
-static uint8_t pstorage_wait_flag = 0; //flash²Ù×÷Íê³É±êÖ¾
+//´ÓflashÖĞ¶ÁÈ¡²¢·¢»ØappÑéÖ¤Ğ´Èë³É¹¦
+uint8_t device_id_send[17] = {0};     //·¢ËÍµÄdevice_id
+uint8_t device_sn_send[17] = {0};     //·¢ËÍµÄSN
+uint8_t user_id_send[5] = {0};        //·¢ËÍµÄSN
 
 extern bool Is_white_adv;
 extern bool Is_device_bond;
-extern bool Global_connected_state;
 
 extern void power_manage(void);
 
-extern ble_com_t               m_com;                                     /**< Structure to identify the Nordic UART Service. */
 
 void flash_callback(pstorage_handle_t * handle,uint8_t op_code,uint32_t result,uint8_t * p_data, uint32_t data_len)
 {
@@ -158,11 +162,7 @@ void Story_User_ID(void)
 }
 
 void Story_Device_ID(void)
-{
-	   uint32_t err_code;
-	   uint8_t senddata[17] = {0};
-		 uint8_t send_fail_count = 0;
-		 
+{		 
 		 if(RTT_PRINT)
 		 {
 				SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_Device_ID \r\n");
@@ -188,13 +188,8 @@ void Story_Device_ID(void)
      pstorage_load(device_id, &device_ID, 16, 0);               //¶ÁÈ¡¿éÄÚÊı¾İ	 
 		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until load operation is finished.
 		 
-	   senddata[0] = Nap_App_send_deviceid;                       //ÉÏ´«App
-	   memcpy(senddata+1,device_id, 16);
-
-		 do{
-		   err_code = ble_com_string_send(&m_com, senddata , 17);
-			 send_fail_count++;
-			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 2);
+	   device_id_send[0] = Nap_App_send_deviceid;                       //ÉÏ´«App
+	   memcpy(device_id_send+1,device_id, 16);
 
 		 if(RTT_PRINT)
 		 {		 
@@ -204,9 +199,6 @@ void Story_Device_ID(void)
 
 void Story_SN(void)
 {
-	   uint32_t err_code;
-	   uint8_t senddata[17] = {0};
-		 uint8_t send_fail_count = 0;
 		 if(RTT_PRINT)
 		 {		 		 
 				 SEGGER_RTT_printf(0,"\n>>[FLASH]: Story_SN \r\n");
@@ -231,14 +223,9 @@ void Story_SN(void)
      pstorage_load(SN_buff, &Flash_SN, 16, 0);                  //¶ÁÈ¡¿éÄÚÊı¾İ	 
 		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until load operation is finished.
 		 
-	   senddata[0] = Nap_App_send_SN;                             //ÉÏ´«App
-	   memcpy(senddata+1,SN_buff, 16);
+	   device_sn_send[0] = Nap_App_send_SN;                             //ÉÏ´«App
+	   memcpy(device_sn_send+1,SN_buff, 16);
 
-		 do{
-			 err_code = ble_com_string_send(&m_com, senddata , 17);
-			 send_fail_count++;
-			 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 2);
-	 
 		 if(RTT_PRINT)
 		 {		 		 		 
 				SEGGER_RTT_printf(0,"<<[FLASH]: Story_SN \r\n\n");
@@ -277,14 +264,10 @@ void Read_device_id_sn(void)                                     //Éè±¸ĞÅÏ¢·şÎñ³
 
 void delete_User_id(void)
 {
-	   uint32_t err_code;
-	   uint8_t send_fail_count = 0;
 		 if(RTT_PRINT)
 		 {		 		 		 
 					SEGGER_RTT_printf(0,"\n>>[FLASH]: delete_User_id \r\n");
 		 }
-
-	   uint8_t senddata[5] = {0};
 	   uint8_t userid_buff[4] = {0};
 	   pstorage_handle_t Flash_User_ID;
 	
@@ -298,13 +281,8 @@ void delete_User_id(void)
      pstorage_load(userid_buff, &Flash_User_ID, 4, 0);          //¶ÁÈ¡¿éÄÚÊı¾İ	 
 		 while(pstorage_wait_flag) { power_manage(); }              //Sleep until load operation is finished.
 		 
-	   senddata[0] = Nap_App_send_userid;
-	   memcpy(senddata+1,userid_buff, 4);
-
-	 do{
-	   err_code = ble_com_string_send(&m_com, senddata , 5);
-		 send_fail_count++;
-		 }while(err_code == BLE_ERROR_NO_TX_PACKETS && Global_connected_state && send_fail_count < 2);
+	   user_id_send[0] = Nap_App_send_userid;
+	   memcpy(user_id_send+1,userid_buff, 4);
 
 		 if(RTT_PRINT)
 		 {		 		 		 

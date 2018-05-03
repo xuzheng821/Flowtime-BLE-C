@@ -4,8 +4,8 @@ APP_PWM_INSTANCE(PWM1,1);                   // ดดฝจาปธ๖สนำรถจสฑฦ๗1ฒ๚ษ๚PWMฒจตฤสตภ
 APP_PWM_INSTANCE(PWM2,2);                   // ดดฝจาปธ๖สนำรถจสฑฦ๗2ฒ๚ษ๚PWMฒจตฤสตภý
 APP_PWM_INSTANCE(PWM3,3);                   // ดดฝจาปธ๖สนำรถจสฑฦ๗3ฒ๚ษ๚PWMฒจตฤสตภý
 
+//ศซพึฑไมฟ
 bool Is_pwm_init = false;
-
 bool Is_red_on = false;
 bool Is_green_on = false;
 bool Is_blue_on = false;
