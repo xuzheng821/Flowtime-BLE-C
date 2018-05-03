@@ -12,8 +12,6 @@ bool ads1291_is_init = false; //1291是否初始化完成标志位
 extern uint16_t data_len;     //发送数据长度
 extern uint16_t m_data_left_to_send;
 
-
-
 #define SPI_INSTANCE  1   /**< SPI instance index. */
 nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */
 

@@ -113,8 +113,8 @@ static ble_dfu_t                         m_dfus;                                
 //服务变量
 extern ble_bas_t                         m_bas;                                      /**< Structure used to identify the battery service. */
 extern ble_com_t                         m_com;                                      /**< Structure to identify the Nordic UART Service. */
-extern ble_conn_t                        m_conn;                                     /**< Structure to identify the Nordic UART Service. */
 extern ble_eeg_t                         m_eeg;                                      /**< Structure used to identify the heart rate service. */
+extern ble_conn_t                        m_conn;                                     /**< Structure to identify the Nordic UART Service. */
 uint16_t                                 m_conn_handle;                              /**< Handle of the current connection. */
 static dm_application_instance_t         m_app_handle;                               /**< Application identifier allocated by device manager. */
 //eeg数据传输变量与标志位
@@ -550,7 +550,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             APP_ERROR_CHECK(err_code);
             break;
 
-				  case BLE_EVT_TX_COMPLETE:				//启动后发送20字节，当20字节发送完成后收到BLE_EVT_TX_comPLETE，然后发送剩余数据
+				  case BLE_EVT_TX_COMPLETE:			
 	    	     ble_send_more_data(); 
 				     break;
 
