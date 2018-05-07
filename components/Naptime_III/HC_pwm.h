@@ -12,7 +12,7 @@
 
 void led_pwm_init(void);
 void LED_ON_duty(uint8_t RED_duty,uint8_t GREEN_duty,uint8_t BLUE_duty);
-void LED_OFF(void);
-void PWM_uint(void);
+void led_off(void);
+void pwm_uint(void);
 
 #endif

@@ -46,7 +46,7 @@ void bootup_check(void)
 void led_test(void)
 {
 	    uint32_t err_code;
-	    PWM_uint();                                   //进入led_test之前，单板蓝牙连接手机，所以PWM已经初始化
+	    pwm_uint();                                   //进入led_test之前，单板蓝牙连接手机，所以PWM已经初始化
 	
 	    nrf_gpio_cfg_output(LED_GPIO_BLUE);
       nrf_gpio_cfg_output(LED_GPIO_RED);

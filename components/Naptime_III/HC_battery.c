@@ -190,7 +190,7 @@ void charging_check(void)
 					 {
 							SEGGER_RTT_printf(0,"\r charging \r\n");
 					 }
-				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGING);
+				   err_code = bsp_led_indication(BSP_INDICATE_BATTERY_CHARGING);
            APP_ERROR_CHECK(err_code);
 			 }
 			 if(nrf_gpio_pin_read(BQ_CHG) == 1 && nrf_gpio_pin_read(BQ_PG) == 0)     //charging_over
@@ -199,7 +199,7 @@ void charging_check(void)
 					 {
 							SEGGER_RTT_printf(0,"\r charging over \r\n");
 					 }
-				   err_code = bsp_led_indication(BSP_INDICATE_Battery_CHARGEOVER);
+				   err_code = bsp_led_indication(BSP_INDICATE_BATTERY_CHARGEOVER);
            APP_ERROR_CHECK(err_code);
 			 }
 			 nrf_delay_ms(1000);

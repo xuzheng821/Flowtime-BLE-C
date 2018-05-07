@@ -4,13 +4,12 @@ led_indication_t m_stable_state = BSP_INDICATE_IDLE;
 
 extern bool Is_pwm_init;              //打开LED才进行PWM配置，降低功耗
 extern bool Is_led_timer_start;       //LED亮灯时间计时判断，如果亮灯中途切换状态，重新计时
-extern bool Into_factory_test_mode;   //是否进入工厂测试模式
 
 extern bool Is_red_on;
 extern bool Is_green_on;
 extern bool Is_blue_on;
 
-extern uint8_t led_timerout;        //led亮灯时间超时标志    
+extern uint8_t led_timerout;          //led亮灯时间超时标志    
 
 void LED_timeout_restart(void)        //如果亮灯中途切换状态，重新计时
 {
@@ -30,8 +29,8 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 		   indicate == BSP_INDICATE_WITH_WHITELIST_BAT_LOW ||
 		   indicate == BSP_INDICATE_WITHOUT_WHITELIST ||
 		   indicate == BSP_INDICATE_WITHOUT_WHITELIST_BAT_LOW ||
-		   indicate == BSP_INDICATE_Battery_CHARGING ||
-		   indicate == BSP_INDICATE_Battery_CHARGEOVER))       
+		   indicate == BSP_INDICATE_BATTERY_CHARGING ||
+		   indicate == BSP_INDICATE_BATTERY_CHARGEOVER))       
 		{
 				led_pwm_init();
 		}
@@ -39,7 +38,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 			(indicate == BSP_INDICATE_IDLE ||
 		   indicate == BSP_INDICATE_FACTORY_LED_TEST))       
 		{
-				PWM_uint();
+				pwm_uint();
 		}
     switch (indicate)
     {
@@ -58,12 +57,14 @@ uint32_t bsp_led_indication(led_indication_t indicate)
             break;
 
     	case  BSP_INDICATE_CONNECTED:           //待机状态，蓝灯长亮
+					  ledFlips_timer_stop();
       			LED_ON_duty(0,0,70);
 			      m_stable_state = indicate;	      //记录当前led状态 
 				    break;
 
 			case  BSP_INDICATE_CONNECTED_BAT_LOW:   //红灯长亮
-			      LED_ON_duty(40,0,0);  
+			      ledFlips_timer_stop();
+						LED_ON_duty(40,0,0);  
             m_stable_state = indicate;        //记录当前led状态
 				    break;
 			
@@ -119,7 +120,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
             m_stable_state = indicate;		    //记录当前led状态	      
 				    break;
 
-	    case  BSP_INDICATE_Battery_CHARGING:    //充电状态，黄灯慢闪
+	    case  BSP_INDICATE_BATTERY_CHARGING:    //充电状态，黄灯慢闪
 			      if(Is_red_on)
 						{
 			          LED_ON_duty(0,0,0);
@@ -131,7 +132,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
             m_stable_state = BSP_INDICATE_IDLE;  
 				    break;
 
-    	case  BSP_INDICATE_Battery_CHARGEOVER:  //充电完成状态，绿灯常亮
+    	case  BSP_INDICATE_BATTERY_CHARGEOVER:  //充电完成状态，绿灯常亮
             LED_ON_duty(0,20,0);
             m_stable_state = BSP_INDICATE_IDLE;
 				    break;

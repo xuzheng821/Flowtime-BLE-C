@@ -6,10 +6,10 @@ static uint8_t pstorage_wait_flag = 0; //flash操作完成标志
 
 //全局变量
 uint8_t User_ID[4]={0};               //用户ID
+uint8_t device_id_sn[32] = {0};       //从flash读取的 device_id和SN
 //接收app下发需要存储的数据
 uint8_t device_id_receive[16] = {0};  //接收到的device_id
 uint8_t device_sn_receive[16] = {0};  //接收到的SN
-uint8_t device_id_sn[32] = {0};       //从flash读取的 device_id和SN
 //从flash中读取并发回app验证写入成功
 uint8_t device_id_send[17] = {0};     //发送的device_id
 uint8_t device_sn_send[17] = {0};     //发送的SN
@@ -19,7 +19,6 @@ extern bool Is_white_adv;
 extern bool Is_device_bond;
 
 extern void power_manage(void);
-
 
 void flash_callback(pstorage_handle_t * handle,uint8_t op_code,uint32_t result,uint8_t * p_data, uint32_t data_len)
 {

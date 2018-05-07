@@ -37,7 +37,7 @@ void led_pwm_init(void)
     app_pwm_enable(&PWM3);//使能PWM3	
 		
     Is_pwm_init = true;                             //PWM初始化标志
-  	LED_OFF();	                                    //灯不打开
+  	led_off();	                                    //灯不打开
 }
 
 void LED_ON_duty(uint8_t RED_duty,uint8_t GREEN_duty,uint8_t BLUE_duty)
@@ -63,7 +63,7 @@ void LED_ON_duty(uint8_t RED_duty,uint8_t GREEN_duty,uint8_t BLUE_duty)
 			 Is_blue_on = false;		
 }
 
-void LED_OFF(void)
+void led_off(void)
 {
 	  ret_code_t err_code;
 	  err_code = app_pwm_channel_duty_set(&PWM1, 0, 0);  
@@ -77,7 +77,7 @@ void LED_OFF(void)
     Is_blue_on = false; 
 }
 
-void PWM_uint(void)
+void pwm_uint(void)
 {
 	  app_pwm_uninit(&PWM1);                             //PWM去初始化
 	  app_pwm_uninit(&PWM2);
