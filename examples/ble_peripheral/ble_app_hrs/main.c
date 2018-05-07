@@ -904,7 +904,7 @@ int main(void)
     Power_Check();
 		button_power_on();
 		
-		if(!ble_is_adv)
+		if((!ble_is_adv) && (m_conn_handle == BLE_CONN_HANDLE_INVALID))
 		{
 			  err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
 			  APP_ERROR_CHECK(err_code);
