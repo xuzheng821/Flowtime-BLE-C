@@ -4,7 +4,6 @@ extern ble_bas_t                         m_bas;                                 
 
 #define VOLTAGE_AVG_NUM  5              //电池电压滤波数组大小
 
-
 static double bat_vol;                  //实测电量
 //全局变量
 uint8_t bat_vol_pre;                    //当前电量百分比

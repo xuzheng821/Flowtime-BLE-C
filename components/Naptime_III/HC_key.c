@@ -7,9 +7,7 @@ static uint8_t Key_detection_interval = 50;  //定时器50ms检测一次
 
 extern bool APP_restart;              //软复位判断
 extern bool Into_factory_test_mode;   //是否进入工厂测试模式
-extern bool Global_connected_state;   //连接+握手成功标志
 
-extern void sleep_mode_enter(void);   //关机
 extern void button_event_handler(button_event_t event);  //按键事件处理函数
 
 void button_power_on(void)
