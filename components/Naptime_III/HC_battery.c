@@ -122,7 +122,6 @@ void battery_level_update(void)
 									}
 								else if (err_code == NRF_SUCCESS) 
 								{
-									
 									send_bat_data = 0;
 								}
 								else 
