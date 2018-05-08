@@ -877,9 +877,10 @@ int main(void)
     uint32_t err_code;
     bool erase_bonds = true;
 
+	  SEGGER_RTT_Init();
 	  if(RTT_PRINT)
 	  {
-			SEGGER_RTT_Init();
+			
 			SEGGER_RTT_printf(0," hello_rtt \n");
 	  }
 	
@@ -904,12 +905,6 @@ int main(void)
     Power_Check();
 		button_power_on();
 		
-		if((!ble_is_adv) && (m_conn_handle == BLE_CONN_HANDLE_INVALID))
-		{
-			  err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
-			  APP_ERROR_CHECK(err_code);
-		}
-		
 		while(1)
     {
 		  if(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)     //input vol is above battery vol
@@ -917,7 +912,10 @@ int main(void)
 				   nrf_delay_ms(20);
 				   if(nrf_gpio_pin_read(BQ_PG) == 0)
 					 {
-							 SEGGER_RTT_printf(0," charging mode\r\n");
+							 if(RTT_PRINT)
+							 {
+									SEGGER_RTT_printf(0," charging mode\r\n");
+							 }							 
 						   Global_connected_state = false;
 							 err_code = sd_power_gpregret_set(0x55);
 							 APP_ERROR_CHECK(err_code);
@@ -929,7 +927,8 @@ int main(void)
 				   ID_is_change = false;
 			     Story_User_ID();
 				   communocate_state[4] = 0xFF;
-				   Read_User_ID();		
+				   Read_User_ID();	
+					 Is_white_adv = true;
 			}
 			if(deleteUserid)
 			{

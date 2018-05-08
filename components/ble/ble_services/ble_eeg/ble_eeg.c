@@ -66,13 +66,19 @@ static void on_write(ble_eeg_t * p_eeg, ble_evt_t * p_ble_evt)
 				{
 						if (ble_srv_is_notification_enabled(p_evt_write->data))
 						{
-							  SEGGER_RTT_printf(0,"p_eeg->is_eeg_notification_enabled = true;\r\n");
+							if(RTT_PRINT)
+							{
+									SEGGER_RTT_printf(0,"p_eeg->is_eeg_notification_enabled = true;\r\n");
+							}							  
 								p_eeg->is_eeg_notification_enabled = true;
 
 						}
 						else
 						{
-							  SEGGER_RTT_printf(0,"p_eeg->is_eeg_notification_enabled = false;\r\n");
+							if(RTT_PRINT)
+							{
+									SEGGER_RTT_printf(0,"p_eeg->is_eeg_notification_enabled = false;\r\n");
+							}							  
 								p_eeg->is_eeg_notification_enabled = false;
 						}
 				}
@@ -82,12 +88,18 @@ static void on_write(ble_eeg_t * p_eeg, ble_evt_t * p_ble_evt)
 				{
 						if (ble_srv_is_notification_enabled(p_evt_write->data))
 						{
-							  SEGGER_RTT_printf(0,"p_eeg->is_state_notification_enabled = true;\r\n");
+							if(RTT_PRINT)
+							{
+									SEGGER_RTT_printf(0,"p_eeg->is_state_notification_enabled = true;\r\n");
+							}							  
 								p_eeg->is_state_notification_enabled = true;
 						}
 						else
 						{
-							  SEGGER_RTT_printf(0,"p_eeg->is_state_notification_enabled = false;\r\n");
+							if(RTT_PRINT)
+							{
+									SEGGER_RTT_printf(0,"p_eeg->is_state_notification_enabled = false;\r\n");
+							}							  
 								p_eeg->is_state_notification_enabled = false;
 						}
 				}

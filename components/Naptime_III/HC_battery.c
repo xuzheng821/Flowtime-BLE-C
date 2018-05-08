@@ -113,7 +113,10 @@ void battery_level_update(void)
                 count = 0;
 								send_bat_data = 1;
 								err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
-								SEGGER_RTT_printf(0,"err_code4:%x\r",err_code);		
+								if(RTT_PRINT)
+								{
+									SEGGER_RTT_printf(0,"err_code4:%x\r",err_code);		
+								}								
 								if (err_code == BLE_ERROR_NO_TX_PACKETS ||
 									err_code == NRF_ERROR_INVALID_STATE || 
 									err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)

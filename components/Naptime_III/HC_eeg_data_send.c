@@ -37,7 +37,10 @@ void ble_send_data(void)
 		m_data_left_to_send -= m_ble_pl_len;
 			 
 		err_code = ble_EEG_DATA_send(&m_eeg, Data_send, m_ble_pl_len + 2);   //数据发送，长度17字节
-		SEGGER_RTT_printf(0,"err_code1:%x\r",err_code);
+		if(RTT_PRINT)
+		{
+			 SEGGER_RTT_printf(0,"err_code1:%x\r",err_code);		
+		} 		
 		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
 			err_code == NRF_ERROR_INVALID_STATE || 
 			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
@@ -70,7 +73,10 @@ void ble_send_more_data(void)
 		m_data_left_to_send -= m_ble_pl_len;
 
 		err_code = ble_EEG_DATA_send(&m_eeg,Data_send, m_ble_pl_len + 2 );
-    SEGGER_RTT_printf(0,"err_code2:%x\r",err_code);		
+		if(RTT_PRINT)
+		{
+			 SEGGER_RTT_printf(0,"err_code2:%x\r",err_code);		
+		}      	
 		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
 			err_code == NRF_ERROR_INVALID_STATE || 
 			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
@@ -86,7 +92,10 @@ void ble_send_more_data(void)
 	while(send_bat_data == 1 && Global_connected_state)
 	{
 		err_code = ble_bas_battery_level_update(&m_bas, bat_vol_pre,1);
-    SEGGER_RTT_printf(0,"err_code4:%x\r",err_code);		
+		if(RTT_PRINT)
+		{
+			 SEGGER_RTT_printf(0,"err_code4:%x\r",err_code);			
+		}     
 		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
 			err_code == NRF_ERROR_INVALID_STATE || 
 			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
@@ -124,7 +133,10 @@ void ble_send_more_data(void)
 	while(device_sn_send[0] != 0 && Global_connected_state)
 	{
 		err_code = ble_com_string_send(&m_com, device_sn_send , 17);
-    SEGGER_RTT_printf(0,"err_code7:%x\r",err_code);		
+		if(RTT_PRINT)
+		{
+			 SEGGER_RTT_printf(0,"err_code7:%x\r",err_code);	
+		}     	
 		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
 			err_code == NRF_ERROR_INVALID_STATE || 
 			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
@@ -143,20 +155,23 @@ void ble_send_more_data(void)
 	while(user_id_send[0] != 0 && Global_connected_state)
 	{
 		err_code = ble_com_string_send(&m_com, user_id_send , 5);
-    SEGGER_RTT_printf(0,"err_code8:%x\r",err_code);		
+		if(RTT_PRINT)
+		{
+			 SEGGER_RTT_printf(0,"err_code8:%x\r",err_code);
+		}    		
 		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
-			err_code == NRF_ERROR_INVALID_STATE || 
-			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
-			{
-				 break;
-			}
+		err_code == NRF_ERROR_INVALID_STATE || 
+		err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+		{
+			 break;
+		}
 		else if (err_code == NRF_SUCCESS) 
 		{
-			user_id_send[0] = 0;
+		user_id_send[0] = 0;
 		}
 		else
 		{
-			APP_ERROR_CHECK(err_code);
+		APP_ERROR_CHECK(err_code);
 		}
 	}
 }
@@ -165,7 +180,10 @@ void ble_state_send(uint8_t pdata)
 {
    uint32_t err_code;
 	 err_code = ble_EEG_ELE_STATE_send(&m_eeg,pdata, 1);
-	 SEGGER_RTT_printf(0,"err_code3:%x\r\n",err_code);
+	 if(RTT_PRINT)
+	 {
+			 SEGGER_RTT_printf(0,"err_code3:%x\r\n",err_code);
+	 }	
 	 if (err_code == BLE_ERROR_NO_TX_PACKETS ||
 	 err_code == NRF_ERROR_INVALID_STATE || 
 	 err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
