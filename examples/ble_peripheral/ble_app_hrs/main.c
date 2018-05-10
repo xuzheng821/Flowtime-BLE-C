@@ -124,6 +124,7 @@ extern bool Is_white_adv;                //是否白名单广播
 extern bool ID_is_change;                //接收到的ID与原先ID不同，可能需要更新绑定ID
 extern bool Is_device_bond;              //设备是否绑定
 extern uint8_t communocate_state[5];     //握手状态返回
+bool ble_is_connect = false;
 bool Global_connected_state = false;     //连接+握手成功标志
 //LED状态控制与标志位
 extern bool led_timerout;                //led亮灯时间超时标志    
@@ -494,6 +495,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						}
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 				    ble_is_adv = false;
+						ble_is_connect = true;
 						if(Into_factory_test_mode)    //工厂测试模式
 						{
 							  Global_connected_state = true;
@@ -527,6 +529,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
                                  p_ble_evt->evt.gap_evt.params.disconnected.reason);
 						}
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
+						ble_is_connect = false;
 					  err_code = bsp_led_indication(BSP_INDICATE_IDLE);
             APP_ERROR_CHECK(err_code);
 						Global_connected_state = false;
@@ -905,7 +908,7 @@ int main(void)
     Power_Check();
 		button_power_on();
  
-		if((!ble_is_adv) && (m_conn_handle == BLE_CONN_HANDLE_INVALID))
+		if((!ble_is_adv) && (ble_is_connect == false))
 		{
 			  err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
         APP_ERROR_CHECK(err_code);
