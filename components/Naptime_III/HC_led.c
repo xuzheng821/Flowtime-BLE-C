@@ -58,13 +58,13 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 
     	case  BSP_INDICATE_CONNECTED:           //待机状态，蓝灯长亮
 					  ledFlips_timer_stop();
-      			LED_ON_duty(0,0,70);
+      			LED_ON_duty(0,0,100);
 			      m_stable_state = indicate;	      //记录当前led状态 
 				    break;
 
 			case  BSP_INDICATE_CONNECTED_BAT_LOW:   //红灯长亮
 			      ledFlips_timer_stop();
-						LED_ON_duty(40,0,0);  
+						LED_ON_duty(100,0,0);  
             m_stable_state = indicate;        //记录当前led状态
 				    break;
 			
@@ -75,7 +75,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						}
 						else
 						{
-			          LED_ON_duty(0,0,70);  
+			          LED_ON_duty(0,0,100);  
 						}
 						ledFlips_timer_start(500);
             m_stable_state = indicate;        //记录当前led状态
@@ -88,7 +88,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						}
 						else
 						{
-			          LED_ON_duty(40,0,0);  
+			          LED_ON_duty(100,0,0);  
 						}
 						ledFlips_timer_start(500);
             m_stable_state = indicate;        //记录当前led状态
@@ -101,7 +101,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						}
 						else
 						{
-			          LED_ON_duty(0,0,70);  
+			          LED_ON_duty(0,0,100);  
 						}
 						ledFlips_timer_start(100);
             m_stable_state = indicate;		    //记录当前led状态	      
@@ -114,7 +114,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						}
 						else
 						{
-			          LED_ON_duty(40,0,0);  
+			          LED_ON_duty(100,0,0);  
 						}
 						ledFlips_timer_start(100);
             m_stable_state = indicate;		    //记录当前led状态	      

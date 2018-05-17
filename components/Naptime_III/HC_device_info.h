@@ -9,9 +9,9 @@
 #include "HC_data_flash.h"
 
 // Device Information
-#define DEVICE_NAME       "易休 air"             /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME       "易休 air1"             /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME "TEST"        /**< Manufacturer. Will be passed to Device Information Service. */
-#define FW_REV_STR        "1.1.98"                /**< software Revision String. */
+#define FW_REV_STR        "1.1.910"                /**< software Revision String. */
 #define HW_REV_STR        "1.0.1"                /**< Hardware Revision String. */
 
 void mac_get(void);

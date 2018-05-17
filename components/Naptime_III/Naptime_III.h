@@ -21,16 +21,16 @@
 
 #define BQ_CHG              15
 #define BQ_PG               16
-#define AEF_PM_EN           17
+#define AEF_PM_EN           27
 #define BUTTON              18
 #define RX_PIN_NUMBER       20
 #define TX_PIN_NUMBER       19
 
 #define TPS_CTRL            25
 #define FACTORY_TEST        26 
-#define LED_GPIO_RED        28 
-#define LED_GPIO_GREEN      27
-#define LED_GPIO_BLUE       29 
+#define LED_GPIO_RED        17 
+#define LED_GPIO_GREEN      18
+#define LED_GPIO_BLUE       19 
 #define ADC_VBAT            30
 
 #define CTS_PIN_NUMBER      7  //11
