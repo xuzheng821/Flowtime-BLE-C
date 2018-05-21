@@ -883,7 +883,6 @@ int main(void)
 	  SEGGER_RTT_Init();
 	  if(RTT_PRINT)
 	  {
-			
 			SEGGER_RTT_printf(0," hello_rtt \n");
 	  }
 	
