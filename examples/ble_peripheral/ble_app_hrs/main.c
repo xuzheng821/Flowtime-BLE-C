@@ -883,7 +883,7 @@ int main(void)
 	  SEGGER_RTT_Init();
 	  if(RTT_PRINT)
 	  {
-			SEGGER_RTT_printf(0," hello_rtt \n");
+			SEGGER_RTT_printf(0," FW_REV_STR:%s \n",FW_REV_STR);
 	  }
 	
 	  // Initialize.
