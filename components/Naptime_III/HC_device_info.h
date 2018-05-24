@@ -10,9 +10,9 @@
 
 // Device Information
 #define DEVICE_NAME       "Luuna"             /**< Name of device. Will be included in the advertising data. */
-#define MANUFACTURER_NAME "TEST"        /**< Manufacturer. Will be passed to Device Information Service. */
-#define FW_REV_STR        "1.1.911"                /**< software Revision String. */
-#define HW_REV_STR        "1.0.1"                /**< Hardware Revision String. */
+#define MANUFACTURER_NAME "HZhuiche Inc."        /**< Manufacturer. Will be passed to Device Information Service. */
+#define FW_REV_STR        "1.2.0"                /**< software Revision String. */
+#define HW_REV_STR        "1.0.2"                /**< Hardware Revision String. */
 
 void mac_get(void);
 void ble_devinfo_serv_init(void);
