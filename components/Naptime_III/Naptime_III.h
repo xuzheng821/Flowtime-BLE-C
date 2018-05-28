@@ -28,9 +28,9 @@
 
 #define TPS_CTRL            25
 #define FACTORY_TEST        26 
-#define LED_GPIO_RED        27 
-#define LED_GPIO_GREEN      29
-#define LED_GPIO_BLUE       28 
+#define LED_GPIO_RED        28 
+#define LED_GPIO_GREEN      27
+#define LED_GPIO_BLUE       29 
 #define ADC_VBAT            30
 
 #define CTS_PIN_NUMBER      7  //11
