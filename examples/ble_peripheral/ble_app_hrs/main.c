@@ -890,7 +890,7 @@ int main(void)
     gpio_init();
 	  bootup_check();
  	  timers_init(); 
-//  	button_gpiote_init();
+  	button_gpiote_init();
 	  wdt_Init();
   	saadc_init();
   	flash_init();
@@ -903,15 +903,15 @@ int main(void)
 	  advertising_init();
     conn_params_init();
 		
-//    charging_check();	
-//    Power_Check();
-//		button_power_on();
-// 
-//		if((!ble_is_adv) && (ble_is_connect == false))
-//		{
+    charging_check();	
+    Power_Check();
+		button_power_on();
+ 
+		if((!ble_is_adv) && (ble_is_connect == false))
+		{
 			  err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
         APP_ERROR_CHECK(err_code);
-//		}
+		}
 		
 		while(1)
     {
