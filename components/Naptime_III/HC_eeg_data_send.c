@@ -114,7 +114,10 @@ void ble_send_more_data(void)
 	while(device_id_send[0] != 0 && Global_connected_state)
 	{
 		err_code = ble_com_string_send(&m_com, device_id_send , 17);
-    SEGGER_RTT_printf(0,"err_code6:%x\r",err_code);		
+		if(RTT_PRINT)
+		{
+			 SEGGER_RTT_printf(0,"err_code6:%x\r",err_code);			
+		} 	
 		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
 			err_code == NRF_ERROR_INVALID_STATE || 
 			err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
