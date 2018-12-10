@@ -67,6 +67,12 @@
 #include "HC_command_analysis.h"
 #include "protocol_analysis.h"
 
+//cole add..
+#include "afe4404_hw.h"
+#include "agc_V3_1_19.h"
+#include "hqerror.h"
+#include "pps960.h"
+
 //服务发现
 #define IS_SRVC_CHANGED_CHARACT_PRESENT  1                                           /**< Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
 //主从机连接数量参数
@@ -142,6 +148,8 @@ extern bool StorySN;                     //是否存储SN
 extern nrf_drv_wdt_channel_id            m_channel_id;
 //广播状态
 bool ble_is_adv = false;                 //设备是否开启广播
+//PPS
+extern uint16_t acc_check;
 //广播UUID
 #define BLE_UUID_Naptime_Profile 0xFF00
 static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_Naptime_Profile, BLE_UUID_TYPE_VENDOR_BEGIN}}; /**< Universally unique service identifiers. */
@@ -392,7 +400,9 @@ static void gpio_reset(void)
 	  nrf_gpio_cfg_output(LED_GPIO_GREEN);
 	  nrf_gpio_cfg_output(AEF_PM_EN);
 	  nrf_gpio_cfg_output(TPS_CTRL);
+	  nrf_gpio_cfg_output(PPS_EN_PIN);
 
+	  NRF_GPIO->OUTCLR = 1<<PPS_EN_PIN;
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_RED;
 	  NRF_GPIO->OUTCLR = 1<<LED_GPIO_GREEN;
@@ -912,6 +922,15 @@ int main(void)
 			  err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
         APP_ERROR_CHECK(err_code);
 		}
+		/* Initializing TWI master interface for EEPROM */
+		err_code = twi_master_init();
+		APP_ERROR_CHECK(err_code);		
+
+		init_pps960_sensor();
+		acc_check = 1;
+		
+		pps960_rd_raw_timer_start();
+		pps960_alg_timer_start();	
 		
 		while(1)
     {
