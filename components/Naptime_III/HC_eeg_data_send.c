@@ -3,12 +3,13 @@
 ble_eeg_t               m_eeg;                                     /**< Structure used to identify the heart rate service. */
 ble_bas_t               m_bas;                                     /**< Structure used to identify the battery service. */
 ble_com_t               m_com;                                     /**< Structure to identify the Nordic UART Service. */
+ble_hrs_t               m_hrs;                                     /**< Structure to identify the Nordic UART Service. */
 
 /*******************数据吞吐量测试*********************/
-uint16_t data_len = 150;             //发送数据总长度
+uint16_t data_len = 540;             //发送数据总长度
 uint16_t m_data_left_to_send = 0;    //剩余需要发送的数据长度
-static uint8_t Data_send[17];        //发送数据缓存
-static uint8_t m_ble_pl_len = 15;    //每一次发送数据长度
+static uint8_t Data_send[20];        //发送数据缓存
+static uint8_t m_ble_pl_len = 18;    //每一次发送数据长度
 static uint8_t Num_Time = 0;         //帧头
 //static bool m_data_q;              //发送成功True
 extern uint8_t EEG_DATA_SEND[750];   //需要发送的数据
@@ -20,6 +21,8 @@ extern uint8_t bat_vol_pre;          //当前电量百分比
 extern uint8_t device_id_send[17];   //发送的device_id
 extern uint8_t device_sn_send[17];   //发送的SN
 extern uint8_t user_id_send[5];      //发送的SN
+extern uint8_t Hrs_data_is_ok;
+extern uint16_t lifeQhrm;
 
 //调用该函数发送第一帧数据
 void ble_send_data(void)
@@ -88,6 +91,10 @@ void ble_send_more_data(void)
 		{
 			APP_ERROR_CHECK(err_code);
 		}
+		else
+		{
+			Num_Time ++;
+		}
 	}
 	while(send_bat_data == 1 && Global_connected_state)
 	{
@@ -153,6 +160,28 @@ void ble_send_more_data(void)
 		else
 		{
 			APP_ERROR_CHECK(err_code);
+		}
+	}
+	while(Hrs_data_is_ok != 0 && Global_connected_state)
+	{
+		err_code = ble_HRS_DATA_send(&m_hrs, lifeQhrm , 1);
+		if(RTT_PRINT)
+		{
+			 SEGGER_RTT_printf(0,"err_code9:%x\r",err_code);
+		}    		
+		if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+		err_code == NRF_ERROR_INVALID_STATE || 
+		err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+		{
+			 break;
+		}
+		else if (err_code == NRF_SUCCESS) 
+		{
+		    Hrs_data_is_ok = 0;
+		}
+		else
+		{
+		APP_ERROR_CHECK(err_code);
 		}
 	}
 	while(user_id_send[0] != 0 && Global_connected_state)

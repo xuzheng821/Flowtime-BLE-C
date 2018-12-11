@@ -1,4 +1,5 @@
 #include "HC_factory_test.h"
+#include "afe4404_hw.h"
 
 static bool Into_System_test_mode = false;              //是否进入系统测试模式
 
@@ -12,6 +13,8 @@ extern bool ads1291_is_init;                            //ADS1291是否初始化
 extern uint8_t device_id_receive[16];                   //缓存主机端发送过来的deviceID-16位
 extern uint8_t device_sn_receive[16];                   //缓存主机端发送过来的SN-16位
 extern bool Global_connected_state;                     //连接+握手成功标志
+//PPS
+extern uint16_t acc_check;
 
 extern void sleep_mode_enter(void);
 //启动Check，判断是否为软复位启动，是否进入工厂测试模式
@@ -77,6 +80,11 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 				    if(ads1291_is_init == false) 
 						{
 								ads1291_init();
+								init_pps960_sensor();
+								acc_check = 1;
+								
+								pps960_rd_raw_timer_start();
+								pps960_alg_timer_start();
 						}							 
 						break;
 									
@@ -84,6 +92,10 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 				    if(ads1291_is_init == true) 
 						{
 								ADS1291_disable();
+								nrf_gpio_cfg_output(PPS_EN_PIN);
+								NRF_GPIO->OUTCLR = 1<<PPS_EN_PIN;
+								pps960_rd_raw_timer_stop();
+								pps960_alg_timer_stop();
 						}							 
 						break;	
 																

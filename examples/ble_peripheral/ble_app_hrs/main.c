@@ -41,6 +41,7 @@
 #include "ble_conn.h"
 #include "ble_dis.h"
 #include "ble_eeg.h"
+#include "ble_hrs.h"
 #ifdef BLE_DFU_APP_SUPPORT
 #include "ble_dfu.h"
 #include "dfu_app_handler.h"
@@ -120,6 +121,7 @@ static ble_dfu_t                         m_dfus;                                
 extern ble_bas_t                         m_bas;                                      /**< Structure used to identify the battery service. */
 extern ble_com_t                         m_com;                                      /**< Structure to identify the Nordic UART Service. */
 extern ble_eeg_t                         m_eeg;                                      /**< Structure used to identify the heart rate service. */
+extern ble_hrs_t                         m_hrs;                                      /**< Structure used to identify the heart rate service. */
 extern ble_conn_t                        m_conn;                                     /**< Structure to identify the Nordic UART Service. */
 uint16_t                                 m_conn_handle;                              /**< Handle of the current connection. */
 static dm_application_instance_t         m_app_handle;                               /**< Application identifier allocated by device manager. */
@@ -148,8 +150,6 @@ extern bool StorySN;                     //是否存储SN
 extern nrf_drv_wdt_channel_id            m_channel_id;
 //广播状态
 bool ble_is_adv = false;                 //设备是否开启广播
-//PPS
-extern uint16_t acc_check;
 //广播UUID
 #define BLE_UUID_Naptime_Profile 0xFF00
 static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_Naptime_Profile, BLE_UUID_TYPE_VENDOR_BEGIN}}; /**< Universally unique service identifiers. */
@@ -292,6 +292,7 @@ static void services_init(void)
 	  ble_com_init_t   com_init;
 	  ble_conn_init_t  conn_init;
     ble_eeg_init_t   eeg_init;
+	  ble_hrs_init_t   hrs_init;
 
 	  memset(&com_init, 0, sizeof(com_init));
     com_init.data_handler = NULL;   
@@ -306,6 +307,11 @@ static void services_init(void)
     memset(&eeg_init, 0, sizeof(eeg_init));
     eeg_init.evt_handler = NULL;
     err_code = ble_eeg_init(&m_eeg, &eeg_init);
+    APP_ERROR_CHECK(err_code);
+
+    memset(&hrs_init, 0, sizeof(hrs_init));
+    hrs_init.evt_handler = NULL;
+    err_code = ble_hrs_init(&m_hrs, &hrs_init);
     APP_ERROR_CHECK(err_code);
 
     // Initialize Battery Service.
@@ -529,6 +535,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 										APP_ERROR_CHECK(err_code);	
 								}
 						}
+//						Global_connected_state = true;
             break;
 
           case BLE_GAP_EVT_DISCONNECTED:
@@ -596,6 +603,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 	  ble_com_on_ble_evt(&m_com, p_ble_evt);
 	  ble_conn_on_ble_evt(&m_conn, p_ble_evt);
     ble_eeg_on_ble_evt(&m_eeg, p_ble_evt);
+	  ble_hrs_on_ble_evt(&m_hrs, p_ble_evt);
     on_ble_evt(p_ble_evt);
     dm_ble_evt_handler(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
@@ -926,12 +934,6 @@ int main(void)
 		err_code = twi_master_init();
 		APP_ERROR_CHECK(err_code);		
 
-		init_pps960_sensor();
-		acc_check = 1;
-		
-		pps960_rd_raw_timer_start();
-		pps960_alg_timer_start();	
-		
 		while(1)
     {
 		  if(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)     //input vol is above battery vol

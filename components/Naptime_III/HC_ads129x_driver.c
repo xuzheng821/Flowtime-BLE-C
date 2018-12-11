@@ -65,12 +65,12 @@ void ADS_init(void)
 {
     ADS_Config_Init(&ADS_Config1);
 	  ADS_Config1.CONFIG1.Value = ADS_DR(1);
-    ADS_Config1.CONFIG2.Value |= ADS_PDB_LOFF_COMP + ADS_INT_TEST + ADS_PDB_REFBUF + ADS_TEST_FREQ;//
-    ADS_Config1.LOFF.Value |= ADS_COMP_TH(0) + ADS_ILEAD_OFF(0);//
+    ADS_Config1.CONFIG2.Value |= ADS_PDB_LOFF_COMP + ADS_PDB_REFBUF ;//+ ADS_INT_TEST + ADS_TEST_FREQ 
+    ADS_Config1.LOFF.Value |= ADS_COMP_TH(0) + ADS_ILEAD_OFF(1);//
     ADS_Config1.CH1SET.Value |=ADS_GAIN1(6)+ADS_MUX1(0);
-    ADS_Config1.CH2SET.Value |=  ADS_PD2 + ADS_GAIN2(0)+ADS_MUX2(1);//
-    ADS_Config1.RLD_SENS.Value |= ADS_RLD_LOFF_SENS + ADS_CHOP(0)  + ADS_PDB_RLD + ADS_RLD1N + ADS_RLD1P;//
-    ADS_Config1.LOFF_SENS.Value |=  ADS_FLIP1 +ADS_LOFF1N + ADS_LOFF1P;//NULL
+	  ADS_Config1.CH2SET.Value |=ADS_GAIN1(6)+ADS_MUX1(0);
+    ADS_Config1.RLD_SENS.Value |= ADS_RLD_LOFF_SENS + ADS_CHOP(0)  + ADS_PDB_RLD + ADS_RLD1N + ADS_RLD1P + ADS_RLD2N + ADS_RLD2P;//
+    ADS_Config1.LOFF_SENS.Value |=  ADS_FLIP1 +ADS_LOFF1N + ADS_LOFF1P + ADS_FLIP2 +ADS_LOFF2N + ADS_LOFF2P;//NULL
     ADS_Config1.LOFF_STAT.Value |= NULL;
     ADS_Config1.RESP1.Value |= NULL;
     ADS_Config1.RESP2.Value |= ADS_RLDREF_INT ;//+ ADS_CALIB_ON
@@ -154,23 +154,28 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 			 m_eeg.is_state_notification_enabled &&
 			ads1291_is_init)
     {		 
-	     uint8_t Rx[6] = {0};
-  	   uint32_t ADCData;
-	     uint8_t Data[3];
+	     uint8_t Rx[9];
+  	   uint32_t ADCData11,ADCData22;
+	     uint8_t Data[6];
 		   uint8_t LOFF_State = 0;
 
-       ADS_ReadData(Rx,6);
-	     ADCData = ((Rx[3]*0xFFFFFF)+(Rx[4]*0xFFFF)+Rx[5]*0xFF+0x80000000)>>8;
-       Data[0] = ADCData >> 16;
-		   Data[1] = ADCData >> 8 % 0xFF;
-		   Data[2] = ADCData ;
-			 
-		   memcpy((ADCData1 + Data_Num * 3),Data,3);
+       ADS_ReadData(Rx,9);
+	     ADCData11 = ((Rx[3]*0xFFFFFF)+(Rx[4]*0xFFFF)+Rx[5]*0xFF+0x80000000)>>8;
+			 ADCData22 = ((Rx[6]*0xFFFFFF)+(Rx[7]*0xFFFF)+Rx[8]*0xFF+0x80000000)>>8;
+       Data[0] = ADCData11 >> 16;
+		   Data[1] = ADCData11 >> 8 % 0xFF;
+		   Data[2] = ADCData11 & 0xFE;
+			 Data[3] = ADCData22 >> 16;
+		   Data[4] = ADCData22 >> 8 % 0xFF;
+		   Data[5] = ADCData22 & 0xFE;
+
+		   memcpy((ADCData1 + Data_Num * 6),Data,6);
+
 		   Data_Num ++;
 			 
-       if(Data_Num == data_len / 3 && m_data_left_to_send == 0)  
+       if(Data_Num == data_len / 6 && m_data_left_to_send == 0)  
 	     {
-					LOFF_State = ((Rx[0]<<4) & 0x10) | ((Rx[1] & 0x80)>>4);
+					LOFF_State = ((Rx[0]<<4) & 0x70) | ((Rx[1] & 0x80)>>4);
 					ble_state_send(LOFF_State);	
 				  
 			    Data_Num = 0;
@@ -178,7 +183,7 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 				  memset(ADCData1,0,sizeof(ADCData1));
 			    ble_send_data();
 			 }
-       if(Data_Num == data_len / 3 && m_data_left_to_send != 0)  
+       if(Data_Num == data_len / 6 && m_data_left_to_send != 0)  
 	     {
 			    Data_Num = 0;
 			 }			 

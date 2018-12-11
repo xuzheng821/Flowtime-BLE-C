@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdint.h>
 #include "ble_eeg.h"
+#include "ble_hrs.h"
 #include "ble_bas.h"
 #include "ble_com.h"
 #include "ble_gatt.h"

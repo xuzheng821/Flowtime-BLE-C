@@ -11,6 +11,7 @@
 #include "app_util_platform.h"
 #include "ble_eeg.h"
 #include "HC_eeg_data_send.h"
+#include "HC_timer.h"
 
 extern  nrf_drv_spi_t spi;                  /**< SPI instance. */
 #define ADS_REG_ID_ADDRESS                  0x00

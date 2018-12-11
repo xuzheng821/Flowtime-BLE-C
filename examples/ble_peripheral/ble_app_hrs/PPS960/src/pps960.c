@@ -24,9 +24,14 @@
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
 #include "HC_uart.h"
+#include "ble_hrs.h"
+
+extern ble_hrs_t                         m_hrs;                                      /**< Structure used to identify the heart rate service. */
 
 uint16_t lifeQhrm = 0;
 int8_t snrValue = 0,skin = 0,sample = 0;
+ 
+uint8_t Hrs_data_is_ok = 0;
  
 uint16_t acc_check=0;
 uint16_t acc_check2=0;
@@ -97,7 +102,7 @@ uint16_t lifeskin = 0;
 extern uint8_t EEG_DATA_SEND[320];
 void pps960_sensor_task2(void *params)
 {
-//	  uint32_t err_code;
+	  uint32_t err_code;
 	 
 		if(acc_check) {
 				//if(GetHRSampleCount()==25) { // for 1s to update display
@@ -113,15 +118,28 @@ void pps960_sensor_task2(void *params)
 						{
 							lifeQhrm = 0;
 						}
-//						SEGGER_RTT_printf(0,"%d HR=%d snr=%d spl=%d skin=%d\r\n",cnt,lifeQhrm,snrValue,sample,skin);
-//						app_uart_put(0x48);
-
-//			      printf("%d\r\n",lifeQhrm);
-
-//			      lifeHR = lifeQhrm;
-//            lifeskin = skin;
+						Hrs_data_is_ok = 1;
+						SEGGER_RTT_printf(0,"%d HR=%d snr=%d spl=%d skin=%d\r\n",cnt,lifeQhrm,snrValue,sample,skin);
 						
-
+						err_code = ble_HRS_DATA_send(&m_hrs, lifeQhrm , 1);
+						if(RTT_PRINT)
+						{
+							SEGGER_RTT_printf(0,"err_code9:%x\r",err_code);		
+						}								
+						if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+							err_code == NRF_ERROR_INVALID_STATE || 
+							err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+							{
+								 return;
+							}
+						else if (err_code == NRF_SUCCESS) 
+						{
+							Hrs_data_is_ok = 0;
+						}
+						else 
+						{
+							APP_ERROR_CHECK(err_code);
+						}
 
 						displayHrm = lifeQhrm;// 
 
