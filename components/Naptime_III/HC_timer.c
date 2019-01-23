@@ -1,7 +1,7 @@
 #include "HC_timer.h"
 
 //定时器参数
-#define APP_TIMER_OP_QUEUE_SIZE          9                                           /**< Size of timer operation queues. */
+#define APP_TIMER_OP_QUEUE_SIZE          12                                          /**< Size of timer operation queues. */
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
 
 APP_TIMER_DEF(m_leds_timer_id);
@@ -286,7 +286,7 @@ void pps960_rd_raw_timer_stop(void)
 //心率数据处理
 void pps960_alg_timer_handler(void * p_context)
 {
-//	  SEGGER_RTT_printf(0," 1s \n");
+//    SEGGER_RTT_printf(0," 1s \n");
     UNUSED_PARAMETER(p_context);
     pps960_sensor_task2(NULL);	
 }

@@ -150,9 +150,9 @@ void ADS_ReadStatue(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size)
 
 void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
-    if(m_eeg.is_eeg_notification_enabled &&
-			 m_eeg.is_state_notification_enabled &&
-			ads1291_is_init)
+//    if(m_eeg.is_eeg_notification_enabled &&
+//			 m_eeg.is_state_notification_enabled &&
+			if(ads1291_is_init)
     {		 
 	     uint8_t Rx[9];
   	   uint32_t ADCData11,ADCData22;
@@ -170,23 +170,27 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 		   Data[5] = ADCData22 & 0xFE;
 
 		   memcpy((ADCData1 + Data_Num * 6),Data,6);
-
-		   Data_Num ++;
 			 
-       if(Data_Num == data_len / 6 && m_data_left_to_send == 0)  
-	     {
-					LOFF_State = ((Rx[0]<<4) & 0x70) | ((Rx[1] & 0x80)>>4);
-					ble_state_send(LOFF_State);	
-				  
-			    Data_Num = 0;
-			    memcpy(EEG_DATA_SEND,ADCData1,data_len);			
-				  memset(ADCData1,0,sizeof(ADCData1));
-			    ble_send_data();
+		   Data_Num ++;
+			 if(Data_Num == 250)
+			 {
+				 Data_Num = 0;
+				 SEGGER_RTT_printf(0," ads1291_is_init \n");
 			 }
-       if(Data_Num == data_len / 6 && m_data_left_to_send != 0)  
-	     {
-			    Data_Num = 0;
-			 }			 
+//       if(Data_Num == data_len / 6 && m_data_left_to_send == 0)  
+//	     {
+//					LOFF_State = ((Rx[0]<<4) & 0x70) | ((Rx[1] & 0x80)>>4);
+//					ble_state_send(LOFF_State);	
+//				  
+//			    Data_Num = 0;
+//			    memcpy(EEG_DATA_SEND,ADCData1,data_len);			
+//				  memset(ADCData1,0,sizeof(ADCData1));
+//			    ble_send_data();
+//			 }
+//       if(Data_Num == data_len / 6 && m_data_left_to_send != 0)  
+//	     {
+//			    Data_Num = 0;
+//			 }			 
 	 }
 	 else
 	 {

@@ -127,6 +127,7 @@ uint16_t                                 m_conn_handle;                         
 static dm_application_instance_t         m_app_handle;                               /**< Application identifier allocated by device manager. */
 //eeg数据传输变量与标志位
 extern bool ads1291_is_init;             //1291初始化标志位
+extern bool pps964_is_init;              //PPS964是否初始化
 //连接状态标志位
 extern bool Is_white_adv;                //是否白名单广播
 extern bool ID_is_change;                //接收到的ID与原先ID不同，可能需要更新绑定ID
@@ -151,7 +152,7 @@ extern nrf_drv_wdt_channel_id            m_channel_id;
 //广播状态
 bool ble_is_adv = false;                 //设备是否开启广播
 //广播UUID
-#define BLE_UUID_Naptime_Profile 0xFF10
+#define BLE_UUID_Naptime_Profile 0xFF00
 static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_Naptime_Profile, BLE_UUID_TYPE_VENDOR_BEGIN}}; /**< Universally unique service identifiers. */
 
 /**@brief Function for the GAP initialization.
@@ -522,7 +523,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 						else                         //正常工作模式
 						{
 				        connection_buttons_configure();	  
-				        connects_timer_start();
+//				        connects_timer_start();
 								LED_timeout_restart();
 								if(bat_vol_pre < bat_vol_pre_work)    //电量低于使用电压
 								{
@@ -535,7 +536,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 										APP_ERROR_CHECK(err_code);	
 								}
 						}
-//						Global_connected_state = true;
+						Global_connected_state = true;
             break;
 
           case BLE_GAP_EVT_DISCONNECTED:
@@ -558,7 +559,11 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 				    m_conn.is_state_notification_enabled = false;
             if(ads1291_is_init == true)
 						{
-					   	 ADS1291_disable();
+					   	 ADS1291_disable();					
+						}
+						if(pps964_is_init == true)
+						{
+							 pps960_disable();							
 						}
 					  connects_timer_stop();
             break;
@@ -895,6 +900,7 @@ static void gpio_init(void)
  */
 int main(void)
 {
+
     uint32_t err_code;
     bool erase_bonds = true;
 
@@ -923,17 +929,19 @@ int main(void)
 		
     charging_check();	
     Power_Check();
-		button_power_on();
+//		button_power_on();
  
 		if((!ble_is_adv) && (ble_is_connect == false))
 		{
 			  err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
         APP_ERROR_CHECK(err_code);
 		}
-		/* Initializing TWI master interface for EEPROM */
-		err_code = twi_master_init();
-		APP_ERROR_CHECK(err_code);		
 
+		pps960_init();
+//		nrf_delay_ms(1000);
+//		nrf_delay_ms(1000);
+//		nrf_delay_ms(1000);
+//	  pps960_disable();
 		while(1)
     {
 		  if(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)     //input vol is above battery vol

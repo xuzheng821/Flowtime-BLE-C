@@ -1,0 +1,10 @@
+diff a/components/Naptime_III/HC_timer.c b/components/Naptime_III/HC_timer.c	(rejected hunks)
+@@ -29,7 +29,7 @@
+ extern void pps960_sensor_task2(void *params);
+ 
+ #define wdt_timer_interval           APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)
+-#define led_timer_interval           APP_TIMER_TICKS(120000, APP_TIMER_PRESCALER)     
++#define led_timer_interval           APP_TIMER_TICKS(4000, APP_TIMER_PRESCALER)     
+ #define button_timer_interval        APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)         //����50ms���һ��
+ #define battery_timer_interval       APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER) 
+ #define led_test_timer_interval      APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)

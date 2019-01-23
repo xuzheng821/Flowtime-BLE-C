@@ -25,17 +25,18 @@
 #include "SEGGER_RTT.h"
 #include "HC_uart.h"
 #include "ble_hrs.h"
+#include "HC_timer.h"
 
 extern ble_hrs_t                         m_hrs;                                      /**< Structure used to identify the heart rate service. */
+
+bool pps964_is_init = false; //1291是否初始化完成标志位
+
+static const nrf_drv_twi_t m_twi_master = NRF_DRV_TWI_INSTANCE(0);//twi0
 
 uint16_t lifeQhrm = 0;
 int8_t snrValue = 0,skin = 0,sample = 0;
  
 uint8_t Hrs_data_is_ok = 0;
- 
-uint16_t acc_check=0;
-uint16_t acc_check2=0;
-uint8_t pps964_is_init = 0; 
 
 int8_t hr_okflag=false;
 int8_t Stablecnt=0;
@@ -62,17 +63,26 @@ void pps960_Rest_SW(void)
 
 void pps960_disable(void)
 {
-	pps964_is_init = 0;
+	pps964_is_init = false;
+	pps960_rd_raw_timer_stop();
+	pps960_alg_timer_stop();
+	nrf_gpio_cfg_output(PPS_EN_PIN);
 	nrf_gpio_pin_write(PPS_EN_PIN, 0);
-	PPS_DELAY_MS(200);
+	nrf_drv_twi_uninit(&m_twi_master);
+	nrf_drv_twi_disable(&m_twi_master);
+	nrf_gpio_cfg_input(TWI_SCL_M,NRF_GPIO_PIN_PULLUP);
+	nrf_gpio_cfg_input(TWI_SDA_M,NRF_GPIO_PIN_PULLUP);
+	SEGGER_RTT_printf(0," pps964_is_init:%d \n",pps964_is_init);
 }
 
-void init_pps960_sensor(void)
+void pps960_init(void)
 {
-	  pps964_is_init = 1;
+		uint32_t err_code = twi_master_init();
+		APP_ERROR_CHECK(err_code);	
+
 	  nrf_gpio_cfg_output(PPS_EN_PIN);
 	  nrf_gpio_pin_write(PPS_EN_PIN, 1);
-	  PPS_DELAY_MS(200);
+	  PPS_DELAY_MS(1000);
 	  nrf_gpio_pin_write(PPS_REST_PIN, 0);//low
     PPS_DELAY_MS(30);
 		nrf_gpio_pin_write(PPS_REST_PIN, 1);//high
@@ -80,6 +90,11 @@ void init_pps960_sensor(void)
 	
     init_PPS960_register();
     PPS960_init();
+	
+	  pps964_is_init = true;
+		pps960_rd_raw_timer_start();
+		pps960_alg_timer_start();
+	  SEGGER_RTT_printf(0," pps964_is_init1:%d \n",pps964_is_init);
 }
 
 extern uint8_t control;
@@ -88,7 +103,7 @@ uint8_t pps_test_flag=0;
 void pps960_sensor_task(void *params)
 {
       pps_intr_flag = 0;
-			if(acc_check){
+			if(pps964_is_init){
 							ALGSH_retrieveSamplesAndPushToQueue();//read pps raw data
 							//move ALGSH_dataToAlg(); to message queue loop. and then send message at here.
 							ALGSH_dataToAlg();
@@ -104,7 +119,7 @@ void pps960_sensor_task2(void *params)
 {
 	  uint32_t err_code;
 	 
-		if(acc_check) {
+		if(pps964_is_init) {
 				//if(GetHRSampleCount()==25) { // for 1s to update display
 						sample=GetHRSampleCount();
 						ClrHRSampleCount();
@@ -124,7 +139,7 @@ void pps960_sensor_task2(void *params)
 						err_code = ble_HRS_DATA_send(&m_hrs, lifeQhrm , 1);
 						if(RTT_PRINT)
 						{
-							SEGGER_RTT_printf(0,"err_code9:%x\r",err_code);		
+//							SEGGER_RTT_printf(0,"err_code9:%x\r",err_code);		
 						}								
 						if (err_code == BLE_ERROR_NO_TX_PACKETS ||
 							err_code == NRF_ERROR_INVALID_STATE || 
@@ -156,7 +171,6 @@ void pps960_sensor_task2(void *params)
  *
  * eeprom memory.
  */
-static const nrf_drv_twi_t m_twi_master = NRF_DRV_TWI_INSTANCE(0);//twi0
 
 
 void PPS960_writeReg(uint8_t regaddr, uint32_t wdata)
@@ -179,7 +193,7 @@ void PPS960_writeReg(uint8_t regaddr, uint32_t wdata)
 		{
 			if(0x8201==ret){SEGGER_RTT_printf(0,"i2c Ack error!");}
 			else if(0x8202==ret){SEGGER_RTT_printf(0,"i2c Nack error!");}
-//			SEGGER_RTT_printf(0,"PPS960_writeReg faile!!! %x\r\n",ret);
+			SEGGER_RTT_printf(0,"PPS960_writeReg faile!!! %x\r\n",ret);
 			//printf("PPS960_writeReg faile!!! %d\r\n",ret);
 		}
 }
@@ -200,7 +214,7 @@ uint32_t PPS960_readReg(uint8_t regaddr)
        {
 				 			if(0x8201==ret){SEGGER_RTT_printf(0,"i2c Ack error!");}
 			else if(0x8202==ret){SEGGER_RTT_printf(0,"i2c Nack error!");}
-//			SEGGER_RTT_printf(0,"PPS960_readReg faile!!! %x\r\n",ret);
+			SEGGER_RTT_printf(0,"PPS960_readReg faile!!! %x\r\n",ret);
            //break;
        }
        ret = nrf_drv_twi_rx(&m_twi_master, PPS960_ADDR, temp, 3);
@@ -209,7 +223,7 @@ uint32_t PPS960_readReg(uint8_t regaddr)
 		{
 			if(0x8201==ret){SEGGER_RTT_printf(0,"i2c Ack error!");}
 			else if(0x8202==ret){SEGGER_RTT_printf(0,"i2c Nack error!");}
-//			SEGGER_RTT_printf(0,"PPS960_readReg faile!!! %x\r\n",ret);
+			SEGGER_RTT_printf(0,"PPS960_readReg faile!!! %x\r\n",ret);
 			//printf("PPS960_readReg faile!!! %d\r\n",ret);
 		}
 		
