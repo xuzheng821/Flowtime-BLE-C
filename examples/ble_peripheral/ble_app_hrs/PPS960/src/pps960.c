@@ -27,6 +27,11 @@
 #include "ble_hrs.h"
 #include "HC_timer.h"
 
+#include "nrf.h"
+#include "nrf_drv_saadc.h"
+#include "app_error.h"
+#include "app_util_platform.h"
+
 extern ble_hrs_t                         m_hrs;                                      /**< Structure used to identify the heart rate service. */
 
 bool pps964_is_init = false; //1291是否初始化完成标志位
@@ -72,7 +77,12 @@ void pps960_disable(void)
 	nrf_drv_twi_disable(&m_twi_master);
 	nrf_gpio_cfg_input(TWI_SCL_M,NRF_GPIO_PIN_PULLUP);
 	nrf_gpio_cfg_input(TWI_SDA_M,NRF_GPIO_PIN_PULLUP);
-	SEGGER_RTT_printf(0," pps964_is_init:%d \n",pps964_is_init);
+	SEGGER_RTT_printf(0," pps964_is_init:%d \n",__FPU_USED);
+	#if (__FPU_USED == 1)
+  __set_FPSCR(__get_FPSCR() & ~(0x0000009F)); 
+ (void) __get_FPSCR();
+  NVIC_ClearPendingIRQ(FPU_IRQn);
+  #endif
 }
 
 void pps960_init(void)

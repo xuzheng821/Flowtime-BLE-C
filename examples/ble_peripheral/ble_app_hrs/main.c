@@ -929,7 +929,7 @@ int main(void)
 		
     charging_check();	
     Power_Check();
-//		button_power_on();
+		button_power_on();
  
 		if((!ble_is_adv) && (ble_is_connect == false))
 		{
@@ -937,11 +937,6 @@ int main(void)
         APP_ERROR_CHECK(err_code);
 		}
 
-		pps960_init();
-//		nrf_delay_ms(1000);
-//		nrf_delay_ms(1000);
-//		nrf_delay_ms(1000);
-//	  pps960_disable();
 		while(1)
     {
 		  if(nrf_gpio_pin_read(BQ_PG) == 0 && !Into_factory_test_mode)     //input vol is above battery vol

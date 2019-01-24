@@ -76,16 +76,18 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						break;
 			 
 			 case App_Nap_Start1291:             
-				    if(ads1291_is_init == false) 
+				    if(ads1291_is_init == false && pps964_is_init == false) 
 						{
-								ads1291_init();
+								ads1291_init();	
+            		pps960_init();
 						}							 
 						break;
 									
 			 case App_Nap_Stop1291: 
-				    if(ads1291_is_init == true) 
+				    if(ads1291_is_init == true && pps964_is_init == true) 
 						{
 								ADS1291_disable();
+								pps960_disable();
 						}							 
 						break;	
 
