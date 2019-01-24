@@ -10,11 +10,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "app_util_platform.h"
+#include "nrf.h"
 #include "nrf_drv_twi.h"
 #include "nrf_gpio.h" 
 #include "nrf_delay.h"
 #include "app_timer.h"
+#include "app_error.h"
+#include "app_util_platform.h"
 #include "afe4404_hw.h"
 #include "agc_V3_1_19.h"
 #include "hqerror.h"
@@ -24,13 +26,7 @@
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
 #include "HC_uart.h"
-#include "ble_hrs.h"
 #include "HC_timer.h"
-
-#include "nrf.h"
-#include "nrf_drv_saadc.h"
-#include "app_error.h"
-#include "app_util_platform.h"
 
 extern ble_hrs_t                         m_hrs;                                      /**< Structure used to identify the heart rate service. */
 
