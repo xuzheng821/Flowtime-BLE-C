@@ -936,6 +936,9 @@ int main(void)
 			  err_code = ble_advertising_start(BLE_ADV_MODE_FAST);
         APP_ERROR_CHECK(err_code);
 		}
+		
+		err_code = twi_master_init();
+		APP_ERROR_CHECK(err_code);
 
 		while(1)
     {

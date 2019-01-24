@@ -75,19 +75,17 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 				    Into_System_test_mode = true;							 
 						break;
 			 
-			 case App_Nap_Start1291:             
-				    if(ads1291_is_init == false && pps964_is_init == false) 
+			 case App_Nap_Start1291:		 
+				    if(ads1291_is_init == false) 
 						{
 								ads1291_init();	
-            		pps960_init();
 						}							 
 						break;
 									
 			 case App_Nap_Stop1291: 
-				    if(ads1291_is_init == true && pps964_is_init == true) 
+				    if(ads1291_is_init == true) 
 						{
 								ADS1291_disable();
-								pps960_disable();
 						}							 
 						break;	
 
@@ -104,7 +102,29 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 								pps960_disable();
 						}							 
 						break;	
-																
+
+			 case App_Nap_StartALL:		 
+				    if(ads1291_is_init == false) 
+						{
+								ads1291_init();	
+						}	
+				    if(pps964_is_init == false) 
+						{
+								pps960_init();
+						}								
+						break;
+									
+			 case App_Nap_StopALL: 
+				    if(ads1291_is_init == true) 
+						{
+								ADS1291_disable();
+						}	
+				    if(pps964_is_init == true) 
+						{
+								pps960_disable();
+						}							
+						break;	
+						
 			 case App_Nap_write_deviceid : 
 				    if(Into_System_test_mode)
 						{

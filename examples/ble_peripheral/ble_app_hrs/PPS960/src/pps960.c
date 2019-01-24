@@ -73,10 +73,6 @@ void pps960_disable(void)
 	pps960_alg_timer_stop();
 	nrf_gpio_cfg_output(PPS_EN_PIN);
 	nrf_gpio_pin_write(PPS_EN_PIN, 0);
-	nrf_drv_twi_uninit(&m_twi_master);
-	nrf_drv_twi_disable(&m_twi_master);
-	nrf_gpio_cfg_input(TWI_SCL_M,NRF_GPIO_PIN_PULLUP);
-	nrf_gpio_cfg_input(TWI_SDA_M,NRF_GPIO_PIN_PULLUP);
 	SEGGER_RTT_printf(0," pps964_is_init:%d \n",__FPU_USED);
 	#if (__FPU_USED == 1)
   __set_FPSCR(__get_FPSCR() & ~(0x0000009F)); 
@@ -87,12 +83,9 @@ void pps960_disable(void)
 
 void pps960_init(void)
 {
-		uint32_t err_code = twi_master_init();
-		APP_ERROR_CHECK(err_code);	
-
 	  nrf_gpio_cfg_output(PPS_EN_PIN);
 	  nrf_gpio_pin_write(PPS_EN_PIN, 1);
-	  PPS_DELAY_MS(1000);
+	  PPS_DELAY_MS(200);
 	  nrf_gpio_pin_write(PPS_REST_PIN, 0);//low
     PPS_DELAY_MS(30);
 		nrf_gpio_pin_write(PPS_REST_PIN, 1);//high
