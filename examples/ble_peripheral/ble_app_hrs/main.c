@@ -128,6 +128,7 @@ static dm_application_instance_t         m_app_handle;                          
 //eeg数据传输变量与标志位
 extern bool ads1291_is_init;             //1291初始化标志位
 extern bool pps964_is_init;              //PPS964是否初始化
+extern uint8_t PPS960_readReg_faile;
 //连接状态标志位
 extern bool Is_white_adv;                //是否白名单广播
 extern bool ID_is_change;                //接收到的ID与原先ID不同，可能需要更新绑定ID
@@ -982,6 +983,14 @@ int main(void)
 				  StorySN = false;
 				  Story_SN();
 			}
+			if(pps964_is_init && PPS960_readReg_faile == 1)
+			{
+				  SEGGER_RTT_printf(0," PPS960_readReg_faile %d\n",PPS960_readReg_faile);
+				  pps960_disable();
+				  pps960_init();
+				  PPS960_readReg_faile = 0;
+			}
+
 		  power_manage();
     }
 }

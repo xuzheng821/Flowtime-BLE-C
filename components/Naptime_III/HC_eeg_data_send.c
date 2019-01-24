@@ -10,7 +10,7 @@ uint16_t data_len = 540;             //发送数据总长度
 uint16_t m_data_left_to_send = 0;    //剩余需要发送的数据长度
 static uint8_t Data_send[20];        //发送数据缓存
 static uint8_t m_ble_pl_len = 18;    //每一次发送数据长度
-static uint8_t Num_Time = 0;         //帧头
+static uint16_t Num_Time = 0;         //帧头
 //static bool m_data_q;              //发送成功True
 extern uint8_t EEG_DATA_SEND[750];   //需要发送的数据
 extern bool Global_connected_state;

@@ -73,8 +73,6 @@
 #define FALSE 0
 
 unsigned char Slave_address = 0x58<<1;
-extern uint16_t lifeHR;
-extern uint16_t lifeskin;
 
 extern int8_t HR_HRV_enable;//0=>HR;1=>HRV;2=>HR+HRV;
 uint8_t green_led_on_flag=0;
@@ -2079,28 +2077,7 @@ void ALGSH_retrieveSamplesAndPushToQueue(void)
         LEDA1buffer[tmphead] = afe_struct1.afeMeasALED1;
         LED2buffer[tmphead] = afe_struct1.afeMeasLED2;
         LEDA2buffer[tmphead] = afe_struct1.afeMeasALED2;
-//				app_uart_put(0x4F);
-//			  printf("%d\r\n",afe_32bit_RAW_struct1.afeMeasLED1);
-//				app_uart_put(0x4F);
-//				printf("%d\r\n",afe_32bit_RAW_struct1.afeMeasALED1);
-//				app_uart_put(0x4F);
-//				printf("%d\r\n",afe_32bit_RAW_struct1.afeMeasLED2);
-//				app_uart_put(0xAA);
-//				app_uart_put(0xAA);
-//				app_uart_put(lifeHR);
-//				app_uart_put(lifeskin);
-//				app_uart_put(afe_32bit_RAW_struct1.afeMeasLED1 >> 16);
-//				app_uart_put(afe_32bit_RAW_struct1.afeMeasLED1 >> 8 & 0xff);
-//				app_uart_put(afe_32bit_RAW_struct1.afeMeasLED1 & 0xff);
-//				app_uart_put(afe_32bit_RAW_struct1.afeMeasALED1 >> 16);
-//				app_uart_put(afe_32bit_RAW_struct1.afeMeasALED1 >> 8 & 0xff);
-//				app_uart_put(afe_32bit_RAW_struct1.afeMeasALED1 & 0xff);
-//				app_uart_put(afe_32bit_RAW_struct1.afeMeasLED2 >> 16);
-//				app_uart_put(afe_32bit_RAW_struct1.afeMeasLED2 >> 8 & 0xff);
-//				app_uart_put(afe_32bit_RAW_struct1.afeMeasLED2 & 0xff);
-//				app_uart_put(0xFF);
-//				app_uart_put(0xFF);
-				
+		
 				
 //NRF_LOG_DEBUG("LED1 %d\r\n",LED1buffer[tmphead]);
 //        AccXbuff[tmphead] = specificForces.accX;
