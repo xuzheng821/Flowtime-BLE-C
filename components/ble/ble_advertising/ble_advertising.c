@@ -334,44 +334,44 @@ uint32_t ble_advertising_start(ble_adv_mode_t advertising_mode)
             adv_params.timeout  = m_adv_modes_config.ble_adv_fast_timeout;
             adv_params.interval = m_adv_modes_config.ble_adv_fast_interval;
 
-            if ( Is_white_adv ) //被绑定
-            {
+//            if ( Is_white_adv ) //被绑定
+//            {
                 m_adv_evt = BLE_ADV_EVT_WITH_WHITELIST;
 							  if(RTT_PRINT)
 								{
 										SEGGER_RTT_printf(0,"[ADV]: Starting fast advertisement with whitelist.\r\n");
 								}
-            }
-            else
-            {
-                m_adv_evt = BLE_ADV_EVT_WITHOUT_WHITELIST;
-							  if(RTT_PRINT)
-								{
-										SEGGER_RTT_printf(0,"[ADV]: Starting fast advertisement.\r\n");
-								}
-            }
+//            }
+//            else
+//            {
+//                m_adv_evt = BLE_ADV_EVT_WITHOUT_WHITELIST;
+//							  if(RTT_PRINT)
+//								{
+//										SEGGER_RTT_printf(0,"[ADV]: Starting fast advertisement.\r\n");
+//								}
+//            }
             break;
 
         case BLE_ADV_MODE_SLOW:
             adv_params.interval = m_adv_modes_config.ble_adv_slow_interval;
             adv_params.timeout  = m_adv_modes_config.ble_adv_slow_timeout;
 
-            if ( Is_device_bond ) //被绑定
-            {
+//            if ( Is_device_bond ) //被绑定
+//            {
                 m_adv_evt = BLE_ADV_EVT_WITH_WHITELIST_SLOW;
 							  if(RTT_PRINT)
 								{
 										SEGGER_RTT_printf(0,"[ADV]: Starting slow advertisement with whitelist.\r\n");
 								}
-            }
-            else
-            {
-                m_adv_evt = BLE_ADV_EVT_IDLE;
-							  if(RTT_PRINT)
-								{
-										SEGGER_RTT_printf(0,"[ADV]: stop advertisement.\r\n");
-								}
-            }
+//            }
+//            else
+//            {
+//                m_adv_evt = BLE_ADV_EVT_IDLE;
+//							  if(RTT_PRINT)
+//								{
+//										SEGGER_RTT_printf(0,"[ADV]: stop advertisement.\r\n");
+//								}
+//            }
             break;
 
         default:

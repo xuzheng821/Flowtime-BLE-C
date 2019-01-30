@@ -1,0 +1,10 @@
+diff a/examples/ble_peripheral/ble_app_hrs/main.c b/examples/ble_peripheral/ble_app_hrs/main.c	(rejected hunks)
+@@ -397,7 +397,7 @@
+ 
+ static void gpio_reset(void)
+ {
+-    while(nrf_gpio_pin_read(BUTTON) == 0)   //�����ɿ��Ž�������
++  	while(nrf_gpio_pin_read(BUTTON) == 0)   //�����ɿ��Ž�������
+     {
+ 			 nrf_drv_wdt_channel_feed(m_channel_id);
+ 			 nrf_delay_ms(100);

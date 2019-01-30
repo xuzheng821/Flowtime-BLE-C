@@ -686,7 +686,8 @@ void button_event_handler(button_event_t event)
 				     break;
 						 
 				case BUTTON_EVENT_POWER_ON:
-             button_timer_stop();					
+             button_timer_stop();		
+						 power_led();
 						 if(RTT_PRINT)
 						 {
 								SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_ON \n");
@@ -702,6 +703,7 @@ void button_event_handler(button_event_t event)
 						 }
 						 err_code = bsp_led_indication(BSP_INDICATE_IDLE);
              APP_ERROR_CHECK(err_code);
+						 power_led();
 						 sleep_mode_enter();
 				     break;
 				

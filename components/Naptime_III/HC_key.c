@@ -68,21 +68,22 @@ void buttons_state_update(void)
 						{
 								SEGGER_RTT_printf(0," push_event \r\n");
 						}
+						button_timer_stop();
 					  button_event = m_buttin_events.push_event;
 						button_event_handler(button_event);
 						return;
 				 }
-         else if(key_tigger_num == 4000/Key_detection_interval)	
-				 {
-					  if(RTT_PRINT)
-						{
-								SEGGER_RTT_printf(0," long_push_event \r\n");
-						}
-	          button_timer_stop();
-					  button_event = m_buttin_events.long_push_event;
-						button_event_handler(button_event);
-						return;
-				 }					 
+//         else if(key_tigger_num == 4000/Key_detection_interval)	
+//				 {
+//					  if(RTT_PRINT)
+//						{
+//								SEGGER_RTT_printf(0," long_push_event \r\n");
+//						}
+//	          button_timer_stop();
+//					  button_event = m_buttin_events.long_push_event;
+//						button_event_handler(button_event);
+//						return;
+//				 }					 
 		}
 		else  //松开 
 		{
@@ -141,13 +142,13 @@ void pairing_buttons_configure(void)     //快速广播下按键功能
 				SEGGER_RTT_printf(0,"\rpairing_buttons_configure \r\n");
 		}
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_TIGGER,
-                                      BUTTON_EVENT_IDLE);
+                                      BUTTON_EVENT_LEDSTATE);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_PUSH,
-                                      BUTTON_EVENT_IDLE);
+                                      BUTTON_EVENT_POWER_OFF);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
-                                      BUTTON_EVENT_POWER_OFF);
+                                      BUTTON_EVENT_IDLE);
 }
 
 void advertising_buttons_configure(void)  //白名单广播下按键功能
@@ -160,10 +161,10 @@ void advertising_buttons_configure(void)  //白名单广播下按键功能
                                       BUTTON_EVENT_LEDSTATE);  
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_PUSH,
-                                      BUTTON_EVENT_WHITELIST_OFF);
+                                      BUTTON_EVENT_POWER_OFF);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
-                                      BUTTON_EVENT_POWER_OFF);
+                                      BUTTON_EVENT_IDLE);
 }
 
 void connection_buttons_configure(void)   //已连接状态按键功能
@@ -176,10 +177,10 @@ void connection_buttons_configure(void)   //已连接状态按键功能
                                       BUTTON_EVENT_LEDSTATE);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_PUSH,
-                                      BUTTON_EVENT_DISCONNECT);
+                                      BUTTON_EVENT_POWER_OFF);
 
 	  bsp_event_to_button_action_assign(BUTTON_ACTION_LONG_PUSH,
-                                      BUTTON_EVENT_POWER_OFF);
+                                      BUTTON_EVENT_IDLE);
 }
 
 uint32_t bsp_wakeup_buttons_set(void)        //休眠唤醒按键配置

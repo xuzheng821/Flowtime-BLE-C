@@ -30,5 +30,6 @@ typedef enum
 void LED_timeout_restart(void);
 uint32_t bsp_led_indication(led_indication_t indicate);
 void leds_state_update(void);
+void power_led(void);
 
 #endif 

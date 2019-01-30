@@ -1,2 +1,1 @@
-# Naptime_3_BLE
-naptime_3 soft
+# 冥想固件代码, 开放所有服务, 使用手机app连接

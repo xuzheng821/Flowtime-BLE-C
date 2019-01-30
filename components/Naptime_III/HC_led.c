@@ -176,3 +176,16 @@ void leds_state_update(void)                             //LED超时定时器回调函数
     err_code = bsp_led_indication(BSP_INDICATE_IDLE);
     APP_ERROR_CHECK(err_code);
 }
+
+void power_led(void)
+{
+	 nrf_gpio_cfg_output(LED_GPIO_BLUE);
+	 NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
+	 nrf_delay_ms(100);
+	 NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
+	 nrf_delay_ms(100);
+	 NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
+	 nrf_delay_ms(100);
+	 NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
+	 nrf_delay_ms(500);
+}
