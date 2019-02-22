@@ -51,13 +51,13 @@ void uart_event_handle(app_uart_evt_t * p_event)
              uart_data_Analysis(uart_data);
              break;
 
-        case APP_UART_COMMUNICATION_ERROR:
-            APP_ERROR_HANDLER(p_event->data.error_communication);
-            break;
+//        case APP_UART_COMMUNICATION_ERROR:
+//            APP_ERROR_HANDLER(p_event->data.error_communication);
+//            break;
 
-        case APP_UART_FIFO_ERROR:
-            APP_ERROR_HANDLER(p_event->data.error_code);
-            break;
+//        case APP_UART_FIFO_ERROR:
+//            APP_ERROR_HANDLER(p_event->data.error_code);
+//            break;
 
         default:
             break;
