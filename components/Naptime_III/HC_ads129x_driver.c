@@ -69,7 +69,7 @@ void ADS_init(void)
     ADS_Config1.LOFF.Value |= ADS_COMP_TH(0) + ADS_ILEAD_OFF(1);//
     ADS_Config1.CH1SET.Value |=ADS_GAIN1(6)+ADS_MUX1(0);
 	  ADS_Config1.CH2SET.Value |=ADS_GAIN1(6)+ADS_MUX1(0);
-    ADS_Config1.RLD_SENS.Value |= ADS_RLD_LOFF_SENS + ADS_CHOP(0)  + ADS_PDB_RLD + ADS_RLD1N + ADS_RLD1P + ADS_RLD2N + ADS_RLD2P;//
+    ADS_Config1.RLD_SENS.Value |= ADS_RLD_LOFF_SENS + ADS_CHOP(0) + ADS_PDB_RLD + ADS_RLD1N + ADS_RLD1P + ADS_RLD2N + ADS_RLD2P;//
     ADS_Config1.LOFF_SENS.Value |=  ADS_FLIP1 +ADS_LOFF1N + ADS_LOFF1P + ADS_FLIP2 +ADS_LOFF2N + ADS_LOFF2P;//NULL
     ADS_Config1.LOFF_STAT.Value |= NULL;
     ADS_Config1.RESP1.Value |= NULL;
@@ -176,7 +176,7 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
        if(Data_Num == data_len / 6 && m_data_left_to_send == 0)  
 	     {
 					LOFF_State = ((Rx[0]<<4) & 0x70) | ((Rx[1] & 0x80)>>4);
-					ble_state_send(LOFF_State);	
+					ble_state_send(LOFF_State);	  //loff state send
 				  
 			    Data_Num = 0;
 			    memcpy(EEG_DATA_SEND,ADCData1,data_len);			
