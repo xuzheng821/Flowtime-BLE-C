@@ -12,69 +12,69 @@
 #ifndef NAPTIME_III_H
 #define NAPTIME_III_H
 
-#define AEF_RDRDY           19
-#define SPI_MISO_PIN        26
-#define SPI_CLK_PIN         11
-#define SPI_MOSI_PIN        28
-#define SPI_CS_PIN          29 /**< SPI CS Pin.*/
-#define AEF_MAIN_CLK        4
-#define AEF_START           30
-#define AEF_RESET           25
-#define AEF_MAIN_CLKSEL     27
+//#define AEF_RDRDY           19
+//#define SPI_MISO_PIN        26
+//#define SPI_CLK_PIN         11
+//#define SPI_MOSI_PIN        28
+//#define SPI_CS_PIN          29 /**< SPI CS Pin.*/
+//#define AEF_MAIN_CLK        4
+//#define AEF_START           30
+//#define AEF_RESET           25
+//#define AEF_MAIN_CLKSEL     27
 
-#define PPS_EN_PIN          9
-#define TWI_SCL_M           10
-#define PPS_REST_PIN        13
-#define TWI_SDA_M           12
-
-#define AEF_PM_EN           31
-#define BQ_PG               17
-#define BQ_CHG              15
-#define BUTTON              18
-#define TX_PIN_NUMBER       23
-#define RX_PIN_NUMBER       22
-
-#define CTS_PIN_NUMBER      23  //11
-#define RTS_PIN_NUMBER      24  //12
-
-#define TPS_CTRL            2
-#define FACTORY_TEST        8
-#define LED_GPIO_GREEN      6
-#define LED_GPIO_RED        5 
-#define LED_GPIO_BLUE       7 
-#define ADC_VBAT            3
-
-//#define AEF_RDRDY           2
-//#define SPI_MISO_PIN        3
-//#define SPI_CLK_PIN         4
-//#define SPI_MOSI_PIN        5
-//#define SPI_CS_PIN          6 /**< SPI CS Pin.*/
-//#define AEF_MAIN_CLK        7
-//#define AEF_START           8
-//#define AEF_RESET           9
-//#define AEF_MAIN_CLKSEL     10
-
-//#define PPS_EN_PIN          11
-//#define TWI_SCL_M           12
+//#define PPS_EN_PIN          9
+//#define TWI_SCL_M           10
 //#define PPS_REST_PIN        13
-//#define TWI_SDA_M           14
+//#define TWI_SDA_M           12
 
-//#define AEF_PM_EN           15
-//#define BQ_PG               16
-//#define BQ_CHG              17
+//#define AEF_PM_EN           31
+//#define BQ_PG               17
+//#define BQ_CHG              15
 //#define BUTTON              18
-//#define TX_PIN_NUMBER       19
-//#define RX_PIN_NUMBER       20
+//#define TX_PIN_NUMBER       23
+//#define RX_PIN_NUMBER       22
 
 //#define CTS_PIN_NUMBER      23  //11
 //#define RTS_PIN_NUMBER      24  //12
 
-//#define TPS_CTRL            25
-//#define FACTORY_TEST        26 
-//#define LED_GPIO_GREEN      27
-//#define LED_GPIO_RED        28 
-//#define LED_GPIO_BLUE       29 
-//#define ADC_VBAT            30
+//#define TPS_CTRL            2
+//#define FACTORY_TEST        8
+//#define LED_GPIO_GREEN      6
+//#define LED_GPIO_RED        5 
+//#define LED_GPIO_BLUE       7 
+//#define ADC_VBAT            3
+
+#define AEF_RDRDY           2
+#define SPI_MISO_PIN        3
+#define SPI_CLK_PIN         4
+#define SPI_MOSI_PIN        5
+#define SPI_CS_PIN          6 /**< SPI CS Pin.*/
+#define AEF_MAIN_CLK        7
+#define AEF_START           8
+#define AEF_RESET           9
+#define AEF_MAIN_CLKSEL     10
+
+#define PPS_EN_PIN          11
+#define TWI_SCL_M           12
+#define PPS_REST_PIN        13
+#define TWI_SDA_M           14
+
+#define AEF_PM_EN           15
+#define BQ_PG               16
+#define BQ_CHG              17
+#define BUTTON              18
+#define TX_PIN_NUMBER       19
+#define RX_PIN_NUMBER       20
+
+#define CTS_PIN_NUMBER      23  //11
+#define RTS_PIN_NUMBER      24  //12
+
+#define TPS_CTRL            25
+#define FACTORY_TEST        26 
+#define LED_GPIO_GREEN      27
+#define LED_GPIO_RED        28 
+#define LED_GPIO_BLUE       29 
+#define ADC_VBAT            30
 
 
 #define HWFC                true

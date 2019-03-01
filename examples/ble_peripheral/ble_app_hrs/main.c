@@ -153,7 +153,7 @@ extern nrf_drv_wdt_channel_id            m_channel_id;
 //广播状态
 bool ble_is_adv = false;                 //设备是否开启广播
 //广播UUID
-#define BLE_UUID_Naptime_Profile 0xFF10
+#define BLE_UUID_Naptime_Profile 0xFF00
 static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_Naptime_Profile, BLE_UUID_TYPE_VENDOR_BEGIN}}; /**< Universally unique service identifiers. */
 
 /**@brief Function for the GAP initialization.
