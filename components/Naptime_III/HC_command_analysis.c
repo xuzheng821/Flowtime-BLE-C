@@ -146,7 +146,7 @@ void Handshake_agreement_third(uint8_t * p_data)
 		 {
 			  communocate_state[4] = 0x00;                        //Œ’ ÷≥…π¶
 			  memcpy(User_ID,ID_receive_buff, 4);
-			  Is_white_adv  = true;
+			  Is_white_adv  = false;
 			  connects_timer_stop();
 			  Global_connected_state = true;
 			  if(RTT_PRINT)
