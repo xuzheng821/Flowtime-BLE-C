@@ -103,7 +103,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						{
 			          LED_ON_duty(0,0,70);  
 						}
-						ledFlips_timer_start(100);
+						ledFlips_timer_start(500);
             m_stable_state = indicate;		    //记录当前led状态	      
 				    break;
 						
@@ -116,7 +116,7 @@ uint32_t bsp_led_indication(led_indication_t indicate)
 						{
 			          LED_ON_duty(40,0,0);  
 						}
-						ledFlips_timer_start(100);
+						ledFlips_timer_start(500);
             m_stable_state = indicate;		    //记录当前led状态	      
 				    break;
 
@@ -175,17 +175,4 @@ void leds_state_update(void)                             //LED超时定时器回调函数
 		}
     err_code = bsp_led_indication(BSP_INDICATE_IDLE);
     APP_ERROR_CHECK(err_code);
-}
-
-void power_led(void)
-{
-	 nrf_gpio_cfg_output(LED_GPIO_BLUE);
-	 NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
-	 nrf_delay_ms(100);
-	 NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
-	 nrf_delay_ms(100);
-	 NRF_GPIO->OUTSET = 1<<LED_GPIO_BLUE;
-	 nrf_delay_ms(100);
-	 NRF_GPIO->OUTCLR = 1<<LED_GPIO_BLUE;
-	 nrf_delay_ms(500);
 }

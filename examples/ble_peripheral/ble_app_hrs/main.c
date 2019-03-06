@@ -686,8 +686,7 @@ void button_event_handler(button_event_t event)
 				     break;
 						 
 				case BUTTON_EVENT_POWER_ON:
-             button_timer_stop();		
-						 power_led();
+             button_timer_stop();					
 						 if(RTT_PRINT)
 						 {
 								SEGGER_RTT_printf(0," BUTTON_EVENT_POWER_ON \n");
@@ -703,7 +702,6 @@ void button_event_handler(button_event_t event)
 						 }
 						 err_code = bsp_led_indication(BSP_INDICATE_IDLE);
              APP_ERROR_CHECK(err_code);
-						 power_led();
 						 sleep_mode_enter();
 				     break;
 				
@@ -966,7 +964,7 @@ int main(void)
 			     Story_User_ID();
 				   communocate_state[4] = 0xFF;
 				   Read_User_ID();	
-					 Is_white_adv = true;
+					 Is_white_adv = false;
 			}
 			if(deleteUserid)
 			{
