@@ -29,7 +29,6 @@ void ble_send_data(void)
 {
     uint32_t err_code;  
     m_data_left_to_send = data_len;
-	  Hrs_data_is_ok = 2;
 	  
 		Data_send[0] = Num_Time >> 8;    //添加帧头--2个字节
 		Data_send[1] = Num_Time & 0xFF;

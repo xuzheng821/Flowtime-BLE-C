@@ -3,8 +3,9 @@
 extern ble_eeg_t                   m_eeg;                                      /**< Structure used to identify the heart rate service. */
 
 static uint8_t ADCData1[750];
-static uint8_t Data_Num;             //采集数据到250个触发发送函数
+static uint16_t Data_Num;             //采集数据到250个触发发送函数
 static ADS_ConfigDef ADS_Config1;
+extern uint8_t Hrs_data_is_ok;
 
 uint8_t EEG_DATA_SEND[750];
 bool ads1291_is_init = false; //1291是否初始化完成标志位
@@ -158,6 +159,7 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
   	   uint32_t ADCData11,ADCData22;
 	     uint8_t Data[6];
 		   uint8_t LOFF_State = 0;
+			 static uint16_t hr_num = 0;
 
        ADS_ReadData(Rx,9);
 	     ADCData11 = ((Rx[3]*0xFFFFFF)+(Rx[4]*0xFFFF)+Rx[5]*0xFF+0x80000000)>>8;
@@ -172,6 +174,14 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 		   memcpy((ADCData1 + Data_Num * 6),Data,6);
 			 
 		   Data_Num ++;
+			 hr_num ++;
+			
+			 if(hr_num == 200)
+			 {
+				 Hrs_data_is_ok = 1;
+				 hr_num = 0;
+			 }
+					
 
        if(Data_Num == data_len / 6 && m_data_left_to_send == 0)  
 	     {
