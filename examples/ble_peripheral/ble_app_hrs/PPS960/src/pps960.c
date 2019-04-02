@@ -114,24 +114,24 @@ void pps960_sensor_task2(void *params)
 						{
 							lifeQhrm = 0;
 						}
-						Hrs_data_is_ok = 1;
+//						Hrs_data_is_ok = 1;
 						SEGGER_RTT_printf(0,"%d HR=%d snr=%d spl=%d skin=%d\r\n",cnt,lifeQhrm,snrValue,sample,skin);
 
-						err_code = ble_HRS_DATA_send(&m_hrs, lifeQhrm , 1);
-						if (err_code == BLE_ERROR_NO_TX_PACKETS ||
-							err_code == NRF_ERROR_INVALID_STATE || 
-							err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
-							{
-								 return;
-							}
-						else if (err_code == NRF_SUCCESS) 
-						{
-							Hrs_data_is_ok = 0;
-						}
-						else 
-						{
-							APP_ERROR_CHECK(err_code);
-						}
+//						err_code = ble_HRS_DATA_send(&m_hrs, lifeQhrm , 1);
+//						if (err_code == BLE_ERROR_NO_TX_PACKETS ||
+//							err_code == NRF_ERROR_INVALID_STATE || 
+//							err_code == BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+//							{
+//								 return;
+//							}
+//						else if (err_code == NRF_SUCCESS) 
+//						{
+//							Hrs_data_is_ok = 0;
+//						}
+//						else 
+//						{
+//							APP_ERROR_CHECK(err_code);
+//						}
 		}
 }
 

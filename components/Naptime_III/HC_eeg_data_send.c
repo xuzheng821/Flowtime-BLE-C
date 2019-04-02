@@ -6,7 +6,7 @@ ble_com_t               m_com;                                     /**< Structur
 ble_hrs_t               m_hrs;                                     /**< Structure to identify the Nordic UART Service. */
 
 /*******************数据吞吐量测试*********************/
-uint16_t data_len = 540;             //发送数据总长度
+uint16_t data_len = 600;             //发送数据总长度
 uint16_t m_data_left_to_send = 0;    //剩余需要发送的数据长度
 static uint8_t Data_send[20];        //发送数据缓存
 static uint8_t m_ble_pl_len = 18;    //每一次发送数据长度
@@ -29,6 +29,7 @@ void ble_send_data(void)
 {
     uint32_t err_code;  
     m_data_left_to_send = data_len;
+	  Hrs_data_is_ok = 2;
 	  
 		Data_send[0] = Num_Time >> 8;    //添加帧头--2个字节
 		Data_send[1] = Num_Time & 0xFF;
@@ -177,7 +178,7 @@ void ble_send_more_data(void)
 		}
 		else if (err_code == NRF_SUCCESS) 
 		{
-		    Hrs_data_is_ok = 0;
+		    Hrs_data_is_ok -= 1;
 		}
 		else
 		{
