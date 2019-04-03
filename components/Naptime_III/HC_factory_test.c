@@ -125,6 +125,22 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						}							
 						break;	
 						
+			 case App_Nap_StartLOFF: 
+				    if(ads1291_is_init == true) 
+						{
+								ADS1291_disable();
+							  ads1291_init();
+						}	
+						break;
+						
+			 case App_Nap_StopLOFF: 
+				    if(ads1291_is_init == true) 
+						{
+								ADS1291_disable();
+							  ads1291_init_withoutloff();
+						}							
+						break;	
+						
 			 case App_Nap_write_deviceid : 
 				    if(Into_System_test_mode)
 						{

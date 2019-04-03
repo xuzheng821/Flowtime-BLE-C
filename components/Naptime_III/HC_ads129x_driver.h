@@ -129,6 +129,8 @@ typedef struct {
 }ADS_ConfigDef;
 
 extern void ads1291_init(void);
+extern void ADS_init_without_loff(void);
+extern void ads1291_init_withoutloff(void);
 extern void ADS_ReadStatue(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size);
 extern void ADS_Setting(uint8_t REG,uint8_t Num,uint8_t *pData,uint8_t Size );
 extern void ADS_Command(uint8_t CMD);

@@ -27,6 +27,8 @@
 #define App_Nap_Stop964               0x04
 #define App_Nap_StartALL              0x05
 #define App_Nap_StopALL               0x06
+#define App_Nap_StartLOFF             0x07
+#define App_Nap_StopLOFF              0x08
 #define App_Nap_SystemTest            0x48
 #define App_Nap_Disconnect            0x49
 

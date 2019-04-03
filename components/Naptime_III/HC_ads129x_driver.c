@@ -62,6 +62,41 @@ void ads1291_init(void)
 		ads1291_is_init = true;
 }
 
+void ads1291_init_withoutloff(void)
+{
+	  nrf_gpio_cfg_output(AEF_PM_EN);
+	  NRF_GPIO->OUTSET = 1<<AEF_PM_EN;
+	  nrf_delay_ms(50);
+	
+    nrf_gpio_cfg_output(AEF_START);
+    nrf_gpio_cfg_output(AEF_RESET);
+    nrf_gpio_cfg_output(AEF_MAIN_CLKSEL);
+    nrf_gpio_cfg_input(AEF_RDRDY,NRF_GPIO_PIN_PULLUP);
+	
+	  nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG(SPI_INSTANCE);
+    spi_config.ss_pin = SPI_CS_PIN;
+    APP_ERROR_CHECK(nrf_drv_spi_init(&spi, &spi_config, NULL));
+
+	  ADS_PIN_Mainclksel_H();
+	  nrf_delay_ms(100);
+  	ADS_PIN_Reset_H();
+  	nrf_delay_ms(1000);
+	  ADS_PIN_Reset_L();
+	  nrf_delay_ms(10);
+	  ADS_PIN_Reset_H();
+	  ADS_PIN_Start_L();
+    nrf_delay_ms(10);
+  	ADS_Command(ADS_SDATAC);
+  	ADS_init_without_loff();
+		ADS_PIN_Start_H();	
+	  ADS_Command(ADS_RDATAC);	
+		
+		gpiote_init();
+		Data_Num = 0;
+		m_data_left_to_send = 0;
+		ads1291_is_init = true;
+}
+
 void ADS_init(void)
 {
     ADS_Config_Init(&ADS_Config1);
@@ -72,6 +107,23 @@ void ADS_init(void)
 	  ADS_Config1.CH2SET.Value |=ADS_GAIN1(6)+ADS_MUX1(0);
     ADS_Config1.RLD_SENS.Value |= ADS_RLD_LOFF_SENS + ADS_CHOP(0) + ADS_PDB_RLD + ADS_RLD1N + ADS_RLD1P + ADS_RLD2N + ADS_RLD2P;//
     ADS_Config1.LOFF_SENS.Value |=  ADS_FLIP1 +ADS_LOFF1N + ADS_LOFF1P + ADS_FLIP2 +ADS_LOFF2N + ADS_LOFF2P;//NULL
+    ADS_Config1.LOFF_STAT.Value |= NULL;
+    ADS_Config1.RESP1.Value |= NULL;
+    ADS_Config1.RESP2.Value |= ADS_RLDREF_INT ;//+ ADS_CALIB_ON
+    ADS_Config1.GPIO.Value |= NULL;
+    ADS_Config(&ADS_Config1);
+}
+
+void ADS_init_without_loff(void)
+{
+    ADS_Config_Init(&ADS_Config1);
+	  ADS_Config1.CONFIG1.Value = ADS_DR(1);
+    ADS_Config1.CONFIG2.Value |= ADS_PDB_LOFF_COMP + ADS_PDB_REFBUF ;//+ ADS_INT_TEST + ADS_TEST_FREQ 
+    ADS_Config1.LOFF.Value |= ADS_COMP_TH(0) + ADS_ILEAD_OFF(1);//
+    ADS_Config1.CH1SET.Value |=ADS_GAIN1(6)+ADS_MUX1(0);
+	  ADS_Config1.CH2SET.Value |=ADS_GAIN1(6)+ADS_MUX1(0);
+    ADS_Config1.RLD_SENS.Value |= ADS_CHOP(0) + ADS_PDB_RLD + ADS_RLD1N + ADS_RLD1P + ADS_RLD2N + ADS_RLD2P;//
+    ADS_Config1.LOFF_SENS.Value |=  NULL;
     ADS_Config1.LOFF_STAT.Value |= NULL;
     ADS_Config1.RESP1.Value |= NULL;
     ADS_Config1.RESP2.Value |= ADS_RLDREF_INT ;//+ ADS_CALIB_ON
@@ -178,7 +230,7 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 			
 			 if(hr_num == 200)
 			 {
-				 Hrs_data_is_ok = 1;
+				 Hrs_data_is_ok += 1;
 				 hr_num = 0;
 			 }
 					

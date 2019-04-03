@@ -177,7 +177,7 @@ void ble_send_more_data(void)
 		}
 		else if (err_code == NRF_SUCCESS) 
 		{
-		    Hrs_data_is_ok = 0;
+		    Hrs_data_is_ok -= 1;
 		}
 		else
 		{
