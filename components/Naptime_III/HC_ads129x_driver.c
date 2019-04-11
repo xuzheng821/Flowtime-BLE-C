@@ -228,7 +228,7 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 		   Data_Num ++;
 			 hr_num ++;
 			
-			 if(hr_num == 200)
+			 if(hr_num == 50)
 			 {
 				 Hrs_data_is_ok += 1;
 				 hr_num = 0;
