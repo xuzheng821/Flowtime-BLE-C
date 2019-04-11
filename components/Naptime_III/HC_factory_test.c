@@ -131,6 +131,10 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 								ADS1291_disable();
 							  ads1291_init();
 						}	
+						else
+						{
+							  ads1291_init();
+						}
 						break;
 						
 			 case App_Nap_StopLOFF: 
@@ -138,7 +142,11 @@ void App_Nap_data_Analysis(uint8_t *pdata)
 						{
 								ADS1291_disable();
 							  ads1291_init_withoutloff();
-						}							
+						}	
+						else
+						{
+							  ads1291_init_withoutloff();
+						}
 						break;	
 						
 			 case App_Nap_write_deviceid : 

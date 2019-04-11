@@ -9,6 +9,7 @@ extern uint8_t Hrs_data_is_ok;
 
 uint8_t EEG_DATA_SEND[750];
 bool ads1291_is_init = false; //1291是否初始化完成标志位
+bool is_loff_on = false;
 
 extern uint16_t data_len;     //发送数据长度
 extern uint16_t m_data_left_to_send;
@@ -25,6 +26,7 @@ void ADS1291_disable(void)
 	  nrf_drv_gpiote_in_uninit(AEF_RDRDY);
 	  m_data_left_to_send = 0;
 	  m_eeg.last_state = 0x24;
+		is_loff_on = false;
 }
 
 void ads1291_init(void)
@@ -60,6 +62,7 @@ void ads1291_init(void)
 		Data_Num = 0;
 		m_data_left_to_send = 0;
 		ads1291_is_init = true;
+		is_loff_on = true;
 }
 
 void ads1291_init_withoutloff(void)
@@ -95,6 +98,7 @@ void ads1291_init_withoutloff(void)
 		Data_Num = 0;
 		m_data_left_to_send = 0;
 		ads1291_is_init = true;
+		is_loff_on = false;
 }
 
 void ADS_init(void)
@@ -238,8 +242,10 @@ void pin_event_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
        if(Data_Num == data_len / 6 && m_data_left_to_send == 0)  
 	     {
 					LOFF_State = ((Rx[0]<<4) & 0x70) | ((Rx[1] & 0x80)>>4);
-					ble_state_send(LOFF_State);	  //loff state send
-				  
+				  if(is_loff_on)
+					{
+						ble_state_send(LOFF_State);	  //loff state send
+				  }
 			    Data_Num = 0;
 			    memcpy(EEG_DATA_SEND,ADCData1,data_len);			
 				  memset(ADCData1,0,sizeof(ADCData1));
